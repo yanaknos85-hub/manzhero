@@ -1,0 +1,23 @@
+databaseChangeLog:
+    -   changeSet:
+            id: tariff_fleet/20240227-1
+            author: makarovm-d
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: change/add_ddl_tariff.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+            rollback:
+                - sql:
+                      endDelimiter: ;
+                      sql: drop table tariff_fleet.tariff
+    -   changeSet:
+            id: tariff_fleet/20240227-2
+            author: makarovm-d
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: change/add_role_search_tariff.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false

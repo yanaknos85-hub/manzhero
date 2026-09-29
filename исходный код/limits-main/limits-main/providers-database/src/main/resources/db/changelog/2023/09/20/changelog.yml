@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20230920-0900"
+      author: medvedev-ad
+      context: "TRANSPORT-16366"
+      changes:
+        - tagDatabase:
+            tag: "D-02.030.000"
+        - createIndex:
+            schemaName: limits
+            tableName: limit_spending
+            columns:
+              - column:
+                  name: limit_sharing_per_period_id
+              - column:
+                  name: limit_spending_status
+            indexName: limit_spending_limit_sharing_per_period_id_limit_spending_status_idx
+        - createIndex:
+            schemaName: limits
+            tableName: limit_spending
+            columns:
+              - column:
+                  name: limit_sharing_per_period_id
+            indexName: limits_limit_spending_limit_sharing_per_period_id_idx
+        - createIndex:
+            schemaName: limits
+            tableName: employee
+            columns:
+              - column:
+                  name: organization_id
+            indexName: limits_employee_organization_id_idx
+        - createIndex:
+            schemaName: limits
+            tableName: employee
+            columns:
+              - column:
+                  name: organization_id
+              - column:
+                  name: active
+            indexName: limits_employee_organization_id_active_idx

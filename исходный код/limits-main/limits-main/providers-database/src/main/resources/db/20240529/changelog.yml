@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20240529"
+      author: blandin-ad
+      changes:
+        - createTable:
+            schemaName: limits
+            tableName: limit_compliance
+            columns:
+              - column:
+                  name: limit_id
+                  type: uuid
+                  remarks: ID лимита
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: limit_compliance_pk
+                    nullable: false
+                    notNullConstraintName: limit_compliance_limit_id_nnc
+              - column:
+                  name: reserve_id
+                  type: uuid
+                  remarks: ID резерва
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limit_compliance_reserve_id_nnc
+      rollback:
+        - dropTable:
+            schemaName: limits
+            tableName: limit_compliance

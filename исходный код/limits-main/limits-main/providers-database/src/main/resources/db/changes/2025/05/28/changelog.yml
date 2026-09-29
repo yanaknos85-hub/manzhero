@@ -1,0 +1,146 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250528-1653"
+      author: medvedev-ad
+      context: "TRANSPORT-32758"
+      changes:
+        - tagDatabase:
+            tag: "D-04.009.000"
+        - sql:
+            dbms: postgresql
+            sql: drop materialized view limits.limit_stats_spending;
+        - sql:
+            dbms: h2
+            sql: drop view limits.limit_stats_spending;
+        - renameTable:
+            schemaName: ${schema_name}
+            oldTableName: limit_spending
+            newTableName: spendings
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: spendings
+            columnName: reservation_time
+            newDataType: timestamp with time zone
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: spendings
+            columnName: spending_time
+            newDataType: timestamp with time zone
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: spendings
+            columnName: cancel_time
+            newDataType: timestamp with time zone
+        - renameColumn:
+            schemaName: ${schema_name}
+            tableName: spendings
+            oldColumnName: limit_spending_status
+            newColumnName: status
+        - renameColumn:
+            schemaName: ${schema_name}
+            tableName: spendings
+            oldColumnName: sum_spent
+            newColumnName: spent
+        - renameColumn:
+            schemaName: ${schema_name}
+            tableName: spendings
+            oldColumnName: sum_reserved
+            newColumnName: reserved
+        - dropNotNullConstraint:
+            schemaName: ${schema_name}
+            tableName: spendings
+            columnName: author_id
+        - renameColumn:
+            schemaName: ${schema_name}
+            tableName: spendings
+            oldColumnName: author_id
+            newColumnName: _author_id
+        - sql:
+            dbms: postgresql
+            sql: >-
+              create materialized view limits.limit_stats_spending as
+              SELECT limit_stats.sharing_id,
+                  limit_stats.period_sharing_id,
+                  limit_stats.organization_id,
+                  limit_stats."year",
+                  limit_stats.transport_type,
+                  limit_stats.period,
+                  spendings.spent,
+                  spendings.request_id
+                 FROM limits.limit_stats
+                   JOIN limits.spendings ON limit_stats.period_sharing_id = spendings.limit_sharing_per_period_id
+                WHERE spendings.status::text = 'SPENT'::text AND spendings.spent > 0
+                ORDER BY limit_stats.sharing_id, limit_stats.period_sharing_id;
+        - sql:
+            dbms: h2
+            sql: create view limits.limit_stats_spending as SELECT limit_stats.sharing_id, limit_stats.period_sharing_id, limit_stats.organization_id, limit_stats."year", limit_stats.transport_type, limit_stats.period, spendings.spent, spendings.request_id FROM limits.limit_stats JOIN limits.spendings ON limit_stats.period_sharing_id = spendings.limit_sharing_per_period_id WHERE spendings.status::text = 'SPENT'::text AND spendings.spent > 0 ORDER BY limit_stats.sharing_id, limit_stats.period_sharing_id;
+      rollback:
+        - sql:
+            dbms: postgresql
+            sql: drop materialized view limits.limit_stats_spending;
+        - sql:
+            dbms: h2
+            sql: drop materialized view limits.limit_stats_spending;
+        - renameColumn:
+            schemaName: ${schema_name}
+            tableName: spendings
+            oldColumnName: _author_id
+            newColumnName: author_id
+        - addNotNullConstraint:
+            schemaName: ${schema_name}
+            tableName: spendings
+            columnName: author_id
+            constraintName: ${schema_name}_spendings_author_id_nn
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: spendings
+            columnName: reservation_time
+            newDataType: timestamp
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: spendings
+            columnName: spending_time
+            newDataType: timestamp
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: spendings
+            columnName: cancel_time
+            newDataType: timestamp
+        - renameColumn:
+            schemaName: ${schema_name}
+            tableName: spendings
+            oldColumnName: status
+            newColumnName: limit_spending_status
+        - renameColumn:
+            schemaName: ${schema_name}
+            tableName: spendings
+            oldColumnName: spent
+            newColumnName: sum_spent
+        - renameColumn:
+            schemaName: ${schema_name}
+            tableName: spendings
+            oldColumnName: reserved
+            newColumnName: sum_reserved
+        - renameTable:
+            schemaName: ${schema_name}
+            oldTableName: spending
+            newTableName: limit_spendings
+        - sql:
+            dbms: postgresql
+            sql: >-
+              create materialized view limits.limit_stats_spending as
+              SELECT limit_stats.sharing_id,
+                  limit_stats.period_sharing_id,
+                  limit_stats.organization_id,
+                  limit_stats."year",
+                  limit_stats.transport_type,
+                  limit_stats.period,
+                  limit_spending.sum_spent,
+                  limit_spending.request_id
+                 FROM limits.limit_stats
+                   JOIN limits.limit_spending ON limit_stats.period_sharing_id = limit_spending.limit_sharing_per_period_id
+                WHERE limit_spending.limit_spending_status::text = 'SPENT'::text AND limit_spending.sum_spent > 0
+                ORDER BY limit_stats.sharing_id, limit_stats.period_sharing_id;
+        - sql:
+            dbms: h2
+            sql: create view limits.limit_stats_spending as SELECT limit_stats.sharing_id, limit_stats.period_sharing_id, limit_stats.organization_id, limit_stats."year", limit_stats.transport_type, limit_stats.period, limit_spending.sum_spent, limit_spending.request_id FROM limits.limit_stats JOIN limits.limit_spending ON limit_stats.period_sharing_id = limit_spending.limit_sharing_per_period_id WHERE limit_spending.limit_spending_status::text = 'SPENT'::text AND limit_spending.sum_spent > 0 ORDER BY limit_stats.sharing_id, limit_stats.period_sharing_id;

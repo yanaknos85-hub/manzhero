@@ -1,0 +1,67 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20210607
+            author: medvedev-ad
+            changes:
+                -   createTable:
+                        schemaName: corporate
+                        tableName: contact
+                        remarks: Контактные данные
+                        columns:
+                            -   column:
+                                    name: id
+                                    type: uuid
+                                    remarks: Идентификатор
+                                    constraints:
+                                        primaryKeyName: contact_pkey
+                                        primaryKey: true
+                            -   column:
+                                    name: contact_type
+                                    type: varchar(10)
+                                    remarks: Тип контактных данных. PHONE|EMAIL|SITE
+                                    constraints:
+                                        nullable: false
+                            -   column:
+                                    name: value
+                                    type: text
+                                    remarks: Значение контактных данных
+                                    constraints:
+                                        nullable: false
+                -   createTable:
+                        schemaName: corporate
+                        tableName: organization_contacts
+                        remarks: Связи контактов и организаций
+                        columns:
+                            -   column:
+                                    name: contact_id
+                                    type: uuid
+                                    remarks: Контакт
+                                    constraints:
+                                        nullable: false
+                                        foreignKeyName: organization_contacts_contact_fkey
+                                        referencedTableSchemaName: corporate
+                                        referencedTableName: contact
+                                        referencedColumnNames: id
+                            -   column:
+                                    name: organization_id
+                                    type: uuid
+                                    remarks: Организация
+                                    constraints:
+                                        nullable: false
+                                        foreignKeyName: organization_contacts_organization_fkey
+                                        referencedTableSchemaName: corporate
+                                        referencedTableName: organization
+                                        referencedColumnNames: id
+                -   addColumn:
+                        schemaName: corporate
+                        tableName: organization
+                        columns:
+                            -   column:
+                                    name: msrn
+                                    type: text
+                                    remarks: ОГРН
+                            -   column:
+                                    name: tid
+                                    type: text
+                                    remarks: ИНН
+                                    

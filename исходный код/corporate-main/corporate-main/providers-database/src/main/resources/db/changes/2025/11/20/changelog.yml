@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20251120-1111
+      author: klyunkov-va
+      dbms: postgresql
+      changes:
+        - tagDatabase:
+            tag: "D-04.022.000"
+        - createIndex:
+            schemaName: corporate
+            tableName: trip_purpose
+            columns:
+              - column:
+                  name: organization
+            indexName: trip_purpose_organization_idx
+        - createIndex:
+            schemaName: corporate
+            tableName: trip_purpose_attribute
+            columns:
+              - column:
+                  name: trip_purpose
+            indexName: trip_purpose_attribute_trip_purpose_idx
+        - createIndex:
+            schemaName: corporate
+            tableName: trip_purpose_attribute
+            columns:
+              - column:
+                  name: attribute_id
+            indexName: trip_purpose_attribute_attribute_id_idx
+        - createIndex:
+            schemaName: corporate
+            tableName: employee_attribute
+            columns:
+              - column:
+                  name: employee_id
+            indexName: employee_attribute_employee_id_idx
+      rollback:
+        - dropIndex:
+            schemaName: corporate
+            tableName: trip_purpose
+            indexName: trip_purpose_organization_idx
+        - dropIndex:
+            schemaName: corporate
+            tableName: trip_purpose_attribute
+            indexName: trip_purpose_attribute_trip_purpose_idx
+        - dropIndex:
+            schemaName: corporate
+            tableName: trip_purpose_attribute
+            indexName: trip_purpose_attribute_attribute_id_idx
+        - dropIndex:
+            schemaName: corporate
+            tableName: employee_attribute
+            indexName: employee_attribute_employee_id_idx

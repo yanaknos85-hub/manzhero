@@ -1,0 +1,92 @@
+server:
+    port: 0
+
+spring:
+    security:
+        oauth2:
+            resourceserver:
+                jwt:
+                    jwk-set-uri: http://localhost:8080
+    main:
+        banner-mode: off
+        lazy-initialization: true
+        cloud-platform: none
+        allow-bean-definition-overriding: true
+    config:
+        import:
+            - optional:configserver:${SPRING_CLOUD_CONFIG_URI}
+            - kafka-test.yml
+    application:
+        name: approvals-test
+    datasource:
+        username: postgres
+        driver-class-name: org.postgresql.Driver
+        type: com.zaxxer.hikari.HikariDataSource
+        hikari:
+            minimum-idle: 0
+            maximum-pool-size: 5
+            idle-timeout: 10000
+            connection-timeout: 5000
+            max-lifetime: 30000
+            connection-test-query: SELECT 1
+            schema: approvals
+    jpa:
+        properties:
+            hibernate:
+                search:
+                    enabled: false
+                jdbc:
+                    batch_size: 25
+                    lob:
+                        non_contextual_creation: true
+                dialect: org.hibernate.dialect.PostgreSQLDialect
+        hibernate:
+            ddl-auto: validate
+        show-sql: ${SHOW_SQL:false}
+    liquibase:
+        enabled: true
+        change-log: classpath:db/changelog-master.yml
+        url: ${spring.datasource.url}
+        user: ${spring.datasource.username}
+        password: ${spring.datasource.password}
+        database-change-log-table: changelog_${spring.application.name}
+        database-change-log-lock-table: changelog_${spring.application.name}_lock
+        liquibase-schema: public
+        contexts: test, TRANSPORT-33337, TRANSPORT-35786
+    jackson:
+        default-property-inclusion: non_null
+        serialization:
+            WRITE_DATES_AS_TIMESTAMPS: false
+            WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS: false
+    profiles:
+        active: test
+    cloud:
+        vault:
+            enabled: false
+logging:
+    level:
+        org.hibernate.orm.jdbc.bind: DEBUG
+        org.hibernate.sql: "${LOG_HIBERNATE_SQL:DEBUG}"
+        org.hibernate.type: "${LOG_HIBERNATE_TYPE:DEBUG}"
+        org.hibernate.type.BasicTypeRegistry: DEBUG
+        org.hibernate.engine.internal.StatefulPersistenceContext: DEBUG
+        org.apache.kafka.clients.consumer.internals.ConsumerCoordinator: ERROR
+        org.springframework.kafka.core.KafkaTemplate: ${KAFKA_TEMPLATE_LOG_LEVEL:INFO}
+        ru.sberbank.ditsib: "${LOG_LEVEL:DEBUG}"
+        org.springframework.web.client.RestTemplate: "${LOG_LEVEL:DEBUG}"
+        org.apache.poi.xssf.streaming.SXSSFCreationHelper: ERROR
+        ru.sberbank.ditsib.excel.writer.DataWriter: ERROR
+        org.springframework.transaction: "${LOG_HIBERNATE_SQL:DEBUG}"
+        org.springframework.orm.jpa: "${LOG_HIBERNATE_SQL:DEBUG}"
+management:
+    health:
+        elasticsearch:
+            enabled: false
+embedded.postgres.enable: true
+grpc:
+    client:
+        GLOBAL:
+            negotiation-type: plaintext
+        grpc-corporate:
+            address: static://localhost:6565
+extlogging.kafka: false

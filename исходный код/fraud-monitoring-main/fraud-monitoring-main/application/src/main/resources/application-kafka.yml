@@ -1,0 +1,73 @@
+spring:
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers:
+            - ${KAFKA_BROKERS}
+          auto-alter-topics: true
+          autoAddPartitions: true
+          producer-properties:
+            key.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+          consumer-properties:
+            key.deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+            dlqProducerProperties.key.deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+            standardHeaders: both
+      bindings:
+        requests-in-0:
+          group: ${spring.application.name}
+          destination: service.request
+          binder: kafka
+          consumer:
+            maxAttempts: 1
+            defaultRetryable: false
+        organizationInput-in-0:
+          group: ${spring.application.name}
+          destination: service.organization
+          binder: kafka
+          consumer:
+            maxAttempts: 1
+            defaultRetryable: false
+        departmentInput-in-0:
+          group: ${spring.application.name}
+          destination: service.organization.department
+          binder: kafka
+          consumer:
+            maxAttempts: 1
+            defaultRetryable: false
+        employeeInput-in-0:
+          group: ${spring.application.name}
+          destination: service.organization.employee
+          binder: kafka
+          consumer:
+            maxAttempts: 1
+            defaultRetryable: false
+        positionInput-in-0:
+          group: ${spring.application.name}
+          destination: service.organization.position
+          binder: kafka
+          consumer:
+            maxAttempts: 1
+            defaultRetryable: false
+        externalRequestInput-in-0:
+          group: ${spring.application.name}
+          destination: service.request.external
+          binder: kafka
+          consumer:
+            maxAttempts: 1
+            defaultRetryable: false
+        fraudListenInput-in-0:
+          destination: service.fraud-monitoring.listen.fraud
+          group: ${spring.application.name}
+          binder: kafka
+          consumer:
+            maxAttempts: 1
+            defaultRetryable: false
+        fraudCaseDataInput-in-0:
+          destination: service.fraud-monitoring.listen.cases_data
+          group: ${spring.application.name}
+          binder: kafka
+          consumer:
+            maxAttempts: 1
+            defaultRetryable: false
+

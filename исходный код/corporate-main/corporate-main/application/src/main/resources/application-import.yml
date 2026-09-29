@@ -1,0 +1,170 @@
+works:
+  files:
+    -   url: /employee
+        fileType:
+          - xlsx
+          - xls
+        collections:
+          -   name: Сотрудники
+              type: ru.sber.transport.corporate.web.resolvers.model.FileEmployee
+              mappings:
+                -   from: Организация
+                    to: organization
+                -   from: Подразделение
+                    to: department
+                -   from: ТН
+                    to: personalNumber
+                -   from: ФИО
+                    to: fullName
+                -   from: E-Mail
+                    to: email
+                -   from: Телефон
+                    to: phone
+                -   from: Должность
+                    to: position
+                -   from: Роль
+                    to: role
+                -   from: ТН руководителя
+                    to: supervisorPersonalNumber
+    -   url: /department
+        fileType:
+          - xlsx
+          - xls
+        collections:
+          -   name: Подразделения
+              type: ru.sber.transport.corporate.web.resolvers.model.FileDepartment
+              mappings:
+                -   from: Организация
+                    to: organization
+                -   from: Подразделение
+                    to: name
+                -   from: Уровень
+                    to: level
+                -   from: Код уровня
+                    to: levelCode
+                -   from: Код
+                    to: code
+                -   from: Местоположение
+                    to: location
+                -   from: Родительское подразделение
+                    to: parent
+                -   from: ТН руководителя
+                    to: chiefPersonalNumber
+    -   url: /organizations
+        fileType:
+          - xlsx
+          - xls
+        collections:
+          -   name: Организации
+              type: ru.sberbank.ditsib.corpclient.dto.NewOrganizationFileDTO
+              mappings:
+                -   from: Название
+                    to: officialName
+                -   from: Адрес
+                    to: address
+                -   from: ИНН
+                    to: tin
+                -   from: ОГРН
+                    to: msrn
+                -   from: E-Mail
+                    to: email
+                -   from: Телефоны
+                    to: phones
+                -   from: Сайты
+                    to: sites
+                -   from: Код организационной единицы
+                    to: organizationCode
+    -   url: /position
+        fileType:
+          - xlsx
+          - xls
+        collections:
+          -   name: Должности
+              type: ru.sber.transport.corporate.web.resolvers.model.FilePosition
+              mappings:
+                -   from: Организация
+                    to: organization
+                -   from: Название
+                    to: name
+                -   from: Автосогласование
+                    to: selfApproved
+                -   from: Классы
+                    to: availableClasses
+    -   url: /tripPurpose
+        fileType:
+          - xlsx
+          - xls
+        collections:
+          -   name: Цели поездки
+              type: ru.sberbank.ditsib.corpclient.dto.purpose.PurposeFileDto
+              mappings:
+                -   from: Организация
+                    to: organization
+                -   from: Название
+                    to: name
+                -   from: Активность
+                    to: active
+                -   from: Тип
+                    to: type
+    -   url: /employeeAttributes
+        fileType:
+          - xlsx
+          - xls
+        collections:
+          -   name: Признаки сотрудника
+              type: ru.sberbank.ditsib.corpclient.dto.AttributesFileDTO
+              mappings:
+                -   from: Организация
+                    to: organization
+                -   from: ТН сотрудника
+                    to: personNumber
+                -   from: Атрибуты
+                    to: attributes
+    -   url: /meetingAddress
+        fileType:
+          - xlsx
+          - xls
+        collections:
+          -   name: Филиалы
+              type: ru.sberbank.ditsib.corpclient.dto.MeetingAddressFileDTO
+              mappings:
+                -   from: Страна
+                    to: country
+                -   from: Регион
+                    to: region
+                -   from: Город
+                    to: city
+                -   from: Улица
+                    to: street
+                -   from: Дом
+                    to: house
+                -   from: Корпус
+                    to: structure
+                -   from: Строение
+                    to: building
+                -   from: Название
+                    to: label
+    -   url: /cargoType
+        fileType:
+          - xlsx
+          - xls
+        collections:
+          -   name: Типы грузов
+              type: ru.sberbank.ditsib.corpclient.dto.cargo.CargoTypeFileDto
+              mappings:
+                -   from: Название
+                    to: name
+                -   from: Вид
+                    to: type
+                -   from: Категория
+                    to: category
+                -   from: Длина
+                    to: length
+                -   from: Ширина
+                    to: width
+                -   from: Высота
+                    to: height
+                -   from: Вес
+                    to: weight
+                -   from: Объем
+                    to: volume

@@ -1,0 +1,220 @@
+openapi: 3.0.3
+info:
+  title: Вошедший сотрудник
+  description: Набор операций для работы с вошедшим сотрудником
+  version: "1.0"
+servers:
+  - url: '{scheme}://{host}:{port}/api/self'
+    description: Адрес для вызова
+    variables:
+      scheme:
+        default: http
+        enum:
+          - http
+          - https
+      host:
+        default: localhost
+      port:
+        default: "80"
+        enum:
+          - "80"
+          - "8080"
+          - "443"
+          - "8443"
+components:
+  schemas:
+    UUID:
+      title: Идентификатор
+      type: string
+      format: uuid
+      pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+    EmployeeStatus:
+      title: Статус сотрудника
+      description: Статус сотрудника
+      type: string
+      format: enum
+      enum:
+        - ACTIVE
+        - INACTIVE
+    AttributeStatus:
+      title: Статус атрибута
+      description: Статус атрибута
+      type: string
+      format: enum
+      enum:
+        - ACTIVE
+        - INACTIVE
+    OrgStructureType:
+      title: Тип сотрудника
+      description: Тип сотрудника
+      type: string
+      format: enum
+      enum:
+        - EXTERNAL
+        - INTERNAL
+    AttributeDto:
+      title: Информация о признаке
+      description: Признак сорудника
+      properties:
+        id:
+          title: Идентификатор
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        name:
+          title: Название
+          type: string
+        status:
+          title: Статус
+          allOf:
+            - $ref: '#/components/schemas/AttributeStatus'
+    SelfEmployeeDTO:
+      title: Информация о вошедшем сотруднике
+      description: Данные сотрудника
+      properties:
+        id:
+          title: Идентификатор
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        userId:
+          title: Идентификатор пользователя
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        firstName:
+          title: Имя
+          type: string
+        lastName:
+          title: Фамилия
+          type: string
+        patronymic:
+          title: Отчество
+          type: string
+        personnelNumber:
+          title: Табельный номер
+          type: string
+        positionId:
+          title: Идентификатор должности
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        mobilePhone:
+          title: Мобильный номер
+          type: string
+        email:
+          title: E-Mail
+          type: string
+        supervisorId:
+          title: Идентификатор руководителя
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        departmentId:
+          title: Идентификатор подразделения
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        organizationId:
+          title: Идентификатор организации
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        positionName:
+          title: Наименование должности
+          type: string
+        status:
+          title: Cтатус активности
+          allOf:
+            - $ref: '#/components/schemas/EmployeeStatus'
+        attributes:
+          title: Атрибуты
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/AttributeDto'
+        humanReadableId:
+          title: Человекочитаемый идентификатор
+          type: string
+        roles:
+          title: Роли
+          type: array
+          items:
+            type: string
+        approvals:
+          title: Количество согласований
+          type: integer
+        isDepartmentHead:
+          title: Признак руководителя подразделения
+          type: boolean
+        managedDepartments:
+          title: Id подчинённых подразделений (Если является руководителем)
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/UUID'
+        consent:
+          title: Признак подписания соглашения на обработку персональных данных
+          type: boolean
+        orgStructureType:
+          title: Тип сотрудника
+          allOf:
+            - $ref: '#/components/schemas/OrgStructureType'
+    PatchData:
+      title: Данные для частичного обновления сущностей
+      description: Данные для частичного обновления сущностей
+      type: object
+      properties:
+        field:
+          title: EmployeePatchField
+          type: string
+          format: enum
+          enum:
+            - MOBILE_PHONE
+            - LAST_NAME
+            - FIRST_NAME
+            - PATRONYMIC
+            - CONSENT
+        value:
+          type: string
+  securitySchemes:
+    BearerToken:
+      description: Токен доступа
+      scheme: bearer
+      type: http
+      bearerFormat: JWT
+paths:
+  /:
+    get:
+      summary: Получение
+      description: Получение данных вошедшего сотрудника
+      security:
+        - BearerToken: []
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SelfEmployeeDTO'
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Отсутствует какой-либо ресурс
+    patch:
+      summary: Частичное изменение
+      description: Частичное изменение данных сотрудника
+      security:
+        - BearerToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/PatchData'
+      responses:
+        200:
+          description: Ok
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Отсутствует какой-либо ресурс
+  

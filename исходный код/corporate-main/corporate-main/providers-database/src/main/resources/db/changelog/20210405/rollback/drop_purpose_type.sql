@@ -1,0 +1,1 @@
+alter table corporate.trip_purpose drop column if exists purpose_type;

@@ -1,0 +1,99 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20200508-remastered
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      dbms: h2
+      preConditions:
+        - not:
+            - columnExists:
+                schemaName: corporate
+                tableName: favorite_address
+                columnName: employee_id
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.018.001
+        - dropUniqueConstraint:
+            schemaName: corporate
+            tableName: favorite_address
+            uniqueColumns: user_id,label
+            constraintName: CONSTRAINT_9B
+      rollback:
+        - addUniqueConstraint:
+            schemaName: corporate
+            tableName: favorite_address
+            columnNames: user_id,label
+            constraintName: CONSTRAINT_9B
+  - changeSet:
+      id: 20200508-remastered-1
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - not:
+            - columnExists:
+                schemaName: corporate
+                tableName: favorite_address
+                columnName: employee_id
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.018.001
+        - addColumn:
+            schemaName: corporate
+            tableName: favorite_address
+            columns:
+              - column:
+                  name: employee_id
+                  type: uuid
+                  remarks: Идентификатор сотркдника
+        - addForeignKeyConstraint:
+            referencedTableSchemaName: corporate
+            referencedTableName: employee
+            referencedColumnNames: id
+            baseTableSchemaName: corporate
+            baseTableName: favorite_address
+            baseColumnNames: employee_id
+            constraintName: corporate_favorite_address_employee_fk
+        - dropForeignKeyConstraint:
+            baseTableSchemaName: corporate
+            baseTableName: favorite_address
+            constraintName: address_user_fk
+        - dropColumn:
+            schemaName: corporate
+            tableName: favorite_address
+            columns:
+              - column:
+                  name: user_id
+        - addUniqueConstraint:
+            schemaName: corporate
+            tableName: favorite_address
+            columnNames: employee_id,label
+            constraintName: corporate_favorite_address_employee_id_label_uk
+      rollback:
+        - dropUniqueConstraint:
+            schemaName: corporate
+            tableName: favorite_address
+            constraintName: corporate_favorite_address_employee_id_label_uk
+        - addColumn:
+            schemaName: corporate
+            tableName: favorite_address
+            columns:
+              - column:
+                  name: user_id
+                  type: uuid
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate
+            baseTableName: favorite_address
+            baseColumnNames: user_id
+            referencedTableSchemaName: corporate
+            referencedTableName: user
+            referencedColumnNames: id
+            constraintName: address_user_fk
+        - dropColumn:
+            schemaName: corporate
+            tableName: favorite_address
+            columns:
+              - column:
+                  name: employee_id
+                  type: uuid

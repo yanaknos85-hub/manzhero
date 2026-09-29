@@ -1,0 +1,282 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20240930-1003"
+      author: "morgan-nm"
+      context: "TRANSPORT-26003"
+      changes:
+        - tagDatabase:
+            tag: "D-03.020.000"
+        - createTable:
+            schemaName: corporate
+            tableName: executor_group
+            remarks: Группа исполнителей.
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор
+                  constraints:
+                    primaryKeyName: executor_group_pkey
+                    primaryKey: true
+              - column:
+                  name: humanreadableid
+                  type: varchar(16)
+                  remarks: Человеко-читаемый идентификатор.
+                  constraints:
+                    nullable: false
+              - column:
+                  name: service
+                  type: varchar(50)
+                  remarks: Услуга.
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(150)
+                  remarks: Наименование группы.
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active
+                  type: boolean
+                  remarks: Состояние.
+                  constraints:
+                    nullable: false
+              - column:
+                  name: creation_time
+                  type: timestamp
+                  remarks: Дата и время создания в UTC.
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  remarks: Дата и время изменения в UTC.
+                  constraints:
+                    nullable: false
+              - column:
+                  name: author_id
+                  type: uuid
+                  remarks: Идентификатор инициатора.
+                  constraints:
+                    foreignKeyName: executor_group_author_id_fk
+                    referencedTableName: employee
+                    referencedColumnName: id
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  remarks: Идентификатор последнего модификатора.
+                  constraints:
+                    foreignKeyName: executor_group_user_id_fk
+                    referencedTableName: employee
+                    referencedColumnName: id
+                    nullable: false
+              - column:
+                  name: service_level
+                  type: varchar(50)
+                  remarks: Уровень сервиса.
+                  constraints:
+                    nullable: true
+              - column:
+                  name: organization_id
+                  type: uuid
+                  remarks: Идентификатор организации исполнителей.
+                  constraints:
+                    foreignKeyName: executor_group_organization_id_fk
+                    referencedTableName: organization
+                    referencedColumnName: id
+                    nullable: false
+        - createIndex:
+            schemaName: corporate
+            tableName: executor_group
+            columns:
+              - column:
+                  name: name
+            indexName: corporate_executor_group_name_idx
+        - createIndex:
+            schemaName: corporate
+            tableName: executor_group
+            columns:
+              - column:
+                  name: service_level
+            indexName: corporate_executor_group_service_level_idx
+      rollback:
+        - dropTable:
+            schemaName: corporate
+            tableName: executor_group
+
+  - changeSet:
+      id: "20240930-1056"
+      author: "morgan-nm"
+      context: "TRANSPORT-26003"
+      changes:
+        - tagDatabase:
+            tag: "D-03.020.000"
+        - createTable:
+            schemaName: corporate
+            tableName: executor_group_executor
+            remarks: Исполнители группы исполнителей.
+            columns:
+              - column:
+                  name: executor_group_id
+                  type: uuid
+                  remarks: Идентификатор группы исполнителей.
+                  constraints:
+                    foreignKeyName: executor_group_executor_executor_group_id_fk
+                    referencedTableName: executor_group
+                    referencedColumnName: id
+                    nullable: true
+              - column:
+                  name: employee_id
+                  type: uuid
+                  remarks: Идентификатор сотрудника.
+                  constraints:
+                    foreignKeyName: executor_group_executor_employee_id_fk
+                    referencedTableName: employee
+                    referencedColumnName: id
+                    nullable: false
+      rollback:
+        - dropTable:
+            schemaName: corporate
+            tableName: executor_group_executor
+
+  - changeSet:
+      id: "20240930-1102"
+      author: "morgan-nm"
+      context: "TRANSPORT-26003"
+      changes:
+        - tagDatabase:
+            tag: "D-03.020.000"
+        - createTable:
+            schemaName: corporate
+            tableName: executor_group_organization
+            remarks: Организации в ведомстве группы исполнтелей.
+            columns:
+              - column:
+                  name: executor_group_id
+                  type: uuid
+                  remarks: Идентификатор группы исполнителей.
+                  constraints:
+                    foreignKeyName: executor_group_organization_executor_group_id_fk
+                    referencedTableName: executor_group
+                    referencedColumnName: id
+                    nullable: true
+              - column:
+                  name: organization_id
+                  type: uuid
+                  remarks: Идентификатор организации.
+                  constraints:
+                    foreignKeyName: executor_group_organization_organization_id_fk
+                    referencedTableName: organization
+                    referencedColumnName: id
+                    nullable: false
+      rollback:
+        - dropTable:
+            schemaName: corporate
+            tableName: executor_group_organization
+
+  - changeSet:
+      id: "20240930-1104"
+      author: "morgan-nm"
+      context: "TRANSPORT-26003"
+      changes:
+        - tagDatabase:
+            tag: "D-03.020.000"
+        - createTable:
+            schemaName: corporate
+            tableName: executor_group_department
+            remarks: Демартаменты в ведомстве группы исполнителей.
+            columns:
+              - column:
+                  name: executor_group_id
+                  type: uuid
+                  remarks: Идентификатор группы исполнителей.
+                  constraints:
+                    foreignKeyName: executor_group_department_executor_group_id_fk
+                    referencedTableName: executor_group
+                    referencedColumnName: id
+                    nullable: true
+              - column:
+                  name: department_id
+                  type: uuid
+                  remarks: Идентификатор департамента.
+                  constraints:
+                    foreignKeyName: executor_group_department_department_id_fk
+                    referencedTableName: department
+                    referencedColumnName: id
+                    nullable: false
+      rollback:
+        - dropTable:
+            schemaName: corporate
+            tableName: executor_group_department
+
+  - changeSet:
+      id: "20240930-1106"
+      author: "morgan-nm"
+      context: "TRANSPORT-26003"
+      changes:
+        - tagDatabase:
+            tag: "D-03.020.000"
+        - createTable:
+            schemaName: corporate
+            tableName: executor_group_customer
+            remarks: Заказчики в ведомстве группы исполнителей.
+            columns:
+              - column:
+                  name: executor_group_id
+                  type: uuid
+                  remarks: Идентификатор группы исполнителей..
+                  constraints:
+                    foreignKeyName: executor_group_customer_executor_group_id_fk
+                    referencedTableName: executor_group
+                    referencedColumnName: id
+                    nullable: true
+              - column:
+                  name: employee_id
+                  type: uuid
+                  remarks: Идентификатор сотрудника.
+                  constraints:
+                    foreignKeyName: executor_group_customer_employee_id_fk
+                    referencedTableName: employee
+                    referencedColumnName: id
+                    nullable: false
+      rollback:
+        - dropTable:
+            schemaName: corporate
+            tableName: executor_group_customer
+
+  - changeSet:
+      id: "20240930-1108"
+      author: "morgan-nm"
+      context: "TRANSPORT-26003"
+      changes:
+        - tagDatabase:
+            tag: "D-03.020.000"
+        - createTable:
+            schemaName: corporate
+            tableName: executor_group_geo_zone
+            remarks: Гео зоны в ведомстве группы исполнителей.
+            columns:
+              - column:
+                  name: executor_group_id
+                  type: uuid
+                  remarks: Идентификатор группы исполнителей.
+                  constraints:
+                    foreignKeyName: executor_group_geo_zone_executor_group_id_fk
+                    referencedTableName: executor_group
+                    referencedColumnName: id
+                    nullable: true
+              - column:
+                  name: geo_zone_id
+                  type: uuid
+                  remarks: Идентификатор гео зоны.
+                  constraints:
+                    foreignKeyName: executor_group_geo_zone_messages_geo_zone_id_fk
+                    referencedTableName: messages_geo_zone
+                    referencedColumnName: id
+                    nullable: false
+      rollback:
+        - dropTable:
+            schemaName: corporate
+            tableName: executor_group_geo_zone

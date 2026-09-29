@@ -1,0 +1,10 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20210617
+            author: medvedev-ad
+            changes:
+                -   renameColumn:
+                        schemaName: corporate
+                        tableName: organization
+                        oldColumnName: tid
+                        newColumnName: tin

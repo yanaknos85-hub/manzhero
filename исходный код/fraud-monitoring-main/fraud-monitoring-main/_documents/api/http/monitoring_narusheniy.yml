@@ -1,0 +1,673 @@
+openapi: 3.0.3
+info:
+  title: Мониторинг нарушений
+  version: 5.12.1
+  description: Набор операций по работе с мониторингом нарушений
+servers:
+  - url: '{scheme}://{host}:{port}{api}'
+    description: Адрес для вызова
+    variables:
+      scheme:
+        enum:
+          - http
+          - https
+        default: http
+      host:
+        default: localhost
+      api:
+        default: /api/fraud-monitoring/
+      port:
+        enum:
+          - '80'
+          - '8080'
+          - '443'
+          - '8443'
+        default: '80'
+paths:
+  /report:
+    post:
+      tags:
+        - fraudMonitoringQuery
+      summary: Получить все (с фильтром в теле)
+      description: Получить все заявки с нарушениями
+      operationId: getAllFraudRequests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filter:
+                  $ref: '#/components/schemas/RegistryFilterRequest'
+                page:
+                  type: integer
+                  format: int32
+                  default: 0
+                  minimum: 0
+                size:
+                  type: integer
+                  format: int32
+                  default: 20
+                  minimum: 0
+                sort:
+                  type: string
+                  default: humanReadableId
+                direction:
+                  $ref: '#/components/schemas/SortDirection'
+      responses:
+        '200':
+          description: Успешный ответ со страницей заявок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageFraudRequestDto'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /{requestId}:
+    get:
+      tags:
+        - fraudMonitoringQuery
+      summary: Получить одну заявку
+      description: Получить информацию об одной заявке
+      operationId: getFraudRequestById
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          description: Идентификатор заявки с нарушением
+          schema:
+            type: string
+            format: uuid
+            example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '200':
+          description: Успешный ответ с информацией о заявке
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FraudRequestDetailDto'
+        '400':
+          description: Неверный формат идентификатора
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Заявка не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /{requestId}/{caseId}/solve:
+    post:
+      tags:
+        - fraudDecision
+      summary: Принять решение по разбирательству
+      description: Отправить решение сотрудника УТО по разбирательству
+      operationId: postFraudDecision
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          description: Идентификатор заявки
+          schema:
+            type: string
+            format: uuid
+            example: 123e4567-e89b-12d3-a456-426614174000
+        - name: caseId
+          in: path
+          required: true
+          description: Идентификатор разбирательства
+          schema:
+            type: string
+            format: uuid
+            example: 4eafd718-927f-44f9-bf6c-665cc1b1a2be
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecisionRequest'
+            example:
+              decision: ACCEPT
+              reason: потому что
+      responses:
+        '200':
+          description: Решение принято
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecisionResponse'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Заявка не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    RegistryFilterRequest:
+      type: object
+      description: Параметры фильтрации для поиска заявок
+      properties:
+        transportType:
+          type: array
+          items:
+            type: string
+          maxItems: 10000000
+          description: Типы транспорта для фильтрации
+          example:
+            - YANDEX
+            - PUBLIC
+            - PERSONAL
+            - TAXI
+            - CARSHARING
+        passengerName:
+          type: string
+          description: ФИО пассажира для поиска
+          example: Иванов
+        approverName:
+          type: string
+          description: ФИО согласующего для поиска
+          example: Петров
+        passenger:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 10000000
+          description: Список ID пассажиров для фильтрации
+        approver:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 10000000
+          description: Список ID согласующих для фильтрации
+        tripDateStart:
+          type: string
+          format: date-time
+          description: Начальная дата поездки для фильтрации
+          example: '2024-01-01T00:00:00Z'
+        tripDateEnd:
+          type: string
+          format: date-time
+          description: Конечная дата поездки для фильтрации
+          example: '2024-12-31T23:59:59Z'
+        approveDateStart:
+          type: string
+          format: date-time
+          description: Начальная дата согласования для фильтрации
+          example: '2024-01-01T00:00:00Z'
+        approveDateEnd:
+          type: string
+          format: date-time
+          description: Конечная дата согласования для фильтрации
+          example: '2024-12-31T23:59:59Z'
+        purpose:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 10000000
+          description: Список ID целей поездки для фильтрации
+        humanReadableId:
+          type: string
+          description: Человекочитаемый идентификатор для поиска
+          example: OT-0001-00014844
+        balanceUnitSet:
+          title: Список бизнес-единиц
+          type: array
+          maxItems: 50
+          items:
+            type: integer
+            format: int32
+    FraudRequestDto:
+      type: object
+      description: DTO заявки с нарушениями
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор заявки
+        humanReadableId:
+          type: string
+          description: Человекочитаемый идентификатор
+          example: OT-0001-00014844
+        transportType:
+          type: string
+          description: Тип транспорта
+          enum:
+            - YANDEX
+            - PUBLIC
+            - PERSONAL
+            - TAXI
+            - CARSHARING
+        fraudMarkers:
+          type: array
+          description: Список разбирательств по фроду
+          minItems: 1
+          maxItems: 15
+          items:
+            $ref: '#/components/schemas/FraudMarkerDto'
+        desiredDate:
+          type: string
+          format: date-time
+          description: Желаемая дата и время поездки
+        passenger:
+          $ref: '#/components/schemas/EmployeeDto'
+        approvalDate:
+          type: string
+          format: date-time
+          description: Дата и время согласования
+        approver:
+          $ref: '#/components/schemas/EmployeeDto'
+        autoApproval:
+          type: boolean
+          description: Флаг автосогласования
+        intermediatePointsCount:
+          type: integer
+          format: int32
+          description: Количество промежуточных точек
+          minimum: 0
+        departureAddress:
+          type: string
+          description: Адрес отправления
+        destinationAddress:
+          type: string
+          description: Адрес назначения
+        plannedCost:
+          type: number
+          description: Плановая стоимость
+          minimum: 0
+        actualCost:
+          type: number
+          description: Фактическая стоимость
+          minimum: 0
+        status:
+          type: string
+          description: Статус заявки
+        purpose:
+          $ref: '#/components/schemas/PurposeDto'
+        department:
+          type: string
+          description: Название департамента
+    FraudRequestDetailDto:
+      type: object
+      description: DTO заявки с нарушениями (детальная)
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор заявки
+        humanReadableId:
+          type: string
+          description: Человекочитаемый идентификатор
+          example: OT-0001-00014844
+        costCenter:
+          type: string
+          description: МВЗ
+          example: 0001L00001
+        transportType:
+          type: string
+          description: Тип транспорта
+          enum:
+            - YANDEX
+            - PUBLIC
+            - PERSONAL
+            - TAXI
+            - CARSHARING
+        fraudMarkers:
+          type: array
+          description: Список разбирательств по фроду
+          minItems: 1
+          maxItems: 15
+          items:
+            $ref: '#/components/schemas/FraudMarkerDto'
+        intermediateAddresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/WaypointDto'
+          maxItems: 10000000
+          description: Список нарушений
+        desiredDate:
+          type: string
+          format: date-time
+          description: Желаемая дата и время поездки
+        tripEndDate:
+          type: string
+          format: date-time
+          description: Дата завершения поездки
+        passenger:
+          $ref: '#/components/schemas/EmployeeDto'
+        approvalDate:
+          type: string
+          format: date-time
+          description: Дата и время согласования
+        approver:
+          $ref: '#/components/schemas/EmployeeDto'
+        autoApproval:
+          type: boolean
+          description: Флаг автосогласования
+        waypointsCount:
+          type: integer
+          format: int32
+          description: Количество точек в маршруте
+          minimum: 0
+        departureAddress:
+          type: string
+          description: Адрес отправления
+        destinationAddress:
+          type: string
+          description: Адрес назначения
+        plannedCost:
+          type: number
+          description: Плановая стоимость
+          minimum: 0
+        actualCost:
+          type: number
+          description: Фактическая стоимость
+          minimum: 0
+        distance:
+          type: number
+          format: double
+          description: Расстояние (км)
+          minimum: 0
+        status:
+          type: string
+          description: Статус заявки
+        compensationType:
+          type: string
+          description: Вид компенсации
+        purpose:
+          $ref: '#/components/schemas/PurposeDto'
+        department:
+          type: string
+          description: Название департамента
+        departmentCode:
+          type: string
+          description: Код подразделения
+    MessagingDto:
+      type: object
+      description: Сообщение в электронной переписке
+      required:
+        - from
+        - to
+        - dateTime
+        - body
+      properties:
+        from:
+          type: string
+          format: email
+          description: Отправитель
+          example: tech@sbrf.ru
+        to:
+          type: string
+          format: email
+          description: Получатель
+          example: pavlov@sbrf.ru
+        dateTime:
+          type: string
+          format: date-time
+          description: Дата и время сообщения
+          example: '2026-06-06T12:35:11'
+        body:
+          type: string
+          description: Текст сообщения
+          example: тело письма
+    FraudMarkerDto:
+      type: object
+      description: Нарушение в заявке (фрод)
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор расследования по нарушению (fraud_case_id)
+        messaging:
+          type: array
+          description: Список сообщений кейса Фрода
+          items:
+            $ref: '#/components/schemas/MessagingDto'
+        aiVerdict:
+          type: string
+          description: Решение о фроде от Агента
+        needValidation:
+          type: boolean
+          description: Флаг необходимости валидации человеком
+        aiComment:
+          type: string
+          description: Комментарий по результатам расследования по нарушению от ИИ агента
+        comment:
+          type: string
+          description: Комментарий нарушения
+    DecisionRequest:
+      type: object
+      description: Запрос на решение по разбирательству
+      required:
+        - decision
+        - reason
+      properties:
+        decision:
+          type: string
+          description: Решение сотрудника УТО
+          example: ACCEPT
+        reason:
+          type: string
+          description: Комментарий сотрудника относительно решения
+          example: потому что
+    DecisionResponse:
+      type: object
+      description: Ответ об успешном принятии решения
+      properties:
+        status:
+          type: string
+          description: Статус обработки
+          example: SUCCESS
+        requestId:
+          type: string
+          format: uuid
+          description: Идентификатор заявки
+          example: 123e4567-e89b-12d3-a456-426614174000
+    WaypointDto:
+      type: object
+      title: Путевая точка
+      description: Данные путевой точки
+      properties:
+        address:
+          title: Адрес
+          description: Адрес точки
+          type: string
+        waitTime:
+          title: Время ожидания в точке
+          description: Время ожидания в точке
+          type: integer
+          format: int64
+    EmployeeDto:
+      type: object
+      description: DTO сотрудника
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор сотрудника
+        lastName:
+          type: string
+          description: Фамилия
+        firstName:
+          type: string
+          description: Имя
+        patronymic:
+          type: string
+          description: Отчество
+        personnelNumber:
+          type: string
+          description: Табельный номер
+    PurposeDto:
+      type: object
+      description: DTO цели поездки
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор цели
+        purpose:
+          type: string
+          description: Название цели
+    SortDirection:
+      format: enum
+      description: |
+        Направление сортировки.
+        *ASC* - по возрастанию
+        *DESC* - по убыванию
+      enum:
+        - ASC
+        - DESC
+      type: string
+      title: SortDirection
+      default: ASC
+    PageFraudRequestDto:
+      type: object
+      description: Страница с заявками
+      required:
+        - content
+        - page
+        - sort
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/FraudRequestDto'
+          maxItems: 10000000
+          description: Содержимое страницы
+        sort:
+          $ref: '#/components/schemas/Sort'
+        page:
+          $ref: '#/components/schemas/Page'
+    ErrorResponse:
+      type: object
+      description: Ответ об ошибке
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Время возникновения ошибки
+        status:
+          type: integer
+          format: int32
+          description: HTTP статус код
+        error:
+          type: string
+          description: Тип ошибки
+        message:
+          type: string
+          description: Сообщение об ошибке
+        path:
+          type: string
+          description: Путь запроса
+    Sort:
+      description: Данные о наложенной сортировке
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          title: Поле
+          description: Поле сортировки
+          type: string
+        direction:
+          format: enum
+          description: |
+            Направление сортировки.
+            *ASC* - по возрастанию
+            *DESC* - по убыванию
+          enum:
+            - ASC
+            - DESC
+          type: string
+          title: SortDirection
+          default: ASC
+    Page:
+      description: Данные о странице
+      required:
+        - number
+        - size
+        - last
+        - first
+        - total
+        - count
+      properties:
+        number:
+          title: Номер страницы
+          description: Номер запрошенной страницы
+          minimum: 0
+          type: integer
+          format: int32
+        size:
+          title: Размер страницы
+          description: Размер запрошенной страницы
+          minimum: 0
+          type: integer
+          format: int32
+        last:
+          title: Последняя
+          description: Флаг последней страницы
+          type: boolean
+        first:
+          title: Первая
+          description: Флаг первой страницы
+          type: boolean
+        total:
+          title: Всего
+          description: Общее количество элементов
+          minimum: 0
+          type: integer
+          format: int32
+        count:
+          title: Страницы
+          description: Общее количество страниц
+          minimum: 0
+          type: integer
+          format: int32
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+  - name: fraudMonitoringQuery
+    description: Операции для получения заявок с нарушениями
+  - name: fraudDecision
+    description: Операции для принятия решений по разбирательствам
+security:
+  - bearerAuth: []
+
+# Powered by APIStudio

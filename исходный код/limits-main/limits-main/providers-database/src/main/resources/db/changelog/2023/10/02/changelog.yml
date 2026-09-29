@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20231002-1440"
+      author: medvedev-ad
+      context: "TRANSPORT-16890"
+      preConditions:
+        - not:
+            - indexExists:
+                schemaName: limits
+                tableName: limit_sharing_per_period
+                indexName: limit_sharing_per_period_limit_sharing_id_idx
+      changes:
+        - tagDatabase:
+            tag: "D-02.030.001"
+        - createIndex:
+            schemaName: limits
+            tableName: limit_sharing_per_period
+            indexName: limit_sharing_per_period_limit_sharing_id_idx
+            columns:
+              - column:
+                  name: limit_sharing_id
+        - createIndex:
+            schemaName: limits
+            tableName: limit_sharing_per_period
+            indexName: limit_sharing_per_period_organization_id_idx
+            columns:
+              - column:
+                  name: organization_id
+        - createIndex:
+            schemaName: limits
+            tableName: limit
+            indexName: limit_status_year_idx
+            columns:
+              - column:
+                  name: limit_status
+              - column:
+                  name: year
+        - createIndex:
+            schemaName: limits
+            tableName: limit_sharing
+            indexName: limit_sharing_limit_id_idx
+            columns:
+              - column:
+                  name: limit_id

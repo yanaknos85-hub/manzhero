@@ -1,0 +1,17 @@
+spring:
+  config:
+    import: optional:configserver:${SPRING_CLOUD_CONFIG_URI}
+  application:
+    name: tariff-external
+  cloud:
+    vault:
+      enabled: false
+openapi:
+  external-tariff:
+    base-path: /
+ssl:
+  support: ${SSL_SUPPORT:true}
+  client:
+    enabled: ${SSL_CLIENT_ENABLED:false}
+  trust:
+    enabled: ${SSL_TRUST_ENABLED:false}

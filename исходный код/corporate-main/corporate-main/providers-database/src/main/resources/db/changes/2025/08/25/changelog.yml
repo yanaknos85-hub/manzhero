@@ -1,0 +1,57 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250825-1545"
+      author: belov-av
+      context: "TRANSPORT-34962"
+      dbms: postgresql
+      changes:
+        - tagDatabase:
+            tag: "D-04.016.000"
+        - createTable:
+            schemaName: corporate
+            tableName: cargo_group
+            ifNotExists: true
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор
+                  constraints:
+                    primaryKeyName: corporate_cargo_group_pk
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(100)
+                  remarks: 'название группы'
+              - column:
+                  name: cargo_type_id
+                  type: uuid
+                  remarks: 'идентификатор типа (вида) груза'
+                  constraints:
+                    nullable: false
+                    foreignKeyName: corporate_cargo_group_cargo_type_id_fk
+                    foreignKeys:
+                    references: corporate.cargo_type(id)
+                    deleteCascade: true
+              - column:
+                  name: count
+                  type: int
+                  remarks: 'идентификатор типа (вида) груза'
+        - createIndex:
+            schemaName: corporate
+            tableName: cargo_group
+            columns:
+              - column:
+                  name: name
+            indexName: corporate_cargo_group_name_idx
+        - createIndex:
+            schemaName: corporate
+            tableName: cargo_group
+            columns:
+              - column:
+                  name: cargo_type_id
+            indexName: corporate_cargo_group_cargo_type_id_idx
+      rollback:
+        - dropTable:
+            schemaName: corporate
+            tableName: cargo_group

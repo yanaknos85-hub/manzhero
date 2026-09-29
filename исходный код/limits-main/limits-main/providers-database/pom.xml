@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>ru.sber.transport.limits</groupId>
+        <artifactId>parent</artifactId>
+        <version>${release.version}</version>
+    </parent>
+
+    <artifactId>providers-database</artifactId>
+
+    <properties>
+        <java.version>21</java.version>
+        <jooq.root.path>${basedir}/src/main/resources/db</jooq.root.path>
+        <jooq.liquibase.changelog>changelog-master.yml</jooq.liquibase.changelog>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>ru.sber.transport</groupId>
+            <artifactId>jooq-database</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.sber.transport.limits</groupId>
+            <artifactId>providers</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-test-autoconfigure</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ru.sber.transport</groupId>
+            <artifactId>embedded-postgres</artifactId>
+            <version>4.10</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jooq</groupId>
+                <artifactId>jooq-codegen-maven</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

@@ -1,0 +1,69 @@
+spring:
+  cloud:
+    stream:
+      bindings:
+        requestsSsl-in-0:
+          group: ${spring.application.name}-ssl
+          destination: service.request
+          binder: kafka-ssl
+          consumer:
+            maxAttempts: 1
+            defaultRetryable: false
+        organizationInputSsl-in-0:
+          group: ${spring.application.name}-ssl
+          destination: service.organization
+          binder: kafka-ssl
+          consumer:
+            maxAttempts: 1
+            defaultRetryable: false
+        departmentInputSsl-in-0:
+          group: ${spring.application.name}-ssl
+          destination: service.organization.department
+          binder: kafka-ssl
+          consumer:
+            maxAttempts: 1
+            defaultRetryable: false
+        employeeInputSsl-in-0:
+          group: ${spring.application.name}-ssl
+          destination: service.organization.employee
+          binder: kafka-ssl
+          consumer:
+            maxAttempts: 1
+            defaultRetryable: false
+        externalRequestInputSsl-in-0:
+          group: ${spring.application.name}-ssl
+          destination: service.request.external
+          binder: kafka-ssl
+          consumer:
+            maxAttempts: 1
+            defaultRetryable: false
+        fraudListenInputSsl-in-0:
+          destination: service.fraud-monitoring.listen.fraud
+          group: ${spring.application.name}
+          binder: kafka
+          consumer:
+            maxAttempts: 1
+            defaultRetryable: false
+        receiptScannerFraudInputSsl-in-0:
+          destination: service.ai.receipt.scanner.fraud
+          group: ${spring.application.name}-ssl
+          binder: kafka-ssl
+          consumer:
+            maxAttempts: 1
+            defaultRetryable: false
+        radiusFraudInputSsl-in-0:
+          destination: service.fraud.radius
+          group: ${spring.application.name}-ssl
+          binder: kafka-ssl
+          consumer:
+            maxAttempts: 1
+            defaultRetryable: false
+        fraudCaseDataInputSsl-in-0:
+          destination: service.fraud-monitoring.listen.cases_data
+          group: ${spring.application.name}
+          binder: kafka
+          consumer:
+            maxAttempts: 1
+            defaultRetryable: false
+
+

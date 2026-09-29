@@ -1,0 +1,27 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20210910
+            author: nikandrov-ae
+            preConditions:
+                -   not:
+                        -   tableExists:
+                                schemaName: corporate
+                                tableName: cargo_type
+                        -   onFail: MARK_RAN
+                        -   onFailMessage: table cargo_type already exists
+                -   not:
+                        -   tableExists:
+                                schemaName: corporate
+                                tableName: cargo_type_nomenclature
+                        -   onFail: MARK_RAN
+                        -   onFailMessage: table cargo_type_nomenclature already exists
+            changes:
+                -   sqlFile:
+                        path: add_cargo_type_tables.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+            rollback:
+                    -   sqlFile:
+                                path: rollback_cargo_type_tables.sql
+                                relativeToChangelogFile: true
+                                splitStatements: false

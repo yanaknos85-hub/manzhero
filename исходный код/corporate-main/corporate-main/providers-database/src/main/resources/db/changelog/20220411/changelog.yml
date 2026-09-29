@@ -1,0 +1,16 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20220411"
+            author: medvedev-ad
+            changes:
+                -   update:
+                        schemaName: corporate
+                        tableName: employee
+                        columns:
+                            -   column:
+                                    name: org_structure_type
+                                    value: INTERNAL
+                        where: org_structure_type is null
+            rollback:
+                -   sql:
+                        sql: select 1 # no needed to rollback

@@ -1,0 +1,9 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20220725-1"
+            author: delyukov-da
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/correct_types.sql
+                        relativeToChangelogFile: true

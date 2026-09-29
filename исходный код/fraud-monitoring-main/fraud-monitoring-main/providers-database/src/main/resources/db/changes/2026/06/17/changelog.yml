@@ -1,0 +1,55 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20260617-1200"
+      author: voronovskii
+      context: "TRANSPORT-42985"
+      changes:
+        - addColumn:
+            schemaName: ${schema_name}
+            tableName: fraud
+            columns:
+              - column:
+                  name: fraud_type
+                  type: varchar(50)
+                  remarks: Тип мошенничества
+                  constraints:
+                    nullable: true
+                    defaultValue: UNKNOWN
+              - column:
+                  name: source
+                  type: varchar(50)
+                  remarks: Название сервиса-источника
+                  constraints:
+                    nullable: true
+                    defaultValue: UNKNOWN
+  - changeSet:
+      id: "20260617-1201"
+      author: voronovskii
+      context: "TRANSPORT-42985"
+      changes:
+        - sql: |
+            UPDATE fraud_monitoring.fraud
+            SET source = 'ai_antifraud'
+            WHERE comment ILIKE '%повторяющиеся заявки%'
+              AND source IS DISTINCT FROM 'ai_antifraud';
+            
+            UPDATE fraud_monitoring.fraud
+            SET source = 'UNKNOWN'
+            WHERE source IS NULL;
+            
+            UPDATE fraud_monitoring.fraud
+            SET fraud_type = 'UNKNOWN'
+            WHERE fraud_type IS NULL;
+  - changeSet:
+      id: "20260617-1202"
+      author: voronovskii
+      context: "TRANSPORT-42985"
+      changes:
+        - addNotNullConstraint:
+            schemaName: ${schema_name}
+            tableName: fraud
+            columnName: fraud_type
+        - addNotNullConstraint:
+            schemaName: ${schema_name}
+            tableName: fraud
+            columnName: source

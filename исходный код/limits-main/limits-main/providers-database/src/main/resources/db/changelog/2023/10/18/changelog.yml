@@ -1,0 +1,140 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20231018-0833"
+      author: medvedev-ad
+      context: "TRANSPORT-16955"
+      dbms: postgresql
+      changes:
+        - tagDatabase:
+            tag: "D-02.034.000"
+        - sql:
+            sql: drop materialized view limits.limit_stats;
+        - sql:
+            dbms: postgresql
+            sql: >-
+              create materialized view limits.limit_stats as
+              select lspp.id as period_sharing_id, lspp.organization_id as organization_id, lspp.period as period, l.year as year, ls.id as sharing_id, ls.transport_type as transport_type, lspp.sum as sum
+              from limits.limit_sharing_per_period lspp
+                       inner join limits.limit_sharing ls on ls.id = lspp.limit_sharing_id
+                       inner join limits.limit l on l.id = ls.limit_id
+              where l.limit_status = 'SHARED';
+        - createIndex:
+            schemaName: limits
+            tableName: limit_stats
+            column:
+              name: organization_id
+            indexName: limits_limit_stats_organization_id_idx
+        - createIndex:
+            schemaName: limits
+            tableName: limit_stats
+            column:
+              name: period
+            indexName: limits_limit_stats_period_idx
+        - createIndex:
+            schemaName: limits
+            tableName: limit_stats
+            column:
+              name: transport_type
+            indexName: limits_limit_stats_transport_type_idx
+        - createIndex:
+            schemaName: limits
+            tableName: limit_stats
+            column:
+              name: year
+            indexName: limits_limit_stats_year_idx
+      rollback:
+        - sql:
+            sql: drop materialized view limits.limit_stats;
+        - sql:
+            sql: >-
+              create materialized view limits.limit_stats as
+              select lspp.id as period_sharing_id, lspp.organization_id as organization_id, lspp.period as period, l.year as year, ls.id as sharing_id, ls.transport_type as transport_type, lspp.sum as sum
+              from limits.limit_sharing_per_period lspp
+                       inner join limits.limit_sharing ls on ls.id = lspp.limit_sharing_id
+                       inner join limits.limit l on l.id = ls.limit_id;
+  - changeSet:
+      id: "20231018-0833"
+      author: medvedev-ad
+      context: "TRANSPORT-16955"
+      dbms: h2
+      changes:
+        - tagDatabase:
+            tag: "D-02.034.000"
+        - sql:
+            sql: drop view limits.limit_stats;
+        - sql:
+            sql: create view limits.limit_stats as select lspp.id as period_sharing_id, lspp.organization_id as organization_id, lspp.period as period, l."year" as "year", ls.id as sharing_id, ls.transport_type as transport_type, lspp.sum as sum from limits.limit_sharing_per_period lspp inner join limits.limit_sharing ls on ls.id = lspp.limit_sharing_id inner join limits."limit" l on l.id = ls.limit_id where l.limit_status = 'SHARED';
+      rollback:
+        - sql:
+            dbms: h2
+            sql: drop view limits.limit_stats;
+        - sql:
+            dbms: postgresql
+            sql: create view limits.limit_stats as select lspp.id as period_sharing_id, lspp.organization_id as organization_id, lspp.period as period, l."year" as "year", ls.id as sharing_id, ls.transport_type as transport_type, lspp.sum as sum from limits.limit_sharing_per_period lspp inner join limits.limit_sharing ls on ls.id = lspp.limit_sharing_id inner join limits."limit" l on l.id = ls.limit_id;
+  - changeSet:
+      id: "20231018-1009"
+      author: medvedev-ad
+      context: "TRANSPORT-16955"
+      dbms: postgresql
+      changes:
+        - tagDatabase:
+            tag: "D-02.034.000"
+        - sql:
+            sql: drop materialized view limits.limit_stats;
+        - sql:
+            sql: >-
+              create materialized view limits.limit_stats as
+              select lspp.id as period_sharing_id, lspp.organization_id as organization_id, lspp.period as period, l.year as year, ls.id as sharing_id, ls.transport_type as transport_type, lspp.sum as sum
+              from limits.limit_sharing_per_period lspp
+                       inner join limits.limit_sharing ls on ls.id = lspp.limit_sharing_id
+                       inner join limits.limit l on l.id = ls.limit_id
+              where l.limit_status = 'SHARED' and lspp.sum > 0;
+      rollback:
+        - sql:
+            sql: drop materialized view limits.limit_stats;
+        - sql:
+            sql: >-
+              create materialized view limits.limit_stats as
+              select lspp.id as period_sharing_id, lspp.organization_id as organization_id, lspp.period as period, l.year as year, ls.id as sharing_id, ls.transport_type as transport_type, lspp.sum as sum
+              from limits.limit_sharing_per_period lspp
+                       inner join limits.limit_sharing ls on ls.id = lspp.limit_sharing_id
+                       inner join limits.limit l on l.id = ls.limit_id
+              where l.limit_status = 'SHARED';
+  - changeSet:
+      id: "20231018-1009"
+      author: medvedev-ad
+      context: "TRANSPORT-16955"
+      dbms: h2
+      changes:
+        - tagDatabase:
+            tag: "D-02.034.000"
+        - sql:
+            sql: drop view limits.limit_stats;
+        - sql:
+            sql: create view limits.limit_stats as select lspp.id as period_sharing_id, lspp.organization_id as organization_id, lspp.period as period, l."year" as "year", ls.id as sharing_id, ls.transport_type as transport_type, lspp.sum as sum from limits.limit_sharing_per_period lspp inner join limits.limit_sharing ls on ls.id = lspp.limit_sharing_id inner join limits."limit" l on l.id = ls.limit_id where l.limit_status = 'SHARED' and lspp.sum > 0;
+      rollback:
+        - sql:
+            sql: drop view limits.limit_stats;
+        - sql:
+            sql: create view limits.limit_stats as select lspp.id as period_sharing_id, lspp.organization_id as organization_id, lspp.period as period, l."year" as "year", ls.id as sharing_id, ls.transport_type as transport_type, lspp.sum as sum from limits.limit_sharing_per_period lspp inner join limits.limit_sharing ls on ls.id = lspp.limit_sharing_id inner join limits."limit" l on l.id = ls.limit_id where l.limit_status = 'SHARED';
+  - changeSet:
+      id: "20231018-1040"
+      author: medvedev-ad
+      context: "TRANSPORT-16955"
+      dbms: postgresql
+      changes:
+        - tagDatabase:
+            tag: "D-02.034.000"
+        - createIndex:
+            schemaName: limits
+            tableName: limit_stats
+            columns:
+              - column:
+                  name: organization_id
+              - column:
+                  name: period
+              - column:
+                  name: transport_type
+              - column:
+                  name: year
+            indexName: limits_limit_stats_organization_id_period_transport_type_year_idx

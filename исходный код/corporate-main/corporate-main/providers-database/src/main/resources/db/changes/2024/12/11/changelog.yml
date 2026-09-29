@@ -1,0 +1,52 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20241211-1848"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - renameColumn:
+            schemaName: corporate
+            tableName: contact
+            oldColumnName: contact_type
+            newColumnName: type
+      rollback:
+        - renameColumn:
+            schemaName: corporate
+            tableName: contact
+            newColumnName: contact_type
+            oldColumnName: type
+  - changeSet:
+      id: "20241211-1849"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - sql:
+            sql: create type corporate.contact_type as enum ('PHONE', 'EMAIL', 'SITE')
+        - sql:
+            dbms: postgresql
+            sql: comment on type corporate.contact_type is 'Допустимые типы контактов'
+      rollback:
+        - sql:
+            sql: drop type corporate.contact_type
+  - changeSet:
+      id: "20241211-1851"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - modifyDataType:
+            schemaName: corporate
+            tableName: contact
+            columnName: type
+            newDataType: corporate.contact_type
+      rollback:
+        - modifyDataType:
+            schemaName: corporate
+            tableName: contact
+            columnName: type
+            newDataType: varchar(10)

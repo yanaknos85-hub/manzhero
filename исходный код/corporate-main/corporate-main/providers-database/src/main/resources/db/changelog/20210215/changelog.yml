@@ -1,0 +1,229 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20210215-remastered-1
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - not:
+            - tableExists:
+                schemaName: corporate
+                tableName: request_deadline_settings_item
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - createTable:
+            schemaName: corporate
+            tableName: request_deadline_settings_item
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: corporate_request_deadline_settings_item_pk
+              - column:
+                  name: request_status
+                  type: varchar(255)
+              - column:
+                  name: transport_type
+                  type: varchar(255)
+              - column:
+                  name: unit
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_request_deadline_settings_item_unit_nn
+              - column:
+                  name: value
+                  type: int2
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_request_deadline_settings_item_value_nn
+                    check: value >= 1 and value <= 999
+  - changeSet:
+      id: 20210215-remastered-2
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - not:
+            - tableExists:
+                schemaName: corporate
+                tableName: limit_deadline_settings_item
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - createTable:
+            schemaName: corporate
+            tableName: limit_deadline_settings_item
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: corporate_limit_deadline_settings_item_pk
+              - column:
+                  name: request_status
+                  type: varchar(255)
+              - column:
+                  name: limit_type
+                  type: varchar(255)
+              - column:
+                  name: unit
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_limit_deadline_settings_item_unit_nn
+              - column:
+                  name: value
+                  type: int2
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_limit_deadline_settings_item_value_nn
+                    check: value >= 1 and value <= 999
+  - changeSet:
+      id: 20210215-remastered-3
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - not:
+            - tableExists:
+                schemaName: corporate
+                tableName: deadline_settings
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - createTable:
+            schemaName: corporate
+            tableName: deadline_settings
+            remarks: 'Настройки контрольных сроков для организации'
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: 'ID настройки'
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: corporate_deadline_settings_pk
+              - column:
+                  name: organization_id
+                  type: uuid
+                  remarks: 'Организация. Одна настройка для одной организации'
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_deadline_settings_organization_id_nn
+                    referencedTableSchemaName: corporate
+                    referencedTableName: organization
+                    referencedColumnName: id
+                    foreignKeyName: corporate_deadline_settings_organization_id_fk
+              - column:
+                  name: taxi_awaiting_approvals_deadline_id
+                  type: uuid
+                  remarks: 'Контрольный срок - такси - на согласовании'
+                  constraints:
+                    referencedTableSchemaName: corporate
+                    referencedTableName: request_deadline_settings_item
+                    referencedColumnName: id
+                    foreignKeyName: corporate_deadline_settings_taxi_awaiting_approvals_deadline_request_deadline_settings_item_fk
+              - column:
+                  name: taxi_driver_search_deadline_id
+                  type: uuid
+                  remarks: 'Контрольный срок - такси - поиск водителя'
+                  constraints:
+                    referencedTableSchemaName: corporate
+                    referencedTableName: request_deadline_settings_item
+                    referencedColumnName: id
+                    foreignKeyName: corporate_deadline_settings_taxi_driver_search_deadline_request_deadline_settings_item_fk
+              - column:
+                  name: taxi_trip_finished_deadline_id
+                  type: uuid
+                  remarks: 'Контрольный срок - такси - поездка завершена'
+                  constraints:
+                    referencedTableSchemaName: corporate
+                    referencedTableName: request_deadline_settings_item
+                    referencedColumnName: id
+                    foreignKeyName: corporate_deadline_settings_taxi_trip_finished_deadline_request_deadline_settings_item_fk
+              - column:
+                  name: personal_awaiting_approvals_deadline_id
+                  type: uuid
+                  remarks: 'Контрольный срок - личный а/м - на согласовании'
+                  constraints:
+                    referencedTableSchemaName: corporate
+                    referencedTableName: request_deadline_settings_item
+                    referencedColumnName: id
+                    foreignKeyName: corporate_deadline_settings_personal_awaiting_approvals_deadline_request_deadline_settings_item_fk
+              - column:
+                  name: personal_awaiting_shared_ride_approval_deadline_id
+                  type: uuid
+                  remarks: 'Контрольный срок - личный а/м - согласование присоединения к СП'
+                  constraints:
+                    referencedTableSchemaName: corporate
+                    referencedTableName: request_deadline_settings_item
+                    referencedColumnName: id
+                    foreignKeyName: corporate_deadline_settings_personal_awaiting_shared_ride_approval_deadline_request_deadline_settings_item_fk
+              - column:
+                  name: personal_trip_in_progress_deadline_id
+                  type: uuid
+                  remarks: 'Контрольный срок - личный а/м - поездка'
+                  constraints:
+                    referencedTableSchemaName: corporate
+                    referencedTableName: request_deadline_settings_item
+                    referencedColumnName: id
+                    foreignKeyName: corporate_deadline_settings_personal_trip_in_progress_deadline_request_deadline_settings_item_fk
+              - column:
+                  name: personal_awaiting_trip_approval_deadline_id
+                  type: uuid
+                  remarks: 'Контрольный срок - личный а/м - утверждение маршрута'
+                  constraints:
+                    referencedTableSchemaName: corporate
+                    referencedTableName: request_deadline_settings_item
+                    referencedColumnName: id
+                    foreignKeyName: corporate_deadline_settings_personal_awaiting_trip_approval_deadline_request_deadline_settings_item_fk
+              - column:
+                  name: public_awaiting_approval_deadline_id
+                  type: uuid
+                  remarks: 'Контрольный срок - общественный тр-т - на согласовании'
+                  constraints:
+                    referencedTableSchemaName: corporate
+                    referencedTableName: request_deadline_settings_item
+                    referencedColumnName: id
+                    foreignKeyName: corporate_deadline_settings_public_awaiting_approval_deadline_request_deadline_settings_item_fk
+              - column:
+                  name: public_trip_confirmation_deadline_id
+                  type: uuid
+                  remarks: 'Контрольный срок - общественный тр-т - подтверждение поездки'
+                  constraints:
+                    referencedTableSchemaName: corporate
+                    referencedTableName: request_deadline_settings_item
+                    referencedColumnName: id
+                    foreignKeyName: corporate_deadline_settings_public_trip_confirmation_deadline_request_deadline_settings_item_fk
+              - column:
+                  name: public_awaiting_affirmative_deadline_id
+                  type: uuid
+                  remarks: 'Контрольный срок - общественный тр-т - утверждение'
+                  constraints:
+                    referencedTableSchemaName: corporate
+                    referencedTableName: request_deadline_settings_item
+                    referencedColumnName: id
+                    foreignKeyName: corporate_deadline_settings_public_awaiting_affirmative_deadline_request_deadline_settings_item_fk
+              - column:
+                  name: employee_limit_deadline_id
+                  type: uuid
+                  remarks: 'Контрольный срок - личный лимит - на согласовании'
+                  constraints:
+                    referencedTableSchemaName: corporate
+                    referencedTableName: limit_deadline_settings_item
+                    referencedColumnName: id
+                    foreignKeyName: corporate_deadline_settings_employee_limit_deadline_limit_deadline_settings_item_fk
+              - column:
+                  name: department_limit_deadline_id
+                  type: uuid
+                  remarks: 'Контрольный срок - лимит подразделения - на согласовании'
+                  constraints:
+                    referencedTableSchemaName: corporate
+                    referencedTableName: limit_deadline_settings_item
+                    referencedColumnName: id
+                    foreignKeyName: corporate_deadline_settings_department_limit_deadline_limit_deadline_settings_item_fk

@@ -1,0 +1,13 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20220824"
+            author: asigalov
+            changes:
+                -   addColumn:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            -   column:
+                                    name: limit_service_type
+                                    type: varchar(100)
+                                    remarks: тип услуги

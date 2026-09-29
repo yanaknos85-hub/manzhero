@@ -1,0 +1,98 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20241212-0833"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate
+            baseTableName: easup_organization
+            baseColumnNames: id
+            referencedTableSchemaName: corporate
+            referencedTableName: organization
+            referencedColumnNames: id
+            constraintName: corporate_easup_organization_fk
+  - changeSet:
+      id: "20241212-1525"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - sql:
+            dbms: postgresql
+            sql: delete from corporate.easup_employee where position_id is null;
+      rollback:
+        - sql:
+            sql: select 1;
+  - changeSet:
+      id: "20241212-1526"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: easup_organization
+            columnName: id
+            constraintName: corporate_easup_organization_id_nn
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: easup_department
+            columnName: id
+            constraintName: corporate_easup_department_id_nn
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: easup_employee
+            columnName: id
+            constraintName: corporate_easup_employee_id_nn
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: easup_employee
+            columnName: position_id
+            constraintName: corporate_easup_employee_position_id_nn
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: easup_employee
+            columnName: department_id
+            constraintName: corporate_easup_employee_department_id_nn
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate
+            baseTableName: easup_department
+            baseColumnNames: id
+            referencedTableSchemaName: corporate
+            referencedTableName: department
+            referencedColumnNames: id
+            constraintName: corporate_easup_department_fk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate
+            baseTableName: easup_position
+            baseColumnNames: id
+            referencedTableSchemaName: corporate
+            referencedTableName: position
+            referencedColumnNames: id
+            constraintName: corporate_easup_position_fk
+  - changeSet:
+      id: "20241212-1530"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - dropColumn:
+            schemaName: corporate
+            tableName: easup_position
+            columnName: organization_id
+            cascade: true
+      rollback:
+        - addColumn:
+            schemaName: corporate
+            tableName: easup_position
+            columns:
+              - column:
+                  name: organization_id
+                  type: varchar(20)
+                  remarks: Ссылка на организацию

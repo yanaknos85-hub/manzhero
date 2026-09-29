@@ -1,0 +1,1 @@
+alter table corporate.position drop column active;

@@ -1,0 +1,1 @@
+alter table corporate.department drop column is_handmade

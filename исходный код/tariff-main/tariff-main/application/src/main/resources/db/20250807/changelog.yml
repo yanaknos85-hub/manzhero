@@ -1,0 +1,31 @@
+databaseChangeLog:
+    -   changeSet:
+            id: tariff_fleet/20250807-1
+            author: novikova-km
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/create_contractor_enums.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: tariff_fleet/20250807-2
+            author: novikova-km
+            dbms: postgresql
+            changes:
+                -   addColumn:
+                        schemaName: tariff_fleet
+                        tableName: contractor
+                        columns:
+                            -   column:
+                                    name: service_type
+                                    type: tariff_fleet.service_type
+                                    remarks: Тип сервиса
+                -   addColumn:
+                        schemaName: tariff_fleet
+                        tableName: contractor
+                        columns:
+                            -   column:
+                                    name: contractor_type
+                                    type: tariff_fleet.contractor_type
+                                    remarks: Тип интеграции

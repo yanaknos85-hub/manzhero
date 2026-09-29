@@ -1,0 +1,28 @@
+databaseChangeLog:
+    -   changeSet:
+            id: tariff_fleet/20250512-1
+            author: klyunkov-va
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/add_ddl_tariff.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: tariff_fleet/20250512-2
+            author: klyunkov-va
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/add_ddl_ewb_tariff.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: tariff_fleet/20250512-3
+            author: klyunkov-va
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/add_roles.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false

@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20231128"
+      author: delyukov-da
+      context: "20240124"
+      changes:
+        - tagDatabase:
+            tag: "20240123"
+        - dropUniqueConstraint:
+            constraintName: UK_REG_NUM
+            schemaName: corporate
+            tableName: personal_auto
+            uniqueColumns: reg_number
+        - dropUniqueConstraint:
+            constraintName: UK_REG_CERT
+            schemaName: corporate
+            tableName: personal_auto
+            uniqueColumns: reg_cert
+      rollback:
+        - addUniqueConstraint:
+            constraintName: UK_REG_NUM
+            schemaName: corporate
+            tableName: personal_auto
+            columnNames: reg_number
+        - addUniqueConstraint:
+            constraintName: UK_REG_CERT
+            schemaName: corporate
+            tableName: personal_auto
+            columnNames: reg_cert

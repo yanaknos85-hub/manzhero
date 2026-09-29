@@ -1,0 +1,18 @@
+databaseChangeLog:
+    - changeSet:
+          id: "20220921-2"
+          author: shadrin-mv
+          dbms: postgresql
+          preConditions:
+                -   columnExists:
+                        schemaName: approvals
+                        tableName: final_trip_approvals
+                        columnName: approval_date
+                        constraint:
+                            - nullable: false
+                -   onFail: MARK_RAN
+          changes:
+              - dropNotNullConstraint:
+                  schemaName: approvals
+                  tableName: final_trip_approvals
+                  columnName: approval_date

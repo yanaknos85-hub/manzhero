@@ -1,0 +1,28 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20211012"
+            author: medvedev-ad
+            dbms: postgresql
+            changes:
+                -   renameColumn:
+                        schemaName: approvals
+                        tableName: messages_geo_zone
+                        oldColumnName: code
+                        newColumnName: old_code
+                -   addColumn:
+                        schemaName: approvals
+                        tableName: messages_geo_zone
+                        columns:
+                            -   column:
+                                    name: code
+                                    type: text
+                -   sql:
+                        sql: update approvals.messages_geo_zone set code = old_code
+                -   dropColumn:
+                        schemaName: approvals
+                        tableName: messages_geo_zone
+                        columnName: old_code
+                -   addNotNullConstraint:
+                        schemaName: approvals
+                        tableName: messages_geo_zone
+                        columnName: code

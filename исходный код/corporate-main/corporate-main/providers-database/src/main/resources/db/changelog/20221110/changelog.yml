@@ -1,0 +1,20 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20221110"
+            author: "shabrov-ie"
+            changes:
+              - tagDatabase:
+                  tag: "20221110"
+              -   addColumn:
+                    schemaName: corporate
+                    tableName: trip_purpose
+                    columns:
+                      -   column:
+                            name: icon
+                            type: varchar(255)
+                            remarks: Константа для иконки (фронт)
+            rollback:
+              -   dropColumn:
+                    schemaName: corporate
+                    tableName: trip_purpose
+                    columnName: icon

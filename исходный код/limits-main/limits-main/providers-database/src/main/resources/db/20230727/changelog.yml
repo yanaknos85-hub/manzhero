@@ -1,0 +1,12 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20230727-0842"
+            author: medvedev-ad
+            changes:
+                -   tagDatabase:
+                        tag: release/D-02.024.001
+                -   addNotNullConstraint:
+                        schemaName: limits
+                        tableName: limit
+                        columnName: limit_sharing_type
+                        constraintName: limits_limit_limit_sharing_type_nn

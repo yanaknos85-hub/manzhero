@@ -1,0 +1,14 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20201105
+            author: chuprin
+            changes:
+                -   sqlFile:
+                        path: add_meeting_address_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+            rollback:
+                -   sqlFile:
+                        path: rollback_add_meeting_address_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;

@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250127-1428"
+      author: medvedev-ad
+      context: "TRANSPORT-29571"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.002"
+        - sql:
+            dbms: postgresql
+            sql: create unique index corporate_employee_personnel_number_organization_id_idx on corporate.employee (personnel_number, organization_id) where status = 'ACTIVE'
+        - sql:
+            dbms: h2
+            sql: create unique index corporate_employee_personnel_number_organization_id_idx on corporate.employee (personnel_number, organization_id)
+      rollback:
+        - sql:
+            drop index corporate_employee_personnel_number_organization_id_idx

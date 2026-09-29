@@ -1,0 +1,232 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20231128"
+      author: delyukov-da
+      context: "20231128"
+      changes:
+        - tagDatabase:
+            tag: "20231128"
+        - createTable:
+            schemaName: corporate
+            tableName: document_type
+            columns:
+              - column:
+                  name: document_code
+                  type: varchar(255)
+                  remarks: Код
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: document_type_pk
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  remarks: Наименование документа
+                  constraints:
+                    nullable: false
+        - createTable:
+            schemaName: corporate
+            tableName: employee_document
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: employee_document_pk
+                    nullable: false
+              - column:
+                  name: document_code
+                  type: varchar(255)
+                  remarks: Код документа
+                  constraints:
+                    nullable: false
+              - column:
+                  name: employee_id
+                  type: uuid
+                  remarks: Идентификатор сотрудника
+                  constraints:
+                    nullable: false
+              - column:
+                  name: car_id
+                  type: uuid
+                  remarks: Идентификатор транспортного средства
+                  constraints:
+                    nullable: true
+              - column:
+                  name: file_name
+                  type: varchar(255)
+                  remarks: Имя файла
+                  constraints:
+                    nullable: true
+              - column:
+                  name: file_size
+                  type: integer
+                  remarks: Размер файла
+                  constraints:
+                    nullable: true
+              - column:
+                  name: file_format
+                  type: varchar(255)
+                  remarks: Формат файла
+                  constraints:
+                    nullable: true
+              - column:
+                  name: creation_time
+                  type: timestamp
+                  remarks: Дата и время создания записи
+                  constraints:
+                    nullable: false
+              - column:
+                  name: creation_user
+                  type: uuid
+                  remarks: Пользователь, создавший запись
+                  constraints:
+                    nullable: false
+              - column:
+                  name: change_time
+                  type: timestamp
+                  remarks: Дата и время изменения записи
+                  constraints:
+                    nullable: true
+              - column:
+                  name: change_user
+                  type: uuid
+                  remarks: Пользователь, изменивший запись
+                  constraints:
+                    nullable: true
+              - column:
+                  name: seria
+                  type: varchar(255)
+                  remarks: Серия документа
+                  constraints:
+                    nullable: true
+              - column:
+                  name: number
+                  type: varchar(255)
+                  remarks: Номер документа
+                  constraints:
+                    nullable: true
+              - column:
+                  name: issue_date_document
+                  type: timestamp
+                  remarks: Дата выдачи документа
+                  constraints:
+                    nullable: false
+              - column:
+                  name: issue
+                  type: varchar(255)
+                  remarks: Кем выдан
+                  constraints:
+                    nullable: true
+              - column:
+                  name: place_issue
+                  type: varchar(255)
+                  remarks: Где выдан
+                  constraints:
+                    nullable: true
+              - column:
+                  name: start_time_document
+                  type: timestamp
+                  remarks: Время начала действия документа
+                  constraints:
+                    nullable: true
+              - column:
+                  name: final_time_document
+                  type: timestamp
+                  remarks: Время окончания действия документа
+                  constraints:
+                    nullable: true
+              - column:
+                  name: categoria
+                  type: varchar(255)
+                  remarks: Категории в водительском удостоверении
+                  constraints:
+                    nullable: true
+              - column:
+                  name: vin
+                  type: varchar(255)
+                  remarks: VIN автомобиля
+                  constraints:
+                    nullable: true
+              - column:
+                  name: engine_volume
+                  type: int
+                  remarks: Объем двигателя, см3
+                  constraints:
+                    nullable: true
+              - column:
+                  name: engine_power
+                  type: varchar(255)
+                  remarks: Мощность двигателя
+                  constraints:
+                    nullable: true
+              - column:
+                  name: brand_name
+                  type: varchar(255)
+                  remarks: Марка транспортного средства
+                  constraints:
+                    nullable: true
+              - column:
+                  name: model
+                  type: varchar(255)
+                  remarks: Модель транспортного средства
+                  constraints:
+                    nullable: true
+              - column:
+                  name: color
+                  type: varchar(255)
+                  remarks: Цвет транспортного средства
+                  constraints:
+                    nullable: true
+              - column:
+                  name: passenger_seats_count
+                  type: int
+                  remarks: Количество пассажирских мест
+                  constraints:
+                    nullable: true
+              - column:
+                  name: registration_number
+                  type: varchar(255)
+                  remarks: Цвет транспортного средства
+                  constraints:
+                    nullable: true
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate
+            baseTableName: employee_document
+            baseColumnNames: document_code
+            constraintName: employee_document_document_code_fk
+            referencedTableSchemaName: corporate
+            referencedTableName: document_type
+            referencedColumnNames: document_code
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate
+            baseTableName: employee_document
+            baseColumnNames: employee_id
+            constraintName: employee_document_employee_id_fk
+            referencedTableSchemaName: corporate
+            referencedTableName: employee
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate
+            baseTableName: employee_document
+            baseColumnNames: car_id
+            constraintName: employee_document_car_id_fk
+            referencedTableSchemaName: corporate
+            referencedTableName: personal_auto
+            referencedColumnNames: id
+        - createIndex:
+            schemaName: corporate
+            tableName: employee_document
+            columns:
+              - column:
+                  name: employee_id
+            indexName: corporate_employee_document_employee_id_idx
+      rollback:
+        - dropTable:
+              schemaName: corporate
+              tableName: employee_document
+        -  dropTable:
+             schemaName: corporate
+             tableName: document_type

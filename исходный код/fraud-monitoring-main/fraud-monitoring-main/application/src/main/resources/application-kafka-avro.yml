@@ -1,0 +1,69 @@
+spring.cloud.stream:
+  binders:
+    kafka-avro:
+      type: kafka
+      environment:
+        spring:
+          cloud:
+            stream:
+              kafka:
+                binder:
+                  brokers:
+                    - ${KAFKA_BROKERS}
+                  consumerProperties:
+                    value.deserializer: ru.sber.transport.messaging.kafka.serialize.KafkaAvroDeserialize
+                    key.deserializer: org.apache.kafka.common.serialization.JsonDeserializer
+                  producerProperties:
+                    value.serializer: ru.sber.transport.messaging.kafka.serialize.KafkaAvroSerialize
+                    key.serializer: org.apache.kafka.common.serialization.JsonSerializer
+                    schema.registry.service-request-external.compatible: NONE
+  bindings:
+    organizations-in-0:
+      group: ${spring.application.name}-avro
+      destination: service-organization
+      binder: kafka-avro
+      content-type: application/*+avro
+      consumer:
+        useNativeDecoding: true
+    employees-in-0:
+      group: ${spring.application.name}-avro
+      destination: service-organization-employee
+      binder: kafka-avro
+      content-type: application/*+avro
+      consumer:
+        useNativeDecoding: true
+    departments-in-0:
+      group: ${spring.application.name}-avro
+      destination: service-organization-department
+      binder: kafka-avro
+      content-type: application/*+avro
+      consumer:
+        useNativeDecoding: true
+    positions-in-0:
+      group: ${spring.application.name}-avro
+      destination: service-organization-position
+      binder: kafka-avro
+      content-type: application/*+avro
+      consumer:
+        useNativeDecoding: true
+    externalRequests-in-0:
+      group: ${spring.application.name}-avro
+      destination: service-request-external
+      binder: kafka-avro
+      content-type: application/*+avro
+      consumer:
+        useNativeDecoding: true
+    receiptScannerFraudInputAvro-in-0:
+      destination: service-ai-receipt-scanner-fraud
+      group: ${spring.application.name}-avro
+      binder: kafka-avro
+      contentType: application/*+avro
+      consumer:
+        useNativeDecoding: true
+    radiusFraudInputAvro-in-0:
+      destination: service-fraud-radius
+      group: ${spring.application.name}-avro
+      binder: kafka-avro
+      content-type: application/*+avro
+      consumer:
+        use-native-decoding: true

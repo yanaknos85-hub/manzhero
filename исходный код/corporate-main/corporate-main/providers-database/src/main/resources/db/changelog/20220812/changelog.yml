@@ -1,0 +1,20 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20220812"
+            author: "medvedev-ad"
+            changes:
+                -   dropNotNullConstraint:
+                        schemaName: corporate
+                        tableName: user
+                        columnName: login
+    -   changeSet:
+            id: "20220812-1"
+            author: "medvedev-ad"
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: change/correct_human_readable_id.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sql:
+                        sql: select 1 # no need to rollback change/correct_human_readable_id.sql

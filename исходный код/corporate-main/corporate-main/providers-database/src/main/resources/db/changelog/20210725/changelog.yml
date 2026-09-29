@@ -1,0 +1,13 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20210725
+            author: aas
+            changes:
+                -   addColumn:
+                        schemaName: corporate
+                        tableName: employee
+                        columns:
+                            -   column:
+                                    name: creation_time
+                                    type: timestamp
+                                    remarks: время создания записи

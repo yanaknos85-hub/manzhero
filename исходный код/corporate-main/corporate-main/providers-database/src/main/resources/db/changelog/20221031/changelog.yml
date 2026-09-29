@@ -1,0 +1,101 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20221031"
+            author: medvedev-ad
+            context: "20221031"
+            changes:
+                -   tagDatabase:
+                        tag: "20221031"
+                -   createIndex:
+                        schemaName: corporate
+                        tableName: department
+                        columns:
+                            -   column:
+                                    name: parent_id
+                        indexName: corporate_department_parent_id_idx
+                -   createIndex:
+                        schemaName: corporate
+                        tableName: department
+                        columns:
+                            -   column:
+                                    name: department_head
+                        indexName: corporate_department_department_head_idx
+                -   createIndex:
+                        schemaName: corporate
+                        tableName: department
+                        columns:
+                            -   column:
+                                    name: status
+                        indexName: corporate_department_status_idx
+                -   createIndex:
+                        schemaName: corporate
+                        tableName: personal_auto
+                        columns:
+                            -   column:
+                                    name: corporate_user_id
+                        indexName: corporate_personal_auto_corporate_user_id_idx
+                -   createIndex:
+                        schemaName: corporate
+                        tableName: active_personal_car
+                        columns:
+                            -   column:
+                                    name: car_id
+                        indexName: corporate_active_personal_car_car_id_idx
+                -   createIndex:
+                        schemaName: corporate
+                        tableName: employee_transport_type
+                        columns:
+                            -   column:
+                                    name: employee_id
+                        indexName: corporate_employee_transport_type_employee_id_idx
+                -   createIndex:
+                        schemaName: corporate
+                        tableName: organization
+                        columns:
+                            -   column:
+                                    name: easup_id
+                        indexName: corporate_organization_easup_id_idx
+                -   createIndex:
+                        schemaName: corporate
+                        tableName: organization
+                        columns:
+                            -   column:
+                                    name: status
+                        indexName: corporate_organization_status_idx
+                -   createIndex:
+                        schemaName: corporate_approvals
+                        tableName: approvals
+                        columns:
+                            -   column:
+                                    name: employee_id
+                        indexName: corporate_approvals_approvals_employee_id_idx
+                -   createIndex:
+                        schemaName: corporate
+                        tableName: position_taxi_classes
+                        columns:
+                            -   column:
+                                    name: position_id
+                        indexName: corporate_position_taxi_classes_position_id_idx
+    -   changeSet:
+            id: "20221031-1"
+            author: medvedev-ad
+            context: "20221031"
+            preConditions:
+                - onFail: MARK_RAN
+                  onError: HALT
+                  tableExists:
+                      tableName: urls
+                      schemaName: corporate
+            changes:
+                -   tagDatabase:
+                        tag: "20221031"
+                -   createIndex:
+                        schemaName: corporate
+                        tableName: roles
+                        columns:
+                            -   column:
+                                    name: url_id
+                        indexName: corporate_roles_url_id_idx
+            rollback:
+                -   sql:
+                        sql: drop index if exists corporate.corporate_roles_url_id_idx;

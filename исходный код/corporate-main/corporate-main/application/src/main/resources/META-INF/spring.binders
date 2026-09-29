@@ -1,0 +1,3 @@
+kafka-ssl=org.springframework.cloud.stream.binder.kafka.config.KafkaBinderConfiguration
+kafka-avro=org.springframework.cloud.stream.binder.kafka.config.KafkaBinderConfiguration
+kafka=org.springframework.cloud.stream.binder.kafka.config.KafkaBinderConfiguration

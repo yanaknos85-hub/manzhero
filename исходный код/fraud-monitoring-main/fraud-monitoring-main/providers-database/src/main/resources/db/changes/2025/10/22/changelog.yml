@@ -1,0 +1,299 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20251022-1200"
+      author: khalikov-ma
+      context: "TRANSPORT-37190"
+      changes:
+        - createTable:
+            schemaName: ${schema_name}
+            tableName: employee
+            remarks: Сотрудники
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор сотрудника
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: ${schema_name}_employee_pk
+              - column:
+                  name: organization_id
+                  type: uuid
+                  remarks: Идентификатор организации, которой принадлежит сотрудник
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: ${schema_name}_employee_organization_id_nn
+              - column:
+                  name: department_id
+                  type: uuid
+                  remarks: Идентификатор подразделения, которому принадлежит сотрудник
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: ${schema_name}_employee_department_id_nn
+              - column:
+                  name: position_id
+                  type: uuid
+                  remarks: Идентификатор должности сотрудника
+              - column:
+                  name: last_name
+                  type: text
+                  remarks: Фамилия сотрудника
+              - column:
+                  name: first_name
+                  type: text
+                  remarks: Имя сотрудника
+              - column:
+                  name: patronymic
+                  type: text
+                  remarks: Отчество сотрудника
+              - column:
+                  name: cost_center
+                  type: varchar(255)
+                  remarks: Место возникновения затрат (МВЗ)
+              - column:
+                  name: personnel_number
+                  type: varchar(100)
+                  remarks: Табельный номер сотрудника
+        - createTable:
+            schemaName: ${schema_name}
+            tableName: organization
+            remarks: Организации
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор организации
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: ${schema_name}_organization_pk
+              - column:
+                  name: digit_id
+                  type: integer
+                  remarks: Порядковый номер организации
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: ${schema_name}_organization_digit_id_nn
+        - createTable:
+            schemaName: ${schema_name}
+            tableName: department
+            remarks: Подразделения
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор подразделения
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: ${schema_name}_department_pk
+              - column:
+                  name: head_id
+                  type: uuid
+                  remarks: Идентификатор руководителя подразделения
+              - column:
+                  name: parent_id
+                  type: uuid
+                  remarks: Идентификатор родительского подразделения
+              - column:
+                  name: name
+                  type: varchar(255)
+                  remarks: Название подразделения
+              - column:
+                  name: code
+                  type: varchar(255)
+                  remarks: Код подразделения
+        - createTable:
+            schemaName: ${schema_name}
+            tableName: trip_purpose
+            remarks: Цели поездки
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор цели поездки
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: ${schema_name}_trip_purpose_pk
+              - column:
+                  name: label
+                  type: varchar(255)
+                  remarks: Наименование цели поездки
+        - createTable:
+            schemaName: ${schema_name}
+            tableName: position
+            remarks: Должности
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор должности
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: ${schema_name}_position_pk
+              - column:
+                  name: name
+                  type: varchar(255)
+                  remarks: Наименование должности
+        - createTable:
+            schemaName: ${schema_name}
+            tableName: trip_request
+            remarks: Заявка на поездку
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор заявки на поездку
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: ${schema_name}_trip_request_pk
+              - column:
+                  name: human_readable_id
+                  type: varchar(100)
+                  remarks: Человекочитаемый идентификатор
+              - column:
+                  name: transport_type
+                  type: varchar(255)
+                  remarks: Тип транспорта
+              - column:
+                  name: tariff
+                  type: varchar(255)
+                  remarks: Тип тарифа
+              - column:
+                  name: passenger_id
+                  type: uuid
+                  remarks: Идентификатор пассажира
+              - column:
+                  name: approver_id
+                  type: uuid
+                  remarks: Идентификатор утверждающего
+              - column:
+                  name: desired_date
+                  type: timestamp with time zone
+                  remarks: Желаемая дата и время поездки
+              - column:
+                  name: approval_date
+                  type: timestamp with time zone
+                  remarks: Дата утверждения
+              - column:
+                  name: planned_cost
+                  type: numeric(18, 2)
+                  remarks: Планируемая стоимость
+              - column:
+                  name: actual_cost
+                  type: numeric(18, 2)
+                  remarks: Фактическая стоимость
+              - column:
+                  name: organization_id
+                  type: uuid
+                  remarks: Идентификатор организации
+              - column:
+                  name: department_id
+                  type: uuid
+                  remarks: Идентификатор департамента
+              - column:
+                  name: request_status
+                  type: varchar(255)
+                  remarks: Статус заявки
+              - column:
+                  name: purpose_id
+                  type: uuid
+                  remarks: Идентификатор цели поездки
+              - column:
+                  name: time_zone
+                  type: varchar(100)
+                  remarks: Часовой пояс
+              - column:
+                  name: distance
+                  type: float
+                  remarks: Расстояние поездки
+        - createTable:
+            schemaName: ${schema_name}
+            tableName: waypoint
+            remarks: Путевые точки поездки
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор путевой точки
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: ${schema_name}_waypoint_pk
+              - column:
+                  - name: trip_request_id
+                    type: uuid
+                    remarks: Идентификатор заявки на поездку
+              - column:
+                  name: country
+                  type: varchar(100)
+                  remarks: Страна
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: ${schema_name}_waypoint_country_nn
+              - column:
+                  name: region
+                  type: varchar(100)
+                  remarks: Регион
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: ${schema_name}_waypoint_region_nn
+              - column:
+                  name: city
+                  type: varchar(100)
+                  remarks: Город
+              - column:
+                  name: street
+                  type: varchar(100)
+                  remarks: Улица
+              - column:
+                  name: house
+                  type: varchar(100)
+                  remarks: Дом
+              - column:
+                  name: structure
+                  type: varchar(100)
+                  remarks: Строение
+              - column:
+                  name: building
+                  type: varchar(100)
+                  remarks: Корпус
+              - column:
+                  name: ordering_index
+                  type: integer
+                  remarks: Порядковый номер точки
+              - column:
+                  name: wait_time
+                  type: bigint
+                  remarks: Время ожидания в промежуточной точке
+            indexes:
+              - index:
+                  name: ${schema_name}_waypoint_trip_request_id_idx
+                  columns:
+                    - column:
+                        name: trip_request_id
+        - createTable:
+            schemaName: ${schema_name}
+            tableName: fraud
+            remarks: Информация о фроде заявок
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: ${schema_name}_fraud_pk
+              - column:
+                  name: request_id
+                  type: uuid
+                  remarks: Идентификатор заявки
+                  constraints:
+                    nullable: false
+              - column:
+                  name: comment
+                  type: text
+                  remarks: Комментарий, описывающий подозрение на фронт
+            indexes:
+              - index:
+                  name: ${schema_name}_fraud_request_id_idx
+                  columns:
+                    - column:
+                        name: request_id

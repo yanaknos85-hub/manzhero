@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250131-1302"
+      author: medvedev-ad
+      context: "TRANSPORT-29323"
+      changes:
+        - tagDatabase:
+            tag: "D-04.002.000"
+        - addColumn:
+            schemaName: limits
+            tableName: limit_sharing_per_period
+            columns:
+              - column:
+                  name: additional
+                  type: int8
+                  remarks: Дополнительная сумма. Может появиться в результате экономии с предыдущего месяца
+                  defaultValueNumeric: 0
+                  defaultOnNull: true
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limits_limit_sharing_per_period_additional_not_null
+                    checkConstraint: additional >= 0
+        - createIndex:
+            schemaName: limits
+            tableName: limit_sharing_per_period
+            columns:
+              - column:
+                  name: period
+            indexName: limits_limit_sharing_per_period_period_idx

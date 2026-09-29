@@ -1,0 +1,10 @@
+databaseChangeLog:
+    -   changeSet:
+            id: tariff_fleet/20240313-1
+            author: makarovm-d
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: change/get_tariff_role.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false

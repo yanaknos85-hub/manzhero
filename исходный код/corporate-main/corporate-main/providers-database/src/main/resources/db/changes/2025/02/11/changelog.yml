@@ -1,0 +1,67 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250211-0906"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      dbms: postgresql
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.003"
+        - sql:
+            sql: alter type corporate_sync.sync_state add value 'PREPARING' after 'NOT_READY';
+        - sql:
+            sql: alter type corporate_sync.sync_state add value 'SYNCHRONIZING' after 'READY';
+        - sql:
+            sql: comment on type corporate_sync.sync_state is 'Состояние синхронизации (NOT_READY - не готов, PREPARING - подготовка, READY - готов, SYNCHRONIZING - синхронизация, SYNCHRONIZED - синхронизирован)'
+  - changeSet:
+      id: "20250211-0906"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      dbms: h2
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.003"
+        - modifyDataType:
+            schemaName: corporate_sync
+            tableName: sync_position
+            columnName: state
+            newDataType: varchar(255)
+        - modifyDataType:
+            schemaName: corporate_sync
+            tableName: sync_department
+            columnName: state
+            newDataType: varchar(255)
+        - modifyDataType:
+            schemaName: corporate_sync
+            tableName: sync_employee
+            columnName: state
+            newDataType: varchar(255)
+        - sql:
+            sql: drop type corporate_sync.sync_state;
+        - sql:
+            sql: create type corporate_sync.sync_state as enum ('NOT_READY', 'PREPARING', 'READY', 'SYNCHRONIZING', 'SYNCHRONIZED')
+        - modifyDataType:
+            schemaName: corporate_sync
+            tableName: sync_position
+            columnName: state
+            newDataType: corporate_sync.sync_state
+        - modifyDataType:
+            schemaName: corporate_sync
+            tableName: sync_department
+            columnName: state
+            newDataType: corporate_sync.sync_state
+        - modifyDataType:
+            schemaName: corporate_sync
+            tableName: sync_employee
+            columnName: state
+            newDataType: corporate_sync.sync_state
+  - changeSet:
+      id: "20250211-1403"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.003"
+        - dropTable:
+            schemaName: corporate
+            tableName: sync_tasks

@@ -1,0 +1,288 @@
+{
+    "mappings": [
+        {
+            "request": {
+                "method": "GET",
+                "url": "/auth"
+            },
+            "response": {
+                "status": "200",
+                "jsonBody": {
+                    "accessToken": "eyJraWQiOiJqd3QiLCJjdHkiOiJhcHBsaWNhdGlvbi9qc29uIiwidHlwIjoiSldUIiwiYWxnIjoiUlM1MTIifQ.eyJzdWIiOiJLbGp1bmtvdlYtQSIsInJvbGVzIjpbIlJPTEVfRU5HSU5FRVJfQ09SUF9DTElFTlQiLCJST0xFX0RFTEVHQVRFX1JFUVVFU1RfQ09SUF9DTElFTlQiLCJST0xFX0NISUVGX0NPUlBfQ0xJRU5UIiwiUk9MRV9ORVdfUk9MRSIsIlJPTEVfR0VPX0FETUlOIiwiUk9MRV9BRE1JTl9EQVRBX01BU1RFUiIsIlJPTEVfRElTUEFUQ0hFUl9DT1JQX0NMSUVOVCIsIlJPTEVfQURNSU5fQ09SUF9DTElFTlQiLCJST0xFX1BBUktJTkdfQURNSU4iLCJST0xFX0FDQ0VTU19BRE1JTiIsIlJPTEVfRU1QTE9ZRUVfQ09SUF9DTElFTlQiLCJST0xFX0RSSVZFUiIsIlJPTEVfRElTUEFUQ0hFUl9TVVBQT1JUX1NFUlZJQ0UiLCJST0xFX1BBUktJTkdfQURNSU5fT1JHQU5JWkFUSU9OIiwiUk9MRV9NQUlOVEVOQU5DRV9FTkdJTkVFUiIsIlJPTEVfTUVESUMiLCJST0xFX1RFTEVNRUNIQU5JQyIsIlJPTEVfUEFSS0lOR19DT09SRElOQVRPUiIsIlJPTEVfVEVMRU1FQ0hBTklDX09SR0FOSVpBVElPTiJdLCJpc3MiOiJTYmVyVHJhbnNwb3J0IiwidHJhbnNwb3J0IjpmYWxzZSwiZGF0YV9tYXN0ZXIiOnRydWUsInJhbmRvbSI6IjM1N2NmYTgzLTg3MDktNDA5Mi1hY2Q2LWFlMTA1NzUxYTExZSIsIm5iZiI6MTc2NjczOTUwOCwicmVxdWVzdElkIjoiMjRkYmFmZjk1Yjk2OTJhNGY4YzdkYTM2YjU4NTVjODQiLCJzY29wZSI6IkVNUExPWUVFIiwiZXhwIjoxNzY2NzQwNDA4LCJmYWN0b3IiOiJCQVNJQyIsImlhdCI6MTc2NjczOTUwOCwianRpIjoiNDBiODBhNjQtYTE5MS00NmM2LWJiYmItMTZhNjBlNzcyZjdmIn0.hhYxX-3CnPLQ8pw2uy8Cl48pfsHqd_IpN0AVov9sio4GJy2-5i8L56E6Z91PM9LmXCKFpTdX0_UxPESwGmbPbLpxwQDyp1icsb0vDUZDVoFmRmNJbRvuUjUJ7qJjV6xy5g8RrXh76SdYAmMR3ZUb0uO4I_Z-ut7BDDpEZlHa0z6eHeiyFyqbUm1-_PftJMUesZ05ksDkxddSgAc-LFJzzXbPd_WCmNOqpthQFo6hA751gbtydxLB6o_r8x4TAthr88HsuIb_7ZHCL6mQCGc3TtiaNyOju6GpQTalwflbu7w9wuaV8f0rIWaT43ByE1b1bqMbqrY2WmhMfHtKUgjUSyDjF90QjMSu1F1G6zpVfesuA4V-wk9Uho3EGKRKfVsccn4r5r0ITzMhNR4EYyAoBZNBF2masU-s3U3JrNe1rSBvCCaybiZi1Cp8csYlsszjBqfo_jayRFPY-akbL1bunhNSfTN8C9jXw0AE1RLs8-8L2Np2bbpoYeTHD0wvOJVvslSd3vZD0o9vOfnS832_3cH9xK2FuOLjQoNBV7wDyJndri-R20bwDQEBcgzCm3l66xF-rKgYxkyNTACaRXVjkhCZe7anQSuleASEQO-21iHFC7Z9NGB8rGthsYPglVFVAoCK2c-TlvnRnFbeT6h-BTKJMWTqiHbhGmqMl5bn380",
+                    "refreshToken": "d7409dab-5eae-422b-8d9c-322a92fe321a",
+                    "isTransferPassword": false,
+                    "accessExpiration": "2225-12-26T09:13:28.437620313Z",
+                    "refreshExpiration": "2226-01-02T10:58:28.522272Z"
+                },
+                "headers": {
+                    "Content-Type": "application/json"
+                }
+            }
+        },{
+            "request": {
+                "method": "POST",
+                "url": "/orders",
+                "bodyPatterns" : [
+                    {
+                        "matchesJsonPath": "$.requestId"
+                    },
+                    {
+                        "matchesJsonPath": "$.humanReadableId"
+                    },
+                    {
+                        "matchesJsonPath": "$.inn"
+                    },
+                    {
+                        "matchesJsonPath": "$.statusCode"
+                    },
+                    {
+                        "matchesJsonPath": "$.workGroup"
+                    },
+                    {
+                        "not": {
+                            "matchesJsonPath": "$.tariff"
+                        }
+                    },
+                    {
+                        "matchesJsonPath": "$.planStartTime"
+                    },
+                    {
+                        "matchesJsonPath": "$.routePoints"
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.routePoints",
+                            "contains": "source"
+                        }
+                    },
+                    {
+                        "matchesJsonPath": {
+                            "expression": "$.routePoints",
+                            "contains": "destination"
+                        }
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.routePoints",
+                            "contains": "waypoints"
+                        }
+                    },
+                    {
+                        "matchesJsonPath": "$.class"
+                    },
+                    {
+                        "matchesJsonPath": "$.comment"
+                    },
+                    {
+                        "matchesJsonPath": "$.expected"
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.expected",
+                            "contains": "vehicleId"
+                        }
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.expected",
+                            "contains": "time"
+                        }
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.expected",
+                            "contains": "distance"
+                        }
+                    },
+                    {
+                        "matchesJsonPath": "$.passengerCount"
+                    },
+                    {
+                        "matchesJsonPath": "$.information"
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.information",
+                            "contains": "childSeat"
+                        }
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.information",
+                            "contains": "childSeatDetails"
+                        }
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.information",
+                            "contains": "bugs"
+                        }
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.information",
+                            "contains": "bugsComment"
+                        }
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.information",
+                            "contains": "bugsOversized"
+                        }
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.information",
+                            "contains": "bugsOversizedComment"
+                        }
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.information",
+                            "contains": "animal"
+                        }
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.information",
+                            "contains": "animalComment"
+                        }
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.information",
+                            "contains": "addContactFIO"
+                        }
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.information",
+                            "contains": "addContactPhone"
+                        }
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.information",
+                            "contains": "numberFlight"
+                        }
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.information",
+                            "contains": "dateFlight"
+                        }
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.information",
+                            "contains": "phoneHotel"
+                        }
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.information",
+                            "contains": "typeVehicle"
+                        }
+                    },
+                    {
+                        "matchesJsonPath" : {
+                            "expression": "$.information",
+                            "contains": "transportId"
+                        }
+                    }
+                ]
+            },
+            "response": {
+                "status": "200",
+                "jsonBody": {
+                    "isSuccess": true,
+                    "orderParthnerId": "503f4f4d-a59a-4665-b785-99ac94120520",
+                    "orderSbertransportId": "d7409dab-5eae-422b-8d9c-322a92fe321a"
+                },
+                "headers": {
+                    "Content-Type": "application/json"
+                }
+            }
+        },
+
+        {
+            "request": {
+                "method": "GET",
+                "urlPathTemplate": "/orders/{orderParthnerID}"
+            },
+            "response": {
+                "status": "200",
+                "jsonBody": {
+                    "isSuccess": true,
+                    "order": {
+                        "orderPartnerId": "d7409dab-5eae-422b-8d9c-322a92fe321a",
+                        "orderSbertransportId": "d7409dab-5eae-422b-8d9c-322a92fe321a",
+                        "inn": 2721144852,
+                        "tariff": null,
+                        "createOrderTime": null,
+                        "collectionTime": "12.02.2026 23:29:46",
+                        "routePoints": null,
+                        "price": null,
+                        "distance": 4991.93,
+                        "statusCode": 4,
+                        "finishTime": "2026-02-13T22:17:00+04:00",
+                        "calculation": null,
+                        "passenger": {
+                            "contact": {
+                                "phone": "+79142188028",
+                                "mobilePhone": null,
+                                "name": "Иванов Иван Иванович",
+                                "firstName": null,
+                                "patronymic": null,
+                                "type": null
+                            }
+                        },
+                        "performerArrivalTime": "12.02.2026 23:30:08",
+                        "driver": {
+                            "id": "3aec01bb-dd7c-4ddd-8f77-50cdda95e8ff",
+                            "name": null,
+                            "patronymic": null,
+                            "secName": null,
+                            "phone": "1",
+                            "imageUrl": null,
+                            "rating": 0.0,
+                            "companyId": 0,
+                            "license": {
+                                "mark": null,
+                                "model": null,
+                                "color": null,
+                                "registrationNumber": 902
+                            }
+                        },
+                        "comment": null,
+                        "purpose": null,
+                        "webViewLink": null,
+                        "eta": null,
+                        "isTest": null,
+                        "waitTime": null,
+                        "waitTimeOW": 0
+                    }
+                },
+                "headers": {
+                    "Content-Type": "application/json"
+                }
+            }
+        },
+        {
+            "request": {
+                "method": "POST",
+                "urlPathTemplate": "/orders/{orderParthnerID}/cancel"
+            },
+            "response": {
+                "status": "200",
+                "jsonBody": {
+                    "isSuccess": true,
+                    "orderParthnerID": "fd767d27-8d0f-3776-7d1d-868a84806eb7"
+                },
+                "headers": {
+                    "Content-Type": "application/json"
+                }
+            }
+        }
+    ]
+}

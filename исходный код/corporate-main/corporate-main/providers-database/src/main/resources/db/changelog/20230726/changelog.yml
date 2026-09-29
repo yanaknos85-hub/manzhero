@@ -1,0 +1,18 @@
+databaseChangeLog:
+  -   changeSet:
+        id: "20230726"
+        author: 21146167
+        changes:
+          -   addColumn:
+                schemaName: corporate
+                tableName: organization
+                columns:
+                  -   column:
+                        name: organization_code
+                        type: int
+                        remarks: Код организационной единицы
+        rollback:
+          -   dropColumn:
+                schemaName: corporate
+                tableName: organization
+                columnName: organization_code

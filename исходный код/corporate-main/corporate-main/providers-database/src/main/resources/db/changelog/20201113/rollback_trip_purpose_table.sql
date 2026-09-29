@@ -1,0 +1,1 @@
+drop TABLE corporate.trip_purpose;

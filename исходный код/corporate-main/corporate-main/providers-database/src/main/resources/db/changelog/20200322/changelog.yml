@@ -1,0 +1,14 @@
+databaseChangeLog:
+    -   changeSet:
+            id: 20200322/corporate
+            author: apa
+            changes:
+                -   sqlFile:
+                        endDelimiter: \n;;
+                        path: change/create_schema.sql
+                        relativeToChangelogFile: true
+                        splitStatements: true
+                        stripComments: true
+            rollback:
+                -   sql:
+                        sql: drop schema corporate cascade;

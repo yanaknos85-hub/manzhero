@@ -1,0 +1,22 @@
+server:
+    port: 0
+spring:
+    web:
+        resources:
+            add-mappings: false
+            static-locations: classpath:/resources/
+    application:
+        name: test
+    security:
+        oauth2:
+            resourceserver:
+                jwt:
+                    jws-algorithms: RS512
+                    public-key-location: ${jwt.key.public.path:classpath:/key/jwt.key.pub}
+security:
+    blacklist:
+        jwt:
+            topic: topic
+logging:
+    level:
+        root: debug

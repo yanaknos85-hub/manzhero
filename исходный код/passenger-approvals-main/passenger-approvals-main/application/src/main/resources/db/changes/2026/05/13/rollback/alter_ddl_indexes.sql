@@ -1,0 +1,12 @@
+DROP INDEX IF EXISTS approvals.idx_approval_journal_actor_id;
+DROP INDEX IF EXISTS approvals.idx_approval_journal_approved_by_id;
+DROP INDEX IF EXISTS approvals.idx_approval_journal_trip_purpose_id;
+DROP INDEX IF EXISTS approvals.idx_approval_journal_creation_time;
+DROP INDEX IF EXISTS approvals.idx_approval_journal_desired_date;
+DROP INDEX IF EXISTS approvals.idx_approval_journal_status;
+DROP INDEX IF EXISTS approvals.idx_approval_journal_expected_cost;
+DROP INDEX IF EXISTS approvals.idx_approval_journal_transport_type;
+DROP INDEX IF EXISTS approvals.idx_approval_journal_approval_id;
+DROP INDEX IF EXISTS approvals.idx_approval_journal_action_id;
+DROP INDEX IF EXISTS approvals.idx_approval_journal_type;
+DROP INDEX IF EXISTS approvals.idx_approval_journal_actor_id_status_transport_type;

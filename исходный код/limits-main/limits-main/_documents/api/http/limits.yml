@@ -1,0 +1,1063 @@
+openapi: 3.0.3
+info:
+  title: Платформа - Лимиты
+  description: Сервис по  работе с лимитам
+  version: 4.9.0
+servers:
+  - url: '{scheme}://{host}:{port}{api}'
+    description: Адрес для вызова
+    variables:
+      scheme:
+        default: http
+        enum:
+          - http
+          - https
+      host:
+        default: localhost
+      api:
+        default: /api/v4.6/limits
+      port:
+        default: '80'
+        enum:
+          - '80'
+          - '8080'
+          - '443'
+          - '8443'
+paths:
+  /:
+    summary: Работа с набором лимитов
+    description: Операции над списком лимитов
+    get:
+      summary: Получение списка лимитов
+      description: Получение списка лимитов с учетом фильтров
+      tags:
+        - Managing
+      operationId: getAll
+      security:
+        - BearerToken: []
+      parameters:
+        - in: query
+          name: organizationId
+          description: Идентификатор организации
+          required: false
+          schema:
+            title: Идентификатор
+            type: string
+            format: uuid
+        - in: query
+          name: departmentId
+          description: Идентификатор подразделения
+          required: false
+          schema:
+            title: Идентификатор
+            type: string
+            format: uuid
+        - in: query
+          name: employeeId
+          description: Идентификатор пользователя личного лимита
+          required: false
+          schema:
+            title: Идентификатор
+            type: string
+            format: uuid
+        - in: query
+          name: parentDepartment
+          description: Идентификатор верхнеуровневого подразделения
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: limitOwner
+          description: Владелец лимита
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: limitId
+          required: false
+          deprecated: true
+          description: Идентификатор лимита. Вместо этого параметра предпочтительно использовать энд-поинт `GET /{limitId}`
+          schema:
+            title: Идентификатор
+            type: string
+            format: uuid
+        - in: query
+          name: parentLimitId
+          required: false
+          deprecated: true
+          description: Идентификатор родительского лимита. Предпочтительно использовать параметр `parentId`
+          schema:
+            title: Идентификатор
+            type: string
+            format: uuid
+        - in: query
+          name: parentId
+          required: false
+          description: Идентификатор родительского лимита
+          schema:
+            title: Идентификатор
+            type: string
+            format: uuid
+        - in: query
+          deprecated: true
+          name: humanReadableLimitId
+          required: false
+          description: Человекочитаемый идентификатор лимита. Предпочтительно использовать параметр `humanReadableId`
+          schema:
+            type: string
+        - in: query
+          name: humanReadableId
+          required: false
+          description: Человекочитаемый идентификатор лимита
+          schema:
+            type: string
+        - in: query
+          name: requestId
+          description: Идентификатор заявки на пополнение лимита
+          required: false
+          schema:
+            title: Идентификатор
+            type: string
+            format: uuid
+        - in: query
+          name: year
+          description: Год действия лимита
+          required: false
+          schema:
+            type: integer
+            minimum: 1970
+        - in: query
+          required: false
+          description: Статус лимита
+          name: status
+          schema:
+            $ref: '#/components/schemas/Status'
+        - in: query
+          required: false
+          description: Статус лимита. Предпочтительно использование параметра `status`
+          name: limitStatus
+          deprecated: true
+          schema:
+            $ref: '#/components/schemas/Status'
+        - in: query
+          required: false
+          name: serviceType
+          description: Вид услуги
+          schema:
+            type: string
+        - in: query
+          required: false
+          name: limitServiceType
+          deprecated: true
+          description: Вид услуги. Предпочтительно использование параметра `serviceType`
+          schema:
+            type: string
+        - in: query
+          required: false
+          name: limitType
+          deprecated: true
+          description: Тип лимита. Предпочтительно использование параметра `type`
+          schema:
+            $ref: '#/components/schemas/Type'
+        - in: query
+          required: false
+          name: type
+          description: Тип лимита
+          schema:
+            $ref: '#/components/schemas/Type'
+        - in: query
+          required: false
+          name: page
+          description: Номер страницы
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - in: query
+          required: false
+          name: size
+          description: Размер страницы
+          schema:
+            type: integer
+            minimum: 1
+            default: 20
+        - in: query
+          required: false
+          name: sort
+          description: Поле для сотрировки
+          schema:
+            type: string
+            default: human_readable_id
+        - in: query
+          required: false
+          name: direction
+          description: Направление сортировки
+          schema:
+            $ref: '#/components/schemas/SortDirection'
+      responses:
+        '200':
+          $ref: '#/components/responses/LimitsPage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /{limitId}:
+    summary: Работа с конкретным лимитом
+    description: Работа с конкретным лимитом
+    parameters:
+      - in: path
+        name: limitId
+        required: true
+        schema:
+          title: Идентификатор
+          type: string
+          format: uuid
+        description: Идентификатор лимита
+    get:
+      summary: Получение лимита
+      description: Получение данных конкретного лимита
+      tags:
+        - Managing
+      security:
+        - BearerToken: []
+      operationId: get
+      parameters:
+        - in: header
+          name: If-Modified-Since
+          description: Выполнить запрос если данные поменялись с указанного времени
+          schema:
+            title: Время в формате JS
+            description: Время в формате JS для использования в заголовках
+            type: string
+            format: date-time
+            example: Sat, 01 Mar 2025 09:50:00 GMT
+          required: false
+      responses:
+        '200':
+          $ref: '#/components/responses/Limit'
+        '304':
+          $ref: '#/components/responses/NotModified'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Изменение лимита
+      description: Изменение данных конкретного лимита
+      tags:
+        - Managing
+      security:
+        - BearerToken: []
+      operationId: put
+      requestBody:
+        $ref: '#/components/requestBodies/NewLimit'
+      responses:
+        '202':
+          $ref: '#/components/responses/Accepted'
+        '304':
+          $ref: '#/components/responses/NotModified'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    patch:
+      summary: Частичное изменение
+      description: Частичное изменение объекта
+      tags:
+        - Managing
+      security:
+        - BearerToken: []
+      operationId: patch
+      requestBody:
+        $ref: '#/components/requestBodies/Patch'
+      responses:
+        '202':
+          $ref: '#/components/responses/Accepted'
+        '304':
+          $ref: '#/components/responses/NotModified'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    head:
+      summary: Метаданные
+      description: Получение метаданных объекта
+      tags:
+        - Managing
+      security:
+        - BearerToken: []
+      operationId: head
+      parameters:
+        - in: header
+          name: If-Modified-Since
+          description: Выполнить запрос если данные поменялись с указанного времени
+          schema:
+            title: Время в формате JS
+            description: Время в формате JS для использования в заголовках
+            type: string
+            format: date-time
+            example: Sat, 01 Mar 2025 09:50:00 GMT
+          required: false
+      responses:
+        '204':
+          $ref: '#/components/responses/Accepted'
+        '304':
+          $ref: '#/components/responses/NotModified'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    delete:
+      summary: Удаление лимита
+      description: Удаление конкретного лимита
+      tags:
+        - Managing
+      security:
+        - BearerToken: []
+      operationId: delete
+      responses:
+        '204':
+          $ref: '#/components/responses/Accepted'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+components:
+  requestBodies:
+    NewLimit:
+      required: true
+      description: Новые данные лимита
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NewLimit'
+    Patch:
+      required: true
+      description: Данные для обновления
+      content:
+        application/json:
+          schema:
+            description: Тело запроса для частичного изменения данных
+            type: array
+            items:
+              required:
+                - op
+                - path
+              properties:
+                op:
+                  format: enum
+                  title: Операция
+                  description: Тип операции с полем
+                  enum:
+                    - REPLACE
+                    - ADD
+                    - REMOVE
+                  type: string
+                path:
+                  title: Путь к полю
+                  description: Полный путь к полю, разделенный слэшами
+                  type: string
+                  example: /field/subfield/subsubfield
+                value:
+                  title: Новое значение
+                  description: Новое значение для установки в поле
+                  type: object
+  responses:
+    LimitsPage:
+      description: Страница лимитов
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LimitsPage'
+    Accepted:
+      description: Запрос принят, операция выполнена
+      headers:
+        etag:
+          description: Хэш объекта, показывающий, изменился ли объект
+          schema:
+            type: string
+        last-modified:
+          description: Дата изменения объекта
+          schema:
+            allOf:
+              - title: Дата-время с зоной
+                type: string
+                format: date-time
+                pattern: ^[0-2]\d{3}-[0-1]\d-[0-3]\dT[0-1]\d:[0-5]\d:[0-5]\d.\d{3,6}(Z|[+-][0-2]\d{1}(00|15|30|45))$
+                example: 2024-01-01T10:05:10.023+0300
+    Hash:
+      description: Хэш объекта
+      headers:
+        etag:
+          description: Хэш объекта, показывающий, изменился ли объект
+          schema:
+            type: string
+        last-modified:
+          description: Дата изменения объекта
+          schema:
+            allOf:
+              - title: Дата-время с зоной
+                type: string
+                format: date-time
+                pattern: ^[0-2]\d{3}-[0-1]\d-[0-3]\dT[0-1]\d:[0-5]\d:[0-5]\d.\d{3,6}(Z|[+-][0-2]\d{1}(00|15|30|45))$
+                example: 2024-01-01T10:05:10.023+0300
+    Limit:
+      description: Данные лимита
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LimitData'
+      headers:
+        etag:
+          description: Хэш объекта, показывающий, изменился ли объект
+          schema:
+            type: string
+        last-modified:
+          description: Дата изменения объекта
+          schema:
+            allOf:
+              - title: Дата-время с зоной
+                type: string
+                format: date-time
+                pattern: ^[0-2]\d{3}-[0-1]\d-[0-3]\dT[0-1]\d:[0-5]\d:[0-5]\d.\d{3,6}(Z|[+-][0-2]\d{1}(00|15|30|45))$
+                example: 2024-01-01T10:05:10.023+0300
+    Unauthorized:
+      description: Ошибка авторизации
+    NotFound:
+      description: Данные не найдены
+      content:
+        application/json:
+          schema:
+            description: По указанному URL не найден ресурс
+            type: object
+            title: Не найдено
+            properties:
+              message:
+                title: Сообщение об ошибке
+                description: Общее сообщение об ошибке
+                type: string
+              path:
+                title: Путь запроса
+                type: string
+              entity:
+                description: Запрашиваемая сущность
+                properties:
+                  id:
+                    title: Идентификатор
+                    description: Идентификатор запрашиваемой сущности
+                    type: string
+                  name:
+                    title: Название
+                    description: Название запрашиваемой сущности
+                    type: string
+              timestamp:
+                title: Дата-время
+                type: string
+                format: date-time
+    Forbidden:
+      description: Нет доступа
+    Conflict:
+      description: Конфликт данных
+      content:
+        application/json:
+          schema:
+            description: Данные запроса конфликтуют с существующими в системе данными
+            type: object
+            title: Конфликт данных
+            properties:
+              message:
+                title: Сообщение об ошибке
+                description: Общее сообщение об ошибке
+                type: string
+              timestamp:
+                title: Дата-время
+                type: string
+                format: date-time
+              path:
+                title: Путь запроса
+                type: string
+              entity:
+                description: Запрашиваемая сущность
+                properties:
+                  id:
+                    title: Идентификатор
+                    description: Идентификатор запрашиваемой сущности
+                    type: string
+                  name:
+                    title: Название
+                    description: Название запрашиваемой сущности
+                    type: string
+              problems:
+                title: Конфликтующие сущности
+                description: Список конфликтов
+                type: array
+                items:
+                  description: Описание проблемы запроса
+                  type: object
+                  properties:
+                    field:
+                      title: Поле
+                      description: Наименование поля с проблемой
+                      type: string
+                    value:
+                      title: Значение
+                      description: Полученное от клиента значение
+                      type: string
+    NotModified:
+      description: Не изменено
+  securitySchemes:
+    BearerToken:
+      description: Токен доступа
+      scheme: bearer
+      type: http
+      bearerFormat: JWT
+  schemas:
+    LimitsPage:
+      title: Страница лимитов
+      description: Описание страницы лимитов
+      required:
+        - content
+        - page
+        - sort
+      properties:
+        content:
+          title: Лимиты
+          description: Массив лимитов
+          type: array
+          items:
+            $ref: '#/components/schemas/LimitData'
+        sort:
+          $ref: '#/components/schemas/Sort'
+        page:
+          $ref: '#/components/schemas/Page'
+    NewLimit:
+      title: Новые данные лимита
+      description: Новые данные лимита
+      required:
+        - status
+        - year
+        - sharingType
+        - serviceType
+        - sum
+        - reserve
+        - finalSharing
+        - useThisLimit
+      properties:
+        status:
+          $ref: '#/components/schemas/Status'
+        year:
+          title: Год
+          description: Год лимита
+          type: integer
+          minimum: 1970
+        sharingType:
+          $ref: '#/components/schemas/SharedType'
+        serviceType:
+          type: string
+          title: Тип услуги
+          description: Тип обслуживаемой услуги
+        sum:
+          title: Остаток суммы для распределения (в руб)
+          description: Остаток суммы в рублях, доступных для распределения
+          type: number
+          minimum: 0
+        reserve:
+          title: Общая сумма резерва (в руб)
+          description: Общая сумма в рублях
+          type: number
+          minimum: 0
+        finalSharing:
+          title: Конечное распределение
+          description: Признак конечного распределения
+          type: boolean
+        useThisLimit:
+          title: Использовать этот лимит
+          description: Запрет нижестоящим подразделениям создавать собственные лимиты
+          type: boolean
+        responsibles:
+          title: Ответственные
+          description: Список идентификаторов ответственных за лимит
+          type: array
+          items:
+            title: Ответственный
+            description: Идентификатор ответственного за лимит
+            allOf:
+              - title: Идентификатор
+                type: string
+                format: uuid
+        departmentId:
+          title: Подразделение
+          allOf:
+            - title: Идентификатор
+              type: string
+              format: uuid
+        employeeId:
+          title: Сотрудник
+          allOf:
+            - title: Идентификатор
+              type: string
+              format: uuid
+    LimitData:
+      title: Данные лимита
+      description: Данные лимита подразделения
+      properties:
+        id:
+          title: Идентификатор
+          type: string
+          format: uuid
+        humanReadableId:
+          type: string
+          description: Натуральный идентификатор
+          format: AB-XXXX-XXXXXXXX
+          example: OT-1234-56789012
+          pattern: '[A-Z]{2}-\d{4}-\d{8}'
+          title: Человекочитаемый идентификатор
+        ownerId:
+          title: Владелец лимита
+          allOf:
+            - title: Идентификатор
+              type: string
+              format: uuid
+        limitOwner:
+          title: Владелец лимита
+          description: Будет удалено, используйте `ownerId`
+          deprecated: true
+          allOf:
+            - title: Идентификатор
+              type: string
+              format: uuid
+        status:
+          $ref: '#/components/schemas/Status'
+        limitStatus:
+          description: Будет удалено, используйте `status`
+          deprecated: true
+          allOf:
+            - $ref: '#/components/schemas/Status'
+        year:
+          title: Год
+          description: Год лимита
+          type: integer
+          minimum: 1970
+        sharingType:
+          $ref: '#/components/schemas/SharedType'
+        serviceType:
+          type: string
+          title: Тип услуги
+        limitSharingType:
+          description: Будет удалено, используйте `sharingType`
+          deprecated: true
+          allOf:
+            - $ref: '#/components/schemas/SharedType'
+        limitServiceType:
+          description: Будет удалено, используйте `serviceType`
+          deprecated: true
+          type: string
+        sum:
+          title: Остаток суммы для распределения (в коп)
+          description: Остаток суммы в копейках, доступных для распределения. Будет удалено. Используйте `remains`
+          type: number
+          deprecated: true
+          minimum: 0
+        remains:
+          title: Остаток суммы для распределения (в руб)
+          description: Остаток суммы в рублях, доступных для распределения
+          type: number
+          minimum: 0
+        reserve:
+          title: Общая сумма резерва (в коп)
+          description: Общая сумма в копейках. Будет удалено, используйте `init`
+          deprecated: true
+          type: number
+          minimum: 0
+        init:
+          title: Начальная сумма резерва (в руб)
+          description: Общая сумма в рублях
+          type: number
+          minimum: 0
+        economy:
+          title: Экономия (в коп)
+          description: Сумма экономии в копейках. Будет удалено. Используйте `saved`
+          deprecated: true
+          type: number
+          minimum: 0
+        saved:
+          title: Сэкономлено (в руб)
+          description: Сумма экономии в рублях
+          type: number
+          minimum: 0
+        creationTime:
+          title: Дата создания
+          allOf:
+            - title: Дата-время с зоной
+              type: string
+              format: date-time
+              pattern: ^[0-2]\d{3}-[0-1]\d-[0-3]\dT[0-1]\d:[0-5]\d:[0-5]\d.\d{3,6}(Z|[+-][0-2]\d{1}(00|15|30|45))$
+              example: 2024-01-01T10:05:10.023+0300
+        finalSharing:
+          title: Конечное распределение
+          description: Признак конечного распределения
+          type: boolean
+        useThisLimit:
+          title: Использовать этот лимит
+          description: Запрет нижестоящим подразделениям создавать собственные лимиты
+          type: boolean
+        type:
+          $ref: '#/components/schemas/Type'
+        limitType:
+          deprecated: true
+          description: Будет удалено. Используйте `type`
+          allOf:
+            - $ref: '#/components/schemas/Type'
+        responsibles:
+          title: Ответственные
+          description: Список идентификаторов ответственных за лимит
+          type: array
+          items:
+            title: Ответственный
+            description: Идентификатор ответственного за лимит
+            allOf:
+              - title: Идентификатор
+                type: string
+                format: uuid
+        departmentId:
+          title: Подразделение
+          allOf:
+            - title: Идентификатор
+              type: string
+              format: uuid
+        employeeId:
+          title: Сотрудник
+          allOf:
+            - title: Идентификатор
+              type: string
+              format: uuid
+        department:
+          deprecated: true
+          description: Будет удалено. Используйте запрос подразделения со значением `departmentId`
+          allOf:
+            - $ref: '#/components/schemas/Department'
+        employee:
+          deprecated: true
+          description: Будет удалено. Используйте запрос подразделения со значением `employeeId`
+          allOf:
+            - $ref: '#/components/schemas/Employee'
+        parentLimitId:
+          deprecated: true
+          description: Будет удалено. Используйте `parentId`
+          allOf:
+            - title: Идентификатор
+              type: string
+              format: uuid
+        parentId:
+          description: Идентификатор родительского лимита
+          allOf:
+            - title: Идентификатор
+              type: string
+              format: uuid
+        limitSharingDTOList:
+          deprecated: true
+          description: Будет удалено. Используйте запрос списка распределений
+          allOf:
+            - $ref: '#/components/schemas/Sharings'
+        owner:
+          deprecated: true
+          description: Будет удалено. Используйте запрос сотрудника со значением `ownerId`
+          allOf:
+            - $ref: '#/components/schemas/Employee'
+    OldSharing:
+      title: Распределение
+      description: Данные распределений. Будет заменено новой версией
+      deprecated: true
+      properties:
+        id:
+          title: Идентификатор
+          type: string
+          format: uuid
+        author:
+          title: Идентификатор
+          type: string
+          format: uuid
+        creationTime:
+          title: Дата-время
+          type: string
+          format: date-time
+          pattern: ^[0-2]\d{3}-[0-1]\d-[0-3]\dT[0-1]\d:[0-5]\d:[0-5]\d.\d{3,6}$
+          example: '2024-01-01T10:05:10.023'
+        transportType:
+          title: Тип транспорта
+          type: string
+        sum:
+          title: Сумма (в коп)
+          description: Общая сумма в копейках
+          type: number
+        balance:
+          title: Остаток (в коп)
+          description: Общий остаток (в коп)
+          type: number
+        limitId:
+          title: Идентификатор лимита
+          allOf:
+            - title: Идентификатор
+              type: string
+              format: uuid
+        limitSharingPerPeriodDTO:
+          title: Распределения по периодам
+          description: Распределения по периодам
+          type: array
+          items:
+            $ref: '#/components/schemas/OldSharingPerPeriod'
+        sumResharingsYear:
+          title: Сумма перераспределений (в коп)
+          description: Сумма перераспределений (в коп)
+          type: number
+    Sharings:
+      title: Распределения
+      type: array
+      description: Список распределений по типам транспорта
+      items:
+        $ref: '#/components/schemas/OldSharing'
+      default: []
+    OldSharingPerPeriod:
+      title: Распеределния на период
+      description: Описание распределения за период. Будет заменено новой версией
+      deprecated: true
+      properties:
+        id:
+          title: Идентификатор
+          type: string
+          format: uuid
+        author:
+          title: Идентификатор
+          type: string
+          format: uuid
+        creationTime:
+          title: Дата-время
+          type: string
+          format: date-time
+          pattern: ^[0-2]\d{3}-[0-1]\d-[0-3]\dT[0-1]\d:[0-5]\d:[0-5]\d.\d{3,6}$
+          example: '2024-01-01T10:05:10.023'
+        sum:
+          title: Сумма (в коп)
+          description: Общая сумма в копейках
+          type: number
+        balance:
+          title: Остаток (в коп)
+          description: Общий остаток (в коп)
+          type: number
+        periodNumber:
+          title: Индекс периода
+          description: Индекс периода начиная с 0
+          type: integer
+          minimum: 0
+          maximum: 11
+        limitSharing:
+          title: Идентификатор
+          type: string
+          format: uuid
+        sumReservedForCurrentPeriod:
+          title: Сумма резервирований (в коп)
+          description: Общая сумма резервирований в копейках
+          type: number
+        sumResharingsPeriod:
+          title: Сумма перераспределений (в коп)
+          description: Сумма перераспределений (в коп)
+          type: number
+    Department:
+      title: Подразделение
+      deprecated: true
+      description: Данные подразделений. Сервис не является владельцем данных, все их модели должны быть убраны
+      properties:
+        id:
+          title: Идентификатор
+          type: string
+          format: uuid
+        code:
+          title: Код
+          type: string
+        name:
+          title: Наименование
+          type: string
+        humanReadableId:
+          type: string
+          description: Натуральный идентификатор
+          format: AB-XXXX-XXXXXXXX
+          example: OT-1234-56789012
+          pattern: '[A-Z]{2}-\d{4}-\d{8}'
+        departmentHead:
+          deprecated: true
+          description: Руководитель подразделения
+          allOf:
+            - $ref: '#/components/schemas/Employee'
+    Employee:
+      title: Сотрудник
+      deprecated: true
+      description: Данные сотрудников. Сервис не является владельцем данных, все их модели должны быть убраны
+      properties:
+        id:
+          title: Идентификатор
+          type: string
+          format: uuid
+        humanReadableId:
+          type: string
+          description: Натуральный идентификатор
+          format: AB-XXXX-XXXXXXXX
+          example: OT-1234-56789012
+          pattern: '[A-Z]{2}-\d{4}-\d{8}'
+        firstName:
+          title: Имя
+          type: string
+        lastName:
+          title: Фамилия
+          type: string
+        patronymic:
+          title: Отчество
+          type: string
+        personnelNumber:
+          title: Табельный номер
+          description: Табельный номер
+        positionId:
+          title: Идентификатор
+          type: string
+          format: uuid
+        organizationId:
+          title: Идентификатор
+          type: string
+          format: uuid
+    Sort:
+      description: Данные о наложенной сортировке
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          title: Поле
+          description: Поле сортировки
+          type: string
+        direction:
+          format: enum
+          description: |
+            Направление сортировки.
+            *ASC* - по возрастанию
+            *DESC* - по убыванию
+          enum:
+            - ASC
+            - DESC
+          type: string
+          title: SortDirection
+          default: ASC
+    Page:
+      description: Данные о странице
+      required:
+        - number
+        - size
+        - last
+        - first
+        - total
+        - count
+      properties:
+        number:
+          title: Номер страницы
+          description: Номер запрошенной страницы
+          minimum: 0
+          type: integer
+        size:
+          title: Размер страницы
+          description: Размер запрошенной страницы
+          minimum: 0
+          type: integer
+        last:
+          title: Последняя
+          description: Флаг последней страницы
+          type: boolean
+        first:
+          title: Первая
+          description: Флаг первой страницы
+          type: boolean
+        total:
+          title: Всего
+          description: Общее количество элементов
+          minimum: 0
+          type: integer
+        count:
+          title: Страницы
+          description: Общее количество страниц
+          minimum: 0
+          type: integer
+    SortDirection:
+      format: enum
+      description: |
+        Направление сортировки.
+        *ASC* - по возрастанию
+        *DESC* - по убыванию
+      enum:
+        - ASC
+        - DESC
+      type: string
+      title: SortDirection
+      default: ASC
+    SharedType:
+      title: Типы распределения
+      description: |-
+        Допустимые типы распределения
+
+        |Значение |Описание                 |
+        |---------|-------------------------|
+        |MONTHLY  |Месячное распределение   |
+        |QUARTER  |Квартальное распределение|
+        |PERCENTS |Процентное распределение |
+      type: string
+      format: enum
+      enum:
+        - MONTHLY
+        - QUARTER
+        - PERCENTS
+    Type:
+      title: Тип лимита
+      description: |-
+        Тип лимита для поиска
+
+        |Значение   |Описание           |
+        |-----------|-------------------|
+        |DEPARTMENT |Лимит подразделения|
+        |EMPLOYEE   |Личный лимит       |
+      type: string
+      format: enum
+      enum:
+        - DEPARTMENT
+        - EMPLOYEE
+    Status:
+      title: Статус
+      description: |-
+        Статус лимита
+
+        |Значение |Описание   |
+        |---------|-----------|
+        |PLANNING |Планируется|
+        |SHARED   |Распределен|
+        |CLOSED   |Закрыт     |
+      type: string
+      format: enum
+      enum:
+        - PLANNING
+        - SHARED
+        - CLOSED
+
+# Powered by APIStudio

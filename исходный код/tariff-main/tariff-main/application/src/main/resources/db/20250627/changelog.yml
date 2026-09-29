@@ -1,0 +1,19 @@
+databaseChangeLog:
+    -   changeSet:
+            id: tariff_fleet/20250627-1
+            author: tanini-v
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/alter_roles.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: tariff_fleet/20250627-2
+            author: klyunkov-va
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/alter_ddl_contract.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false

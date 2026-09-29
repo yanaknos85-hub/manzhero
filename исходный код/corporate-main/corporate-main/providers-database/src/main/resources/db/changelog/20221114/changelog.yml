@@ -1,0 +1,59 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20221114"
+            author: medvedev-ad
+            context: "20221114"
+            changes:
+                -   tagDatabase:
+                        tag: "20221114"
+                -   createIndex:
+                        schemaName: corporate
+                        tableName: employee
+                        column:
+                            name: organization_id
+                        indexName: corporate_employee_organization_id_idx
+            rollback:
+                - addForeignKeyConstraint:
+                    baseTableSchemaName: corporate
+                    baseTableName: employee
+                    baseColumnNames: user_id
+                    constraintName: corporate_employee_user_fk
+                    referencedTableSchemaName: corporate
+                    referencedTableName: user
+                    referencedColumnNames: id
+    -   changeSet:
+            id: "20221114-1-remastered"
+            author: medvedev-ad
+            context: "20221114"
+            preConditions:
+              - tableExists:
+                  schemaName: corporate
+                  tableName: user
+                onFail: MARK_RAN
+            changes:
+                -   tagDatabase:
+                        tag: "20221114"
+                -   dropTable:
+                        schemaName: corporate
+                        tableName: user
+                        cascadeConstraints: true
+                -   createIndex:
+                        schemaName: corporate
+                        tableName: employee
+                        column:
+                            name: user_id
+                        indexName: corporate_employee_user_id_uk
+                        unique: true
+            rollback:
+                -   createTable:
+                        schemaName: corporate
+                        tableName: user
+                        columns:
+                            -   column:
+                                    name: id
+                                    type: uuid
+                                    constraints:
+                                        primaryKey: true
+                            -   column:
+                                    name: login
+                                    type: text

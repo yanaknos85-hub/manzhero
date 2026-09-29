@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20201029-remastered-1
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - not:
+            columnExists:
+              schemaName: corporate
+              tableName: department
+              columnName: start_recording_date
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - addColumn:
+            tableName: department
+            schemaName: corporate
+            columns:
+              - column:
+                  name: start_recording_date
+                  type: timestamp with time zone
+              - column:
+                  name: end_recording_date
+                  type: timestamp with time zone
+              - column:
+                  name: level_code
+                  type: int
+              - column:
+                  name: type_level_code
+                  type: int
+              - column:
+                  name: level_name
+                  type: varchar(255)

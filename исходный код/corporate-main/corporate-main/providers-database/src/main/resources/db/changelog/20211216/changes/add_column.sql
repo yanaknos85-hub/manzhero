@@ -1,0 +1,1 @@
+alter table corporate.cargo_type add active boolean not null default true;

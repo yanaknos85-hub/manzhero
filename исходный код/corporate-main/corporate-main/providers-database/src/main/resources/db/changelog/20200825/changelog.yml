@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20200825-remastered
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - not:
+            - columnExists:
+                schemaName: corporate
+                tableName: delegate
+                columnName: status
+          onFail: MARK_RAN
+      changes:
+        - addColumn:
+            schemaName: corporate
+            tableName: delegate
+            column:
+              - column:
+                  name: status
+                  type: varchar(255)
+                  remarks: Признак считается запись удаленной или нет
+                  defaultOnNull: true
+                  defaultValue: 'ACTIVE'
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_delegate_status_nn
+        - createView:
+            schemaName: corporate
+            viewName: delegate_a_v
+            replaceIfExists: true
+            selectQuery: select * from corporate.delegate where status = 'ACTIVE'
+            remarks: Делегаты, активные записи
+        - dropUniqueConstraint:
+            schemaName: corporate
+            tableName: delegate
+            constraintName: uk_delegate
+        - createIndex:
+            schemaName: corporate
+            tableName: delegate
+            columns:
+              - column:
+                  name: user_id
+              - column:
+                  name: supervisor_id
+              - column:
+                  name: transport_type_id
+              - column:
+                  name: start_date
+            indexName: ux_delegate
+            unique: true

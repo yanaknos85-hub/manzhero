@@ -1,0 +1,19 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20201221
+            author: medvedev-ad
+            changes:
+                -   sqlFile:
+                        path: change/set_address_unlimited.sql
+                        relativeToChangelogFile: true
+                -   sqlFile:
+                        path: change/set_official_name_unlimited.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sqlFile:
+                        path: rollback/rollback_address.sql
+                        relativeToChangelogFile: true
+                -   sqlFile:
+                        path: rollback/rollback_official_name.sql
+                        relativeToChangelogFile: true
+                        

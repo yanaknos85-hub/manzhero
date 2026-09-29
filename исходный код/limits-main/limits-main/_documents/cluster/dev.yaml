@@ -1,0 +1,102 @@
+application: limits
+repo: app_limits
+resources:
+  limits:
+    cpu: '2'
+    memory: 4G
+  requests:
+    cpu: '1'
+    memory: 2G
+port:
+  http:
+    number: 8009
+    name: limits
+    target: 8080
+  grpc:
+    number: 6565
+    name: limits
+routing:
+  match:
+    prefix: /api/limits
+  rewrite:
+    uri: ' '
+profiles: kafka,kafka-ssl,kafka-avro
+secman:
+  type: built_in
+additional:
+  envs:
+    - name: SPRING_CLOUD_CONFIG_URI
+      value: http://http-config-server:8080
+    - name: DEADLINE_CHECK_PERIOD_CRON_LIMITS
+      valueFrom:
+        configMapKeyRef:
+          name: limits
+          key: deadline.check.period
+    - name: REFRESHER_LOG_LEVEL
+      value: debug
+    - name: REDIRECT_SERVICE
+      value: 'http://http-limit-management:8080/'
+    - name: email.limit.ends.template
+      value: /app/resources/limit-ends.html
+  configMap:
+    - name: limits-email
+      data:
+        limit-ends.html: |-
+          У подразделения {departmentId} заканчивается лимит {limitId}. Остаток менее {percent}%. Примите меры по перераспределению лимитов.
+    - name: kafka-ssl
+      data:
+        application-kafka-ssl.yml: |-
+          spring:
+            cloud:
+              vault:
+                namespace: CI02351878_CI02671580
+                authentication: kubernetes
+                kubernetes:
+                  role: ci02351878-edevgen-sbertransport-dev
+                  kubernetes-path: os/dev-terra000003-ids.ocp.delta.sbrf.ru
+                enabled: true
+                port: 443
+                host: t.secrets.delta.sbrf.ru
+            config:
+              import: 
+                - optional:vault://A/TRANSP/OSH/MAIN/KV/ci02351878-edevgen-sbertransport-dev/application,kafka-ssl
+    - name: kafka-avro
+      data:
+        application-kafka-avro.yml: |-
+          spring:
+            cloud:
+              vault:
+                namespace: CI02351878_CI02671580
+                authentication: kubernetes
+                kubernetes:
+                  role: ci02351878-edevgen-sbertransport-dev
+                  kubernetes-path: os/dev-terra000003-ids.ocp.delta.sbrf.ru
+                enabled: true
+                port: 443
+                host: t.secrets.delta.sbrf.ru
+            config:
+              import: 
+                - optional:vault://A/TRANSP/OSH/MAIN/KV/ci02351878-edevgen-sbertransport-dev/application,kafka-avro
+  volumes:
+    - name: limits-email
+      configMap:
+        name: limits-email
+        defaultMode: 420
+    - name: kafka-ssl
+      configMap:
+        name: kafka-ssl
+        defaultMode: 420
+    - name: kafka-avro
+      configMap:
+        name: kafka-avro
+        defaultMode: 420
+  mounts:
+    - name: kafka-ssl
+      mountPath: /app/resources/application-kafka-ssl.yml
+      subPath: application-kafka-ssl.yml
+    - name: kafka-avro
+      mountPath: /app/resources/application-kafka-avro.yml
+      subPath: application-kafka-avro.yml
+    - name: limits-email
+      mountPath: /app/resources/limit-ends.html
+      subPath: limit-ends.html

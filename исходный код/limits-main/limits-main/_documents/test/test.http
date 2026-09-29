@@ -1,0 +1,90 @@
+### Вход
+POST {{auth}}/login
+Accept: application/json
+Authorization: Basic {{creds}} # Имя пользователя и пароль необходимо положить в файл http-client.private.env.json. Пример - http-client.private.env.json.example. Получившийся файл НЕ НАДО добавлять в гит
+
+> {%
+client.global.set("auth_token", response.body.token);
+client.global.set("refresh_token", response.body.refreshToken);
+%}
+
+### Релогин
+POST {{auth}}/login
+Accept: application/json
+Authorization: Token {{refresh_token}} # Имя пользователя и пароль необходимо положить в файл http-client.private.env.json. Пример - http-client.private.env.json.example. Получившийся файл НЕ НАДО добавлять в гит
+
+> {%
+client.global.set("auth_token", response.body.token);
+client.global.set("refresh_token", response.body.refreshToken);
+%}
+
+### Запрос статистики
+POST {{host}}/limits/getstats/general
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "year": 2023,
+  "organizationId": [
+    "6e6e04b7-1912-422a-820a-1a6777dfde1b",
+    "906acb31-f1e5-41c4-8ada-168fad098993",
+    "20cf17e5-23c5-4a77-90c8-805a7f3f51f5",
+    "bb313608-5a78-4317-aced-dc4fd74b4195",
+    "1310305b-1d78-4463-b8c0-f33dcc45c062",
+    "88251403-610b-4fdb-b032-a71829e56c36",
+    "12ee6ff3-83e5-40c2-a6bb-e362fa3df197",
+    "32660385-9435-42a3-ab61-41581eab7308",
+    "00000000-0000-0000-0000-000000000000",
+    "356b0b63-2261-4a47-a3c1-06923136e3a9",
+    "6710663c-f6c2-4451-8fa9-1c44679e1e99",
+    "4a0d5937-1d65-4f6c-a8e4-54cf1136e9d2",
+    "d3f88991-2d88-4098-b4f9-d175a4fe6502",
+    "6e6e04b7-1912-422a-820a-1a6777dfde1b",
+    "44deff60-c4a6-44ef-8433-0f11887b92d3",
+    "19333c8d-692c-4486-ba03-3d8361f66ebc",
+    "dcef6830-98bb-495b-ab23-f49d35b9f195",
+    "cfeaf02d-2a90-4ddf-b885-e8edf50b51c9"
+  ]
+}
+
+### Создание лимита на подразделение
+POST {{host}}/deplimits/add/44deff60-c4a6-44ef-8433-0f11887b92d3
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "year" : 2030,
+  "limitServiceType" : "PASSENGER",
+  "sum" : 10000,
+  "limitSharingType" : "MONTHLY",
+  "finalSharing" : false,
+  "useThisLimit" : false,
+  "organizationId" : "44deff60-c4a6-44ef-8433-0f11887b92d3"
+}
+
+### Импорт лимитов
+POST {{host}}/files/limits?organizationId=2dab0ed3-5942-4311-b167-093006942573
+Authorization: Bearer {{auth_token}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Type: application/octet-stream
+Content-Disposition: form-data; name="file"; filename="limits.xlsx"
+
+< ./file/import.XLSX
+--boundary--
+
+> {%
+client.global.set("result_url", response.body.result_url);
+%}
+
+### Получение результатов
+POST {{host}}/{{result_url}}
+Authorization: Bearer {{auth_token}}
+
+### Получение статистики
+GET {{host}}/statistic/00000000-0000-0000-0000-000000000000/department/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json

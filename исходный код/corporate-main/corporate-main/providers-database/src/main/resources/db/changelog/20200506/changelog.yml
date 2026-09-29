@@ -1,0 +1,71 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20200506-remastered
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - not:
+            - tableExists:
+                schemaName: corporate
+                tableName: frequently_address
+          onFail: MARK_RAN
+      changes:
+        - createTable:
+            schemaName: corporate
+            tableName: frequently_address
+            remarks: Частые адреса пользователей
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: corporate_frequently_address_pk
+              - column:
+                  name: employee_id
+                  type: uuid
+                  remarks: Ссылка на сотрудника
+                  constraints:
+                    referencedTableSchemaName: corporate
+                    referencedTableName: employee
+                    referencedColumnNames: id
+                    foreignKeyName: corporate_frequently_address_employee_fk
+              - column:
+                  name: address_id
+                  type: uuid
+                  remarks: Ссылка на адрес
+                  constraints:
+                    referencedTableSchemaName: corporate
+                    referencedTableName: address
+                    referencedColumnNames: id
+                    foreignKeyName: corporate_frequently_address_address_fk
+              - column:
+                  name: usage_count
+                  type: integer
+                  remarks: Количество использований
+                  defaultOnNull: true
+                  defaultValueNumeric: 0
+        - addUniqueConstraint:
+            schemaName: corporate
+            tableName: frequently_address
+            columnNames: employee_id, address_id
+            constraintName: corporate_frequently_address_employee_address_uk
+        - renameTable:
+            schemaName: corporate
+            oldTableName: address_user
+            newTableName: favorite_address
+      rollback:
+        - renameTable:
+            schemaName: corporate
+            newTableName: address_user
+            oldTableName: favorite_address
+        - dropUniqueConstraint:
+            schemaName: corporate
+            tableName: frequently_address
+            columnNames: employee_id, address_id
+            constraintName: corporate_frequently_address_employee_address_uk
+        - dropTable:
+            schemaName: corporate
+            tableName: frequently_address
+            cascadeConstraints: true

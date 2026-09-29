@@ -1,0 +1,542 @@
+openapi: 3.0.0
+info:
+  title: Income Tariffs API
+  description: API для работы с доходными тарифами
+  version: 1.0.0
+
+paths:
+  /api/tariff-fleet/search/income:
+    post:
+      tags:
+        - Тариф (Доходные)
+      summary: Получить список доходных тарифов
+      description: Получение списка доходных тарифов с постраничной выгрузкой
+      operationId: searchIncomeTariffs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncomeTariffSearchRequest'
+            example:
+              service: AUTOSERVICE
+              serviceType: REPAIR_AND_MAINTENANCE
+              clientId: 2260c736-d610-42ae-be96-f00210e7c9a1
+              active: "true"
+              contractId: 3460c736-d610-42ae-be96-f00210e7c9a1
+              page: 0
+              size: 10
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncomeTariffSearchResponse'
+              example:
+                content:
+                  - id: aa60c736-d610-42ae-be96-f00210e7c9ae
+                    humanReadableId: TF-0001-00000514
+                    service: AUTOSERVICE
+                    serviceType: REPAIR_AND_MAINTENANCE
+                    organizationName: 000001_Тестовая_организация_01
+                    contractorName: АвтоПилот1
+                    contractNumber: 45987564236
+                    contractId: 1cb1407d-1777-4eea-8dca-49c8b100ebe1
+                    hourNormalizedPrice: 84000
+                    avgStandartHour: 470.00
+                    detailDiscountPrice: 5.00
+                    avgPartsDiscountPercent: 3.00
+                    workWarranty: 12
+                    mileageWarranty: 10000
+                    detailWarranty: 12
+                    departmentName: Тестовый_департамент_01
+                    fieldService: false
+                    userId: 882d2b59-8eac-477f-84d2-256d814b1395
+                    creationTime: 1775209625484
+                pageable:
+                  pageNumber: 0
+                  pageSize: 10
+                  sort:
+                    empty: false
+                    sorted: true
+                    unsorted: false
+                  offset: 0
+                  paged: true
+                  unpaged: false
+                last: false
+                totalElements: 23
+                totalPages: 3
+                size: 10
+                number: 0
+                sort:
+                  empty: false
+                  sorted: true
+                  unsorted: false
+                first: true
+                numberOfElements: 10
+                empty: false
+
+  /api/tariff-fleet/income:
+    post:
+      tags:
+        - Тариф (Доходные)
+      summary: Создать доходный тариф
+      description: Добавление нового доходного тарифа
+      operationId: createIncomeTariff
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncomeTariffCreateRequest'
+            example:
+              id: aa60c736-d610-42ae-be96-f00210e7c9ae
+              humanReadableId: TF-0001-00000514
+              service: AUTOSERVICE
+              serviceType: REPAIR_AND_MAINTENANCE
+              organizationName: 000001_Тестовая_организация_01
+              contractorName: АвтоПилот1
+              contractNumber: 45987564236
+              contractId: 1cb1407d-1777-4eea-8dca-49c8b100ebe1
+              hourNormalizedPrice: 84000
+              avgStandartHour: 470.00
+              detailDiscountPrice: 5.00
+              avgPartsDiscountPercent: 3.00
+              workWarranty: 12
+              mileageWarranty: 10000
+              detailWarranty: 12
+              departmentName: Тестовый_департамент_01
+              fieldService: false
+              userId: 882d2b59-8eac-477f-84d2-256d814b1395
+              creationTime: 1775209625484
+      responses:
+        '201':
+          description: Created
+
+  /api/tariff-fleet/income/{id}:
+    get:
+      tags:
+        - Тариф (Доходные)
+      summary: Получить доходный тариф
+      description: Получение информации о доходном тарифе по идентификатору
+      operationId: getIncomeTariff
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор тарифа
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncomeTariffDto'
+              example:
+                id: aa60c736-d610-42ae-be96-f00210e7c9ae
+                humanReadableId: TF-0001-00000514
+                service: AUTOSERVICE
+                serviceType: REPAIR_AND_MAINTENANCE
+                organizationName: 000001_Тестовая_организация_01
+                contractorName: АвтоПилот1
+                contractNumber: 45987564236
+                contractId: 1cb1407d-1777-4eea-8dca-49c8b100ebe1
+                hourNormalizedPrice: 84000
+                avgStandartHour: 470.00
+                detailDiscountPrice: 5.00
+                avgPartsDiscountPercent: 3.00
+                workWarranty: 12
+                mileageWarranty: 10000
+                detailWarranty: 12
+                departmentName: Тестовый_департамент_01
+                fieldService: false
+                userId: 882d2b59-8eac-477f-84d2-256d814b1395
+                creationTime: 1775209625484
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+
+    patch:
+      tags:
+        - Тариф (Доходные)
+      summary: Обновить доходный тариф
+      description: Частичное обновление доходного тарифа (возможно обновление одного или нескольких полей)
+      operationId: updateIncomeTariff
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор тарифа
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncomeTariffUpdateRequest'
+            example:
+              avgStandartHour: 470.00
+              detailDiscountPrice: 5.00
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+
+components:
+  schemas:
+    IncomeTariffSearchRequest:
+      type: object
+      properties:
+        service:
+          $ref: '#/components/schemas/Service'
+        serviceType:
+          $ref: '#/components/schemas/ServiceType'
+        clientId:
+          type: string
+          format: uuid
+          description: Идентификатор клиента
+        active:
+          type: string
+          description: Фильтр по активному статусу (строковое значение "true"/"false")
+        contractId:
+          type: string
+          format: uuid
+          description: Идентификатор договора
+        page:
+          type: integer
+          format: int32
+          description: Номер страницы
+          default: 0
+        size:
+          type: integer
+          format: int32
+          description: Размер страницы
+          default: 10
+
+    IncomeTariffSearchResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/IncomeTariffDto'
+          maxItems: 1000
+          description: Список доходных тарифов
+        pageable:
+          $ref: '#/components/schemas/Pageable'
+        last:
+          type: boolean
+          description: Является ли страница последней
+        totalElements:
+          type: integer
+          format: int64
+          description: Общее количество элементов
+        totalPages:
+          type: integer
+          format: int32
+          description: Общее количество страниц
+        size:
+          type: integer
+          format: int32
+          description: Размер страницы
+        number:
+          type: integer
+          format: int32
+          description: Номер текущей страницы
+        sort:
+          $ref: '#/components/schemas/SortObject'
+        first:
+          type: boolean
+          description: Является ли страница первой
+        numberOfElements:
+          type: integer
+          format: int32
+          description: Количество элементов на текущей странице
+        empty:
+          type: boolean
+          description: Пуста ли страница
+
+    IncomeTariffDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор тарифа
+        humanReadableId:
+          type: string
+          description: Человекочитаемый идентификатор тарифа (формат TF-XXXX-XXXXXX)
+        service:
+          $ref: '#/components/schemas/Service'
+        serviceType:
+          $ref: '#/components/schemas/ServiceType'
+        organizationName:
+          type: string
+          maxLength: 255
+          description: Наименование организации
+        contractorName:
+          type: string
+          maxLength: 255
+          description: Имя контрагента
+        contractNumber:
+          type: string
+          maxLength: 50
+          description: Номер договора
+        contractId:
+          type: string
+          format: uuid
+          description: Идентификатор договора
+        hourNormalizedPrice:
+          type: number
+          format: double
+          minimum: 0.00
+          maximum: 9999.99
+          description: Ставка нормо-часа в копейках, float, 4 знака, 2 знака после запятой, минимум 0.00, максимум 9999.99
+        avgStandartHour:
+          type: number
+          format: double
+          minimum: 0.00
+          maximum: 9999.99
+          description: Средняя ставка нормо-часа в копейках, float, 4 знака, 2 знака после запятой, минимум 0.00, максимум 9999.99
+        detailDiscountPrice:
+          type: number
+          format: double
+          minimum: 0.00
+          maximum: 100.00
+          description: Скидка на запчасти в процентах, максимум 100%, можно ввести 2 знака после запятой
+        avgPartsDiscountPercent:
+          type: number
+          format: double
+          minimum: 0.00
+          maximum: 100.00
+          description: Средняя скидка на запчасти в процентах, максимум 100%, можно ввести 2 знака после запятой
+        workWarranty:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 99
+          description: Гарантийный срок на работы по времени, месяца, 2 цифры, минимальное - 0, максимальное 99 (0 - гарантия не учитывается)
+        mileageWarranty:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 99999
+          description: Гарантийный срок на работы по пробегу, км, 5 цифр, минимальное - 0, максимальное 99999 (0 - гарантия не учитывается)
+        detailWarranty:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 99
+          description: Гарантийный срок на запчасти, месяца, 2 цифры, минимальное - 0, максимальное 99 (0 - гарантия не учитывается)
+        departmentName:
+          type: string
+          maxLength: 255
+          description: Наименование департамента
+        fieldService:
+          type: boolean
+          description: Флаг выездного обслуживания
+        userId:
+          type: string
+          format: uuid
+          description: Идентификатор пользователя
+        creationTime:
+          type: integer
+          format: int64
+          description: Время создания (epoch timestamp)
+
+    IncomeTariffCreateRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор тарифа
+        humanReadableId:
+          type: string
+          description: Человекочитаемый идентификатор тарифа (формат TF-XXXX-XXXXXX)
+        service:
+          $ref: '#/components/schemas/Service'
+        serviceType:
+          $ref: '#/components/schemas/ServiceType'
+        organizationName:
+          type: string
+          maxLength: 255
+          description: Наименование организации
+        contractorName:
+          type: string
+          maxLength: 255
+          description: Имя контрагента
+        contractNumber:
+          type: string
+          maxLength: 50
+          description: Номер договора
+        contractId:
+          type: string
+          format: uuid
+          description: Идентификатор договора
+        hourNormalizedPrice:
+          type: number
+          format: double
+          minimum: 0.00
+          maximum: 9999.99
+          description: Ставка нормо-часа в копейках, float, 4 знака, 2 знака после запятой, минимум 0.00, максимум 9999.99
+        avgStandartHour:
+          type: number
+          format: double
+          minimum: 0.00
+          maximum: 9999.99
+          description: Средняя ставка нормо-часа в копейках, float, 4 знака, 2 знака после запятой, минимум 0.00, максимум 9999.99
+        detailDiscountPrice:
+          type: number
+          format: double
+          minimum: 0.00
+          maximum: 100.00
+          description: Скидка на запчасти в процентах, максимум 100%, можно ввести 2 знака после запятой
+        avgPartsDiscountPercent:
+          type: number
+          format: double
+          minimum: 0.00
+          maximum: 100.00
+          description: Средняя скидка на запчасти в процентах, максимум 100%, можно ввести 2 знака после запятой
+        workWarranty:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 99
+          description: Гарантийный срок на работы по времени, месяца, 2 цифры, минимальное - 0, максимальное 99 (0 - гарантия не учитывается)
+        mileageWarranty:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 99999
+          description: Гарантийный срок на работы по пробегу, км, 5 цифр, минимальное - 0, максимальное 99999 (0 - гарантия не учитывается)
+        detailWarranty:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 99
+          description: Гарантийный срок на запчасти, месяца, 2 цифры, минимальное - 0, максимальное 99 (0 - гарантия не учитывается)
+        departmentName:
+          type: string
+          maxLength: 255
+          description: Наименование департамента
+        fieldService:
+          type: boolean
+          description: Флаг выездного обслуживания
+        userId:
+          type: string
+          format: uuid
+          description: Идентификатор пользователя
+        creationTime:
+          type: integer
+          format: int64
+          description: Время создания (epoch timestamp)
+
+    IncomeTariffUpdateRequest:
+      type: object
+      properties:
+        hourNormalizedPrice:
+          type: number
+          format: double
+          minimum: 0.00
+          maximum: 9999.99
+          description: Ставка нормо-часа в копейках, float, 4 знака, 2 знака после запятой, минимум 0.00, максимум 9999.99
+        avgStandartHour:
+          type: number
+          format: double
+          minimum: 0.00
+          maximum: 9999.99
+          description: Средняя ставка нормо-часа в копейках, float, 4 знака, 2 знака после запятой, минимум 0.00, максимум 9999.99
+        detailDiscountPrice:
+          type: number
+          format: double
+          minimum: 0.00
+          maximum: 100.00
+          description: Скидка на запчасти в процентах, максимум 100%, можно ввести 2 знака после запятой
+        avgPartsDiscountPercent:
+          type: number
+          format: double
+          minimum: 0.00
+          maximum: 100.00
+          description: Средняя скидка на запчасти в процентах, максимум 100%, можно ввести 2 знака после запятой
+        workWarranty:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 99
+          description: Гарантийный срок на работы по времени, месяца, 2 цифры, минимальное - 0, максимальное 99 (0 - гарантия не учитывается)
+        mileageWarranty:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 99999
+          description: Гарантийный срок на работы по пробегу, км, 5 цифр, минимальное - 0, максимальное 99999 (0 - гарантия не учитывается)
+        detailWarranty:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 99
+          description: Гарантийный срок на запчасти, месяца, 2 цифры, минимальное - 0, максимальное 99 (0 - гарантия не учитывается)
+        fieldService:
+          type: boolean
+          description: Флаг выездного обслуживания
+
+    Service:
+      type: string
+      enum:
+        - AUTOSERVICE
+        - REPAIR_AND_MAINTENANCE
+      description: Тип сервиса
+
+    ServiceType:
+      type: string
+      enum:
+        - REPAIR_AND_MAINTENANCE
+      description: Тип услуги
+
+    Pageable:
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          format: int32
+          description: Номер страницы
+        pageSize:
+          type: integer
+          format: int32
+          description: Размер страницы
+        sort:
+          $ref: '#/components/schemas/SortObject'
+        offset:
+          type: integer
+          format: int64
+          description: Смещение
+        paged:
+          type: boolean
+          description: Пагинация включена
+        unpaged:
+          type: boolean
+          description: Пагинация отключена
+
+    SortObject:
+      type: object
+      properties:
+        empty:
+          type: boolean
+          description: Пуста ли сортировка
+        sorted:
+          type: boolean
+          description: Сортировка активна
+        unsorted:
+          type: boolean
+          description: Сортировка не активна

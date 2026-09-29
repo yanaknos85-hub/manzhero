@@ -1,0 +1,66 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20210304-remastered
+      context: TRANSPORT-28755
+      author: medvedev-ad
+      preConditions:
+        - not:
+            - tableExists:
+                schemaName: corporate
+                tableName: trip_purpose_statistic
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - createTable:
+            schemaName: corporate
+            tableName: trip_purpose_statistic
+            remarks: "Статистика использования целей поездки"
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: ""
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: corporate_trip_purpose_statistic_pk
+              - column:
+                  name: employee
+                  type: uuid
+                  remarks: "Автор заявки"
+              - column:
+                  name: trip_purpose
+                  type: uuid
+                  remarks: "Цель заявки"
+              - column:
+                  name: usage_count
+                  type: integer
+                  remarks: "Количество использований"
+                  defaultOnNull: true
+                  defaultValueNumeric: 0
+        - createIndex:
+            schemaName: corporate
+            tableName: trip_purpose_statistic
+            columns:
+              - column:
+                  name: employee
+            indexName: corporate_trip_purpose_statistic_employee_idx
+        - addColumn:
+            schemaName: corporate
+            tableName: trip_purpose
+            columns:
+              - column:
+                  name: purpose_parent_label
+                  type: varchar(255)
+                  remarks: "Метка для группировки целей"
+  - changeSet:
+      id: 20210304-remastered-1
+      context: TRANSPORT-28755
+      author: medvedev-ad
+      dbms: postgresql
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - sqlFile:
+            path: change/set_label_to_active_purpose.sql
+            relativeToChangelogFile: true

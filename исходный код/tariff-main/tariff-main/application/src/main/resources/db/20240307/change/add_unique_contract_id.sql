@@ -1,0 +1,1 @@
+alter table tariff_fleet.tariff add constraint contract_id_pk3 unique (contract_id);

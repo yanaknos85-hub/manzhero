@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250930-1545"
+      author: belov-av
+      context: "TRANSPORT-36542"
+      dbms: postgresql
+      changes:
+        - tagDatabase:
+            tag: "D-04.018.000"
+        - modifyDataType:
+            schemaName: corporate
+            tableName: executor_group
+            columnName: additional_feature
+            newDataType: varchar(64)

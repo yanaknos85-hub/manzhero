@@ -1,0 +1,23 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20220609"
+            author: shabrovie
+            changes:
+                -   sqlFile:
+                        path: changes/create_bonus_table.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sqlFile:
+                        path: rollback/create_bonus_table.sql
+                        relativeToChangelogFile: true
+    -   changeSet:
+            id: "20220609-1"
+            author: shabrovie
+            changes:
+                -   sqlFile:
+                        path: changes/create_bonus_request_table.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sqlFile:
+                        path: rollback/create_bonus_request_table.sql
+                        relativeToChangelogFile: true

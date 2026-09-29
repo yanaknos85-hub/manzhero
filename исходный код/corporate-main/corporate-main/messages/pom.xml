@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>ru.sber.transport.corporate</groupId>
+        <artifactId>parent</artifactId>
+        <version>5.15</version>
+    </parent>
+
+    <artifactId>messages</artifactId>
+
+    <properties>
+        <java.version>21</java.version>
+        <avro.source.path>_documents/api/avro</avro.source.path>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>ru.sber.transport.corporate</groupId>
+            <artifactId>model</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>ru.sber.transport</groupId>
+            <artifactId>kafka-functional</artifactId>
+            <version>5.8</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.avro</groupId>
+                <artifactId>avro-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

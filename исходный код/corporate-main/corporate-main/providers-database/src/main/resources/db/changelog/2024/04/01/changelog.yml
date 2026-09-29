@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20240401-1133"
+      author: "delyukov_da"
+      context: "TRANSPORT-21954"
+      changes:
+        - addColumn:
+            schemaName: corporate
+            tableName: personal_auto
+            columns:
+              - column:
+                  name: active
+                  type: boolean
+                  remarks: признак активности автомобиля (может выбираться во вновь создаваемых заявках)
+                  defaultValueBoolean: true
+                  defaultOnNull: true
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropColumn:
+            schemaName: corporate
+            tableName: personal_auto
+            columnName: active

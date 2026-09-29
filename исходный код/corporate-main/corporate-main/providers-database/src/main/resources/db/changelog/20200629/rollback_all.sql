@@ -1,0 +1,1 @@
+drop FUNCTION change_trigger() cascade;

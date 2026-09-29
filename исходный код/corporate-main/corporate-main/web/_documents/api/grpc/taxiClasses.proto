@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package ru.sber.transport.corporate.grpc.service;
+
+import "google/protobuf/wrappers.proto";
+
+/**
+* Сервис по работе с классами такси.
+*/
+service PositionTaxiClasses {
+
+  /**
+   * Получить данные для пользователя.
+   */
+  rpc AllForEmployee(EmployeeIdInfoRequest) returns (stream google.protobuf.StringValue);
+
+}
+
+/**
+* Идентификационные данные сотрудника.
+*/
+message EmployeeIdInfoRequest {
+
+    /**
+    * Идентификатор.
+    */
+    google.protobuf.StringValue id = 1;
+
+    /**
+    * Табельный номер.
+    */
+    google.protobuf.StringValue personnelNumber = 2;
+
+}
+

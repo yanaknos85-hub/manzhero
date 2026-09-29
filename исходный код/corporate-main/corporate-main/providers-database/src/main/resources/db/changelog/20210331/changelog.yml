@@ -1,0 +1,90 @@
+databaseChangeLog:
+  -   changeSet:
+        id: corporate/20210331-remastered
+        author: medvedev-ad
+        context: TRANSPORT-27047
+        preConditions:
+          - not:
+              - tableExists:
+                  schemaName: corporate
+                  tableName: active_personal_car
+            onFail: MARK_RAN
+        changes:
+          - tagDatabase:
+              tag: D-03.024.000
+          - createTable:
+              tableName: active_personal_car
+              schemaName: corporate
+              remarks: Активный личный транспорт
+              columns:
+                - column:
+                    name: id
+                    type: uuid
+                    remarks: Идентификатор
+                    constraints:
+                      primaryKey: true
+                      primaryKeyName: corporate_active_personal_car_pk
+                - column:
+                    name: owner_id
+                    type: uuid
+                    remarks: Идентификатор владельца
+                    constraints:
+                      nullable: false
+                      notNullConstraintName: corporate_active_personal_car_owner_id_nn
+                      unique: true
+                      uniqueConstraintName: corporate_active_personal_car_owner_id_uk
+                - column:
+                    name: car_id
+                    type: uuid
+                    remarks: Идентификатор автомобиля
+                    constraints:
+                      nullable: false
+                      notNullConstraintName: corporate_active_personal_car_car_id_nn
+          - addForeignKeyConstraint:
+              baseTableName: active_personal_car
+              baseTableSchemaName: corporate
+              baseColumnNames: owner_id
+              referencedTableName: employee
+              referencedTableSchemaName: corporate
+              referencedColumnNames: id
+              constraintName: corporate_active_personal_car_owner_id_fk
+          - addForeignKeyConstraint:
+              baseTableName: active_personal_car
+              baseTableSchemaName: corporate
+              baseColumnNames: car_id
+              referencedTableName: personal_auto
+              referencedTableSchemaName: corporate
+              referencedColumnNames: id
+              constraintName: corporate_active_personal_car_car_id_fk
+          - addColumn:
+              schemaName: corporate
+              tableName: personal_auto
+              columns:
+                - column:
+                    name: transport_type
+                    type: varchar(255)
+                    remarks: Тип транспорта (Автомобиль/мотоцикл)
+                    defaultOnNull: true
+                    defaultValue: 'CAR'
+                    constraints:
+                      nullable: false
+                      notNullConstraintName: corporate_personal_auto_transport_type_nn
+                - column:
+                    name: passenger_seats_count
+                    type: int2
+                    defaultOnNull: true
+                    defaultValueNumeric: 0
+                    remarks: Количество пассажирских мест
+                - column:
+                    name: color
+                    type: varchar(40)
+                    defaultOnNull: true
+                    defaultValue: Не указан
+                    remarks: Цвет ТС
+          - update:
+              schemaName: corporate
+              tableName: personal_auto
+              columns:
+                - column:
+                    name: owner_info
+                    value: USER

@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20200817-remastered
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - not:
+            - columnExists:
+                schemaName: corporate
+                tableName: department
+                columnName: humanreadableid
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - addColumn:
+            schemaName: corporate
+            tableName: department
+            columns:
+              - column:
+                  name: humanreadableid
+                  type: varchar(100)
+                  remarks: Уникальный идентификатор (человекочитаемый ID)
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: ux_department_1
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: department
+            columnName: humanreadableid
+      rollback:
+        - dropColumn:
+            schemaName: corporate
+            tableName: department
+            columnName: humanReadableId

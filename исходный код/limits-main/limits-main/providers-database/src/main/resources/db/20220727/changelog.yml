@@ -1,0 +1,12 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20220727_1"
+            author: smirnova
+            changes:
+                -   sqlFile:
+                        path: changes/insert_default_user.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sqlFile:
+                        path: rollback/insert_default_user.sql
+                        relativeToChangelogFile: true

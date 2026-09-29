@@ -1,0 +1,52 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20200409-remastered
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - not:
+            - columnExists:
+                schemaName: corporate
+                tableName: employee
+                columnName: user_id
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.018.001
+        - createTable:
+            schemaName: corporate
+            tableName: user
+            remarks: Список пользователей
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор
+                  constraints:
+                    primaryKeyName: corporate_user_pk
+                    primaryKey: true
+              - column:
+                  name: login
+                  type: varchar(255)
+                  remarks: Логин
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_user_login_nn
+                    unique: true
+                    uniqueConstraintName: uk_user_login
+        - addColumn:
+            schemaName: corporate
+            tableName: employee
+            columns:
+              - column:
+                  name: user_id
+                  type: uuid
+                  remarks: Ссылка на пользователя
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate
+            baseTableName: employee
+            baseColumnNames: user_id
+            constraintName: corporate_employee_user_fk
+            referencedTableSchemaName: corporate
+            referencedTableName: user
+            referencedColumnNames: id

@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250429-1601"
+      author: blandin-ad
+      context: "TRANSPORT-31376"
+      changes:
+        - tagDatabase:
+            tag: "D-04.008.000"
+        - addColumn:
+            schemaName: corporate
+            tableName: employee
+            columns:
+              - column:
+                  name: phone_confirmed
+                  type: boolean
+                  remarks: Признак подтверждения номера телефона
+                  defaultValueBoolean: false
+                  defaultOnNull: false
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_employee_phone_confirmed_nnc
+      rollback:
+        - dropColumn:
+            schemaName: corporate
+            tableName: employee
+            columns:
+              - column:
+                  name: phone_confirmed

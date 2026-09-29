@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20220801"
+      author: medvedev-ad
+      preConditions:
+        - foreignKeyConstraintExists:
+            foreignKeyName: employee_user_id_fkey
+            baseTableName: employee
+            baseTableSchemaName: corporate
+          onFail: MARK_RAN
+      changes:
+        - dropForeignKeyConstraint:
+            constraintName: employee_user_id_fkey
+            baseTableName: employee
+            baseTableSchemaName: corporate
+      rollback:
+        - addForeignKeyConstraint:
+            constraintName: employee_user_id_fkey
+            baseTableName: employee
+            baseTableSchemaName: corporate
+            baseColumnNames: user_id
+            referencedTableSchemaName: corporate
+            referencedTableName: user
+            referencedColumnNames: id

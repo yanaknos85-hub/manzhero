@@ -1,0 +1,65 @@
+application: external-tariffs
+repo: app_platform_tariff_external
+resources:
+  limits:
+    cpu: 500m
+    memory: 1G
+  requests:
+    cpu: 500m
+    memory: 1G
+port:
+  http:
+    number: 8080
+    name: tariff-ext
+    target: 8080
+  grpc:
+    number: 9090
+    name: tariff-ext
+    target: 9090
+routing:
+  match:
+    prefix: /api/tariff/external/
+  rewrite:
+    uri: '/'
+secman:
+  type: none
+profiles: tariff-external
+additional:
+  envs:
+    - name: SPRING_CLOUD_CONFIG_URI
+      value: http://http-config-server:8080
+    - name: exchange.request.base-url
+      value: https://tvlsg-mvp000192.sigma.sbrf.ru:6443
+    - name: SSL_SUPPORT
+      value: 'true'
+    - name: SSL_CLIENT_ENABLED
+      value: 'false'
+    - name: SSL_TRUST_ENABLED
+      value: 'false'
+  configMap:
+    - name: tariff-external-secman
+      data:
+        application-tariff-external.yml: |-
+          spring:
+            cloud:
+              vault:
+                namespace: CI02351878_CI02671580
+                authentication: kubernetes
+                kubernetes:
+                  role: ci02351878-edevgen-sbertransport-dev
+                  kubernetes-path: os/dev-terra000003-ids.ocp.delta.sbrf.ru
+                enabled: true
+                port: 443
+                host: t.secrets.delta.sbrf.ru
+            config:
+              import:
+                - optional:vault://A/TRANSP/OSH/MAIN/KV/ci02351878-edevgen-sbertransport-dev/tariff-external
+  volumes:
+    - name: tariff-external-secman
+      configMap:
+        name: tariff-external-secman
+        defaultMode: 420
+  mounts:
+    - name: tariff-external-secman
+      mountPath: /app/resources/application-tariff-external.yml
+      subPath: application-tariff-external.yml

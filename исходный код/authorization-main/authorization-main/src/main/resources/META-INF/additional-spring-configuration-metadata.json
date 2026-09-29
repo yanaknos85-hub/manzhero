@@ -1,0 +1,14 @@
+{
+  "properties": [
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "Secret for encoding JWT signature."
+    },
+    {
+      "name": "security.blacklist.jwt.topic",
+      "type": "java.lang.String",
+      "description": "Топик обмена токенами ЧС."
+      }
+    ]
+}

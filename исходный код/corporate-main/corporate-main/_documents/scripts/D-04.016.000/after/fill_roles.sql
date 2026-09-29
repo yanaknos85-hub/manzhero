@@ -1,0 +1,1 @@
+CALL migrations.fill_roles('corporate','GET /cargo/type/group/search/','ROLE_EMPLOYEE_CORP_CLIENT',true);

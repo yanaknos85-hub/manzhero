@@ -1,0 +1,21 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20230405"
+            author: asigalov
+            changes:
+                -   dropColumn:
+                        schemaName: limits
+                        tableName: limit
+                        columns:
+                            -   column:
+                                    name: active
+            rollback:
+                -   addColumn:
+                        schemaName: limits
+                        tableName: limit
+                        columns:
+                            -   column:
+                                    name: active
+                                    type: boolean
+                                    defaultValueBoolean: true
+                                    remarks: Признак активности лимита

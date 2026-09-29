@@ -1,0 +1,125 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20230420-remastered"
+      author: sigalov-aa
+      preConditions:
+        - not:
+            - columnExists:
+                schemaName: limits
+                tableName: limit_spending
+                columnName: year
+          onFail: MARK_RAN
+      changes:
+        - addColumn:
+            schemaName: limits
+            tableName: limit_spending
+            columns:
+              - column:
+                  name: year
+                  type: int
+                  remarks: год
+      rollback:
+        - dropColumn:
+            schemaName: limits
+            tableName: limit_spending
+            columnName: year
+  - changeSet:
+      id: "20230420-remastered-1"
+      author: sigalov-aa
+      preConditions:
+        - not:
+            - columnExists:
+                schemaName: limits
+                tableName: period
+                columnName: year
+          onFail: MARK_RAN
+      changes:
+        - addColumn:
+            schemaName: limits
+            tableName: limit_spending
+            columns:
+              - column:
+                  name: period
+                  type: int
+                  remarks: период
+      rollback:
+        - dropColumn:
+            schemaName: limits
+            tableName: limit_spending
+            columnName: period
+  - changeSet:
+      id: "20230420-remastered-2"
+      author: sigalov-aa
+      preConditions:
+        - sqlCheck:
+            sql: select true from limits.limit_stats
+            expectedResult: "true"
+          onError: MARK_RAN
+      changes:
+        - createTable:
+            schemaName: limits
+            tableName: limit_stats
+            remarks: Статистика
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: stats_pk
+              - column:
+                  name: organization_id
+                  type: uuid
+                  remarks: Идентификатор организации
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: stats_organization_nn
+              - column:
+                  name: transport_type
+                  type: text
+                  remarks: Тип транспорта
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: stats_transport_type_nn
+              - column:
+                  name: year
+                  type: int
+                  remarks: Год
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: stats_year_nn
+              - column:
+                  name: period
+                  type: int
+                  remarks: Период
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: stats_period_nn
+              - column:
+                  name: budget
+                  type: bigint
+                  remarks: Бюджет
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: stats_budget_nn
+              - column:
+                  name: spending
+                  type: bigint
+                  remarks: Сумма потраченная
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: stats_spending_nn
+              - column:
+                  name: update_time
+                  type: timestamp
+                  remarks: Время обновления
+                  defaultOnNull: true
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: stats_update_time_nn
+      rollback:
+        - dropTable:
+            schemaName: limits
+            tableName: limit_stats

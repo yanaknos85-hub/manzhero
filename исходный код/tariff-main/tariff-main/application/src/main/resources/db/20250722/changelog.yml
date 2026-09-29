@@ -1,0 +1,11 @@
+databaseChangeLog:
+    -   changeSet:
+            id: tariff_fleet/20250722-1
+            author: novikova-km
+            dbms: postgresql
+            changes:
+                -   dropUniqueConstraint:
+                        constraintName: contract_pk3
+                        schemaName: tariff_fleet
+                        tableName: contract
+                        

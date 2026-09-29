@@ -1,0 +1,29 @@
+databaseChangeLog:
+    -   changeSet:
+            id: tariff_fleet/20260311-1
+            author: makarov-md
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/ddl_tariff_repair.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+            rollback:
+                -   sqlFile:
+                        path: rollback/rollback_ddl_tariff_repair.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: tariff_fleet/20260311-2
+            author: makarov-md
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/dml_tariff_repair.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+            rollback:
+                -   sqlFile:
+                        path: rollback/rollback_dml_tariff_repair.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false

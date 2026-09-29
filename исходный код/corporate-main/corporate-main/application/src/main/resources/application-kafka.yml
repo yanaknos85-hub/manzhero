@@ -1,0 +1,56 @@
+spring:
+    cloud:
+        stream:
+            kafka:
+                default:
+                    consumer:
+                        enableDlq: true
+                binder:
+                    producerProperties: org.springframework.kafka.support.serializer.JsonSerializer
+                    consumerProperties: org.springframework.kafka.support.serializer.JsonDeserializer
+                    brokers:
+                        - ${KAFKA_BROKERS:@kafka.default.broker@}
+            default-binder: kafka
+            bindings:
+                confirmationDataOutput-out-0:
+                    destination: service.confirmation.data
+                usersOutput-out-0:
+                    destination: service.users
+                purposeOutput-out-0:
+                    destination: service.organization.trip.purpose
+                cargoTypeOutput-out-0:
+                    destination: service.organization.cargo.type
+                cargoDeliveryTimeOutput-out-0:
+                    destination: service.organization.cargo.deliverytime
+                departmentsOutput-out-0:
+                    destination: service.organization.department
+                employeesOutput-out-0:
+                    destination: service.organization.employee
+                organizationsOutput-out-0:
+                    destination: service.organization
+                transportOrgOutput-out-0:
+                    destination: service.organization.transportOrg
+                personalCarsOutput-out-0:
+                    destination: service.organization.personalCar
+                positionOutput-out-0:
+                    destination: service.organization.position
+                delegateOutput-out-0:
+                    destination: service.organization.employee.delegate
+                executorGroupOutput-out-0:
+                    group: ${spring.application.name}
+                    destination: service.executor.group
+                requestInput-in-0:
+                    group: ${spring.application.name}
+                    destination: service.request
+                tripRequestApproveInput-in-0:
+                    group: ${spring.application.name}
+                    destination: service.trip.request.approve
+                geoZoneInput-in-0:
+                    group: ${spring.application.name}
+                    destination: service.geo.zones
+                accountsRolesInput-in-0:
+                    group: ${spring.application.name}
+                    destination: service.sudir.account.roles
+                confirmationDataInput-in-0:
+                    group: ${spring.application.name}
+                    destination: service.confirmation.approved

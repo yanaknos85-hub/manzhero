@@ -1,0 +1,39 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20221101"
+            author: medvedev-ad
+            context: "20221101"
+            changes:
+                -   tagDatabase:
+                        tag: "20221101"
+                -   createIndex:
+                        schemaName: corporate
+                        tableName: shared_ride_settings
+                        column:
+                            name: organization_id
+                        indexName: corporate_shared_ride_settings_organization_id_idx
+    -   changeSet:
+            id: "20221101-1"
+            author: medvedev-ad
+            context: "20221101"
+            changes:
+                -   tagDatabase:
+                        tag: "20221101"
+                -   dropTable:
+                        schemaName: corporate
+                        tableName: user
+            rollback:
+                -   createTable:
+                        schemaName: corporate
+                        tableName: user
+                        columns:
+                            -   column:
+                                    name: id
+                                    type: uuid
+                                    constraints:
+                                        primaryKey: true
+                            -   column:
+                                    name: login
+                                    type: text
+                -   sql:
+                        sql: insert into corporate.user (id) (select user_id from corporate.employee)

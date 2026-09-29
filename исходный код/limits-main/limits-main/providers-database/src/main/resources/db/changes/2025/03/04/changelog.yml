@@ -1,0 +1,70 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250304-1205"
+      author: medvedev-ad
+      context: "TRANSPORT-30202"
+      changes:
+        - tagDatabase:
+            tag: "D-04.005.000"
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_sharing_per_period
+            columnName: additional
+            newDataType: decimal(20,2)
+        - update:
+            schemaName: limits
+            tableName: limit_sharing_per_period
+            columns:
+              - column:
+                  name: additional
+                  valueComputed: additional / 100
+  - changeSet:
+      id: "20250304-1314"
+      author: medvedev-ad
+      context: "TRANSPORT-30202"
+      changes:
+        - tagDatabase:
+            tag: "D-04.005.000"
+        - createTable:
+            schemaName: limits
+            tableName: limit_responsible_employee
+            remarks: Таблица для хранения информации о сотруднике, ответственном за лимит
+            columns:
+              - column:
+                  name: employee_id
+                  type: uuid
+                  remarks: Идентификатор сотрудника
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limits_limit_responsible_employee_employee_id_nn
+                    referencedTableSchemaName: limits
+                    referencedTableName: employee
+                    referencedColumnNames: id
+                    foreignKeyName: limits_limit_responsible_employee_employee_id_fk
+              - column:
+                  name: limit_id
+                  type: uuid
+                  remarks: Идентификатор лимита
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limits_limit_responsible_employee_limit_id_nn
+                    referencedTableSchemaName: limits
+                    referencedTableName: limit
+                    referencedColumnNames: id
+                    foreignKeyName: limits_limit_responsible_employee_limit_id_fk
+              - column:
+                  name: start_date
+                  type: timestamp with timezone
+                  remarks: Дата начала действия
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limits_limit_responsible_employee_start_date_nn
+              - column:
+                  name: end_date
+                  type: timestamp with timezone
+                  remarks: Дата окончания действия
+        - addPrimaryKey:
+            schemaName: limits
+            tableName: limit_responsible_employee
+            columnNames: employee_id,limit_id,start_date
+            primaryKeyName: limits_limit_responsible_employee_pk

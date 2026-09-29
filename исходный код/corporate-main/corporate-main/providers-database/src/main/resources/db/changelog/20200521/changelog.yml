@@ -1,0 +1,21 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20200521
+            author: mad
+            changes:
+                -   sqlFile:
+                        endDelimiter: ;
+                        path: add_employee_status_column.sql
+                        relativeToChangelogFile: true
+                -   sqlFile:
+                        endDelimiter: ;
+                        path: add_department_status_column.sql
+                        relativeToChangelogFile: true
+                -   sqlFile:
+                        endDelimiter: ;
+                        path: add_organization_status_column.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sqlFile:
+                        path: rollback_all.sql
+                        relativeToChangelogFile: true

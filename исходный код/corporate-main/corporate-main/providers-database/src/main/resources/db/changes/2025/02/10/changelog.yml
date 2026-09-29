@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250210-1427"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.003"
+        - update:
+            schemaName: corporate
+            tableName: position
+            columns:
+              - column:
+                  name: org_structure_type
+                  value: 'INTERNAL'
+            where: org_structure_type is null
+        - update:
+            schemaName: corporate
+            tableName: department
+            columns:
+              - column:
+                  name: org_structure_type
+                  value: 'INTERNAL'
+            where: org_structure_type is null
+  - changeSet:
+      id: "20250210-1440"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.003"
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: position
+            columnName: org_structure_type
+            constraintName: corporate_position_org_structure_type_nn
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: department
+            columnName: org_structure_type
+            constraintName: corporate_department_org_structure_type_nn

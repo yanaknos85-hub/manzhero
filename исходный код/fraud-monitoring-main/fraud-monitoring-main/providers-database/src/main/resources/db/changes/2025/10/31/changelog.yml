@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20251031-1630"
+      author: khalikov-ma
+      context: "TRANSPORT-37190"
+      changes:
+        - addColumn:
+            schemaName: ${schema_name}
+            tableName: trip_request
+            columns:
+              - column:
+                  name: compensation_type
+                  type: varchar(255)
+                  remarks: Вид компенсации

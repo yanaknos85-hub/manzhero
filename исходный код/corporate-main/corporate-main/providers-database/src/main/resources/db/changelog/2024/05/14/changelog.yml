@@ -1,0 +1,65 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20240514-1017"
+      author: "ladeyshchikov-aa"
+      context: "TRANSPORT-22556"
+      changes:
+        - createTable:
+            schemaName: corporate
+            tableName: easup_saving_error
+            remarks: Ошибки при сохранении объекта из еасуп.
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор
+                  constraints:
+                    primaryKeyName: easup_saving_error_pkey
+                    primaryKey: true
+              - column:
+                  name: easup_id
+                  type: varchar(255)
+                  remarks: Easup ID.
+                  constraints:
+                    nullable: false
+              - column:
+                  name: easup_update_time
+                  type: timestamp
+                  remarks: Время последнего обновления из ЕАСУП.
+                  constraints:
+                    nullable: false
+              - column:
+                  name: entity_name
+                  type: varchar(255)
+                  remarks: Название сохраняемого объекта.
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reason
+                  type: varchar(255)
+                  remarks: Причина неудачного сохранения.
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            schemaName: corporate
+            tableName: easup_saving_error
+
+  - changeSet:
+      id: "20240515-0944"
+      author: "ladeyshchikov-aa"
+      context: "TRANSPORT-22556"
+      changes:
+        - addColumn:
+            schemaName: corporate
+            tableName: easup_saving_error
+            columns:
+              - column:
+                  name: organization_id
+                  type: varchar(255)
+                  remarks: Идентификатор организации.
+      rollback:
+        - dropColumn:
+            schemaName: corporate
+            tableName: easup_saving_error
+            columnName: organization_id

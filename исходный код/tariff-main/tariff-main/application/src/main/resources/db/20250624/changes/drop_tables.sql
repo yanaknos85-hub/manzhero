@@ -1,0 +1,2 @@
+drop table tariff_fleet.medic_organization;
+drop table tariff_fleet.technic_organization;

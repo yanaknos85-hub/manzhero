@@ -1,0 +1,28 @@
+databaseChangeLog:
+    -   changeSet:
+            id: tariff_fleet/20250430-1
+            author: klyunkov-va
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/add_fleet_owner_organization_ddl.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: tariff_fleet/20250430-2
+            author: klyunkov-va
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/add_medic_organization_ddl.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: tariff_fleet/20250430-3
+            author: klyunkov-va
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/add_technic_organization_ddl.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false

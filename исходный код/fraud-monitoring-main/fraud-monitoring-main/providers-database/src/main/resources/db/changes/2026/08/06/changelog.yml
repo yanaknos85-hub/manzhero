@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20260806-1600"
+      author: khalikov-ma
+      context: "TRANSPORT-44880"
+      changes:
+        - addColumn:
+            schemaName: ${schema_name}
+            tableName: fraud
+            columns:
+              - column:
+                  name: cleared
+                  type: boolean
+                  remarks: Признак оправдания / снятия подозрения по фроду
+                  defaultValue: false

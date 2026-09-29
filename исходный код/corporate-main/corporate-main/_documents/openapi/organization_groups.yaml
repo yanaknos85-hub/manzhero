@@ -1,0 +1,393 @@
+openapi: 3.0.3
+info:
+  title: Группы организаций
+  description: Набор операций по работе с группами организаций
+  version: "1.0"
+servers:
+  - url: '{scheme}://{host}:{port}/api/organizations'
+    description: Адрес для вызова
+    variables:
+      scheme:
+        default: http
+        enum:
+          - http
+          - https
+      host:
+        default: localhost
+      port:
+        default: "80"
+        enum:
+          - "80"
+          - "8080"
+          - "443"
+          - "8443"
+paths:
+  /groups:
+    post:
+      tags:
+        - Добавление группы организаций
+      security:
+        - BearerToken: []
+      requestBody:
+        description: "Тело запроса на добавление группы организаций"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/add'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/add_response'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example: {
+                "timestamp": "2023-09-13T07:24:04.386702226Z",
+                "path": "/groups/",
+                "message": "Bad Request",
+                "problems": [
+                  {
+                    "field": "name",
+                    "constraints": [
+                      {
+                        "type": "NotNull"
+                      }
+                    ]
+                  }
+                ]
+              }
+        '403':
+          description: Forbidden
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              example: {
+                "timestamp": "2023-09-13T09:18:49.669121717Z",
+                "path": "/groups/",
+                "entity": {
+                  "name": "Organization",
+                  "id": "[6e6e04b7-1912-422a-820a-1a6777dfde1b, b9068c2c-e030-4cc8-b810-c466b6d6ee0c, 0fd9c31a-5b8c-4c9c-be8c-1f892efc5631, 1310305b-1d78-4463-b8c0-f33dcc45c062, cfeaf02d-2a90-4ddf-b885-e8edf50b51c9, fe3f5dc4-3155-405f-b388-121e47e5d7dc]"
+                },
+                "message": "ORGANIZATION_ALREADY_IN_GROUP",
+                "problems": [
+                  {
+                    "field": "organizationGroup",
+                    "value": "{cfeaf02d-2a90-4ddf-b885-e8edf50b51c9=СБЕР, 6e6e04b7-1912-422a-820a-1a6777dfde1b=СБЕР, 1310305b-1d78-4463-b8c0-f33dcc45c062=СБЕР, 0fd9c31a-5b8c-4c9c-be8c-1f892efc5631=СБЕР, b9068c2c-e030-4cc8-b810-c466b6d6ee0c=СБЕР, fe3f5dc4-3155-405f-b388-121e47e5d7dc=СБЕР}",
+                    "constraints": []
+                  }
+                ]
+              }
+    get:
+      tags:
+        - Получение всех групп организаций
+      security:
+        - BearerToken: [ ]
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+            example: "СБЕР"
+        - name: internal
+          in: query
+          schema:
+            type: boolean
+            example: true
+        - name: page
+          in: query
+          schema:
+            type: integer
+            example: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            example: 10
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/add_response'
+              example: {
+                "content": [
+                  {
+                    "id": "fdf8c1c4-837e-4599-9af0-96475857e893",
+                    "name": "СБЕР",
+                    "internal": true
+                  }
+                ],
+                "pageable": {
+                  "sort": {
+                    "empty": true,
+                    "sorted": false,
+                    "unsorted": true
+                  },
+                  "offset": 0,
+                  "pageSize": 10,
+                  "pageNumber": 0,
+                  "unpaged": false,
+                  "paged": true
+                },
+                "last": true,
+                "totalElements": 1,
+                "totalPages": 1,
+                "sort": {
+                  "empty": true,
+                  "sorted": false,
+                  "unsorted": true
+                },
+                "first": true,
+                "size": 10,
+                "number": 0,
+                "numberOfElements": 1,
+                "empty": false
+              }
+        '403':
+          description: Forbidden
+  /groups/{organizationGroupId}:
+    put:
+      tags:
+        - Изменение группы организаций
+      security:
+        - BearerToken: [ ]
+      parameters:
+        - name: organizationGroupId
+          in: path
+          schema:
+            type: string
+            format: uuid
+            pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+            example: "6e6e04b7-1912-422a-820a-1a6777dfde1b"
+          required: true
+      requestBody:
+        description: "Тело запроса на добавление группы организаций"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/put'
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              example: {
+                "timestamp": "2023-09-13T09:18:49.669121717Z",
+                "path": "/groups/",
+                "entity": {
+                  "name": "Organization",
+                  "id": "[6e6e04b7-1912-422a-820a-1a6777dfde1b, b9068c2c-e030-4cc8-b810-c466b6d6ee0c, 0fd9c31a-5b8c-4c9c-be8c-1f892efc5631, 1310305b-1d78-4463-b8c0-f33dcc45c062, cfeaf02d-2a90-4ddf-b885-e8edf50b51c9, fe3f5dc4-3155-405f-b388-121e47e5d7dc]"
+                },
+                "message": "ORGANIZATION_ALREADY_IN_GROUP",
+                "problems": [
+                  {
+                    "field": "organizationGroup",
+                    "value": "{cfeaf02d-2a90-4ddf-b885-e8edf50b51c9=СБЕР, 6e6e04b7-1912-422a-820a-1a6777dfde1b=СБЕР, 1310305b-1d78-4463-b8c0-f33dcc45c062=СБЕР, 0fd9c31a-5b8c-4c9c-be8c-1f892efc5631=СБЕР, b9068c2c-e030-4cc8-b810-c466b6d6ee0c=СБЕР, fe3f5dc4-3155-405f-b388-121e47e5d7dc=СБЕР}",
+                    "constraints": [ ]
+                  }
+                ]
+              }
+    patch:
+      tags:
+        - Частичное изменение группы организаций
+      security:
+        - BearerToken: [ ]
+      parameters:
+        - name: organizationGroupId
+          in: path
+          schema:
+            type: string
+            format: uuid
+            pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+            example: "6e6e04b7-1912-422a-820a-1a6777dfde1b"
+          required: true
+      requestBody:
+        description: "Тело запроса на добавление группы организаций"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/patch'
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              example: {
+                "timestamp": "2023-09-13T09:18:49.669121717Z",
+                "path": "/groups/",
+                "entity": {
+                  "name": "Organization",
+                  "id": "[6e6e04b7-1912-422a-820a-1a6777dfde1b, b9068c2c-e030-4cc8-b810-c466b6d6ee0c, 0fd9c31a-5b8c-4c9c-be8c-1f892efc5631, 1310305b-1d78-4463-b8c0-f33dcc45c062, cfeaf02d-2a90-4ddf-b885-e8edf50b51c9, fe3f5dc4-3155-405f-b388-121e47e5d7dc]"
+                },
+                "message": "ORGANIZATION_ALREADY_IN_GROUP",
+                "problems": [
+                  {
+                    "field": "organizationGroup",
+                    "value": "{cfeaf02d-2a90-4ddf-b885-e8edf50b51c9=СБЕР, 6e6e04b7-1912-422a-820a-1a6777dfde1b=СБЕР, 1310305b-1d78-4463-b8c0-f33dcc45c062=СБЕР, 0fd9c31a-5b8c-4c9c-be8c-1f892efc5631=СБЕР, b9068c2c-e030-4cc8-b810-c466b6d6ee0c=СБЕР, fe3f5dc4-3155-405f-b388-121e47e5d7dc=СБЕР}",
+                    "constraints": [ ]
+                  }
+                ]
+              }
+    delete:
+      tags:
+        - Удаление группы организаций
+      security:
+        - BearerToken: [ ]
+      parameters:
+        - name: organizationGroupId
+          in: path
+          schema:
+            type: string
+            format: uuid
+            pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+            example: "6e6e04b7-1912-422a-820a-1a6777dfde1b"
+          required: true
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+        '409':
+          description: Conflict
+components:
+  schemas:
+    UUID:
+      title: Идентификатор
+      type: string
+      format: uuid
+      pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+      example: "6e6e04b7-1912-422a-820a-1a6777dfde1b"
+    add:
+      type: object
+      description: "Данные создаваемой группы организаций"
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          description: "Наименование группы организаций"
+          example: "СБЕР"
+        organizationIds:
+          type: array
+          minItems: 1
+          description: "Список ID организаций, которые должны входить в группу организаций"
+          items:
+            $ref: "#/components/schemas/UUID"
+        internal:
+          type: boolean
+          description: "Принадлежность к внутренней группе компаний"
+          example: "true"
+      example: {
+        "name":"СБЕР",
+        "organizationIds":[
+            "6e6e04b7-1912-422a-820a-1a6777dfde1b",
+            "b9068c2c-e030-4cc8-b810-c466b6d6ee0c",
+            "0fd9c31a-5b8c-4c9c-be8c-1f892efc5631",
+            "1310305b-1d78-4463-b8c0-f33dcc45c062",
+            "cfeaf02d-2a90-4ddf-b885-e8edf50b51c9",
+            "fe3f5dc4-3155-405f-b388-121e47e5d7dc"
+        ],
+        "internal":"true"
+      }
+      title: Добавление группы организаций
+    put:
+      type: object
+      description: "Данные изменяемой группы организаций"
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          description: "Наименование группы организаций"
+          example: "СБЕР"
+        organizationIds:
+          type: array
+          minItems: 1
+          description: "Список ID организаций, которые должны входить в группу организаций"
+          items:
+            $ref: "#/components/schemas/UUID"
+      example: {
+        "name": "СБЕР",
+        "organizationIds": [
+            "6e6e04b7-1912-422a-820a-1a6777dfde1b",
+            "b9068c2c-e030-4cc8-b810-c466b6d6ee0c",
+            "0fd9c31a-5b8c-4c9c-be8c-1f892efc5631",
+            "1310305b-1d78-4463-b8c0-f33dcc45c062",
+            "cfeaf02d-2a90-4ddf-b885-e8edf50b51c9",
+            "fe3f5dc4-3155-405f-b388-121e47e5d7dc"
+        ]
+      }
+      title: Изменение группы организаций
+    patch:
+      type: array
+      description: "Данные изменяемой группы организаций"
+      items:
+        properties:
+          field:
+            type: string
+            description: "Наименование поля"
+            example: "name"
+          value:
+            type: object
+            description: "Значение поля"
+            example: "СБЕР"
+      example: [
+        {
+          "field":"name",
+          "value":"СберБанк"
+        },
+        {
+          "field":"organizationIds",
+          "value":
+            [
+                "6e6e04b7-1912-422a-820a-1a6777dfde1b",
+                "b9068c2c-e030-4cc8-b810-c466b6d6ee0c",
+                "0fd9c31a-5b8c-4c9c-be8c-1f892efc5631"
+            ]
+        }
+      ]
+      title: Частичное изменение группы организаций
+    add_response:
+      type: object
+      description: "Данные группы организаций"
+      properties:
+        id:
+          $ref: "#/components/schemas/UUID"
+        name:
+          type: string
+          maxLength: 255
+          description: "Наименование группы организаций"
+          example: "СБЕР"
+        internal:
+          type: boolean
+          description: "Принадлежность к внутренней группе компаний"
+          example: "true"
+      example: {
+        "id": "e28647ab-e03c-448c-baca-bae7765a350c",
+        "name": "СБЕР",
+        "internal": true
+      }
+      title: Группа организаций
+
+  securitySchemes:
+    BearerToken:
+      description: Токен доступа
+      scheme: bearer
+      type: http
+      bearerFormat: JWT
+  

@@ -1,0 +1,26 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20210928"
+            author: alekseev-pa
+            changes:
+                -   dropUniqueConstraint:
+                        constraintName: uk_email
+                        schemaName: corporate
+                        tableName: employee
+                        uniqueColumns: email
+                -   dropUniqueConstraint:
+                        constraintName: uk_mobile
+                        schemaName: corporate
+                        tableName: employee
+                        uniqueColumns: mobile_phone
+            rollback:
+                -   addUniqueConstraint:
+                        constraintName: uk_email
+                        schemaName: corporate
+                        tableName: employee
+                        columnNames: email
+                -   addUniqueConstraint:
+                        constraintName: uk_mobile
+                        schemaName: corporate
+                        tableName: employee
+                        columnNames: mobile_phone

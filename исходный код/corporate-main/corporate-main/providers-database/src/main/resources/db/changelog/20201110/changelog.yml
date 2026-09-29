@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20201110-remastered-1
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - columnExists:
+            schemaName: corporate
+            tableName: employee
+            columnName: delegated_by
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - dropColumn:
+            schemaName: corporate
+            tableName: employee
+            columnName: delegated_by
+            cascade: true
+      rollback:
+        - addColumn:
+            schemaName: corporate
+            tableName: employee
+            columns:
+              - column:
+                  name: delegated_by
+                  type: uuid

@@ -1,0 +1,15 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20211017"
+            author: medvedev-ad
+            changes:
+                -   sqlFile:
+                        path: changes/change_changed_by.sql
+                        relativeToChangelogFile: true
+                -   sqlFile:
+                        path: changes/change_geo_zone_code.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sqlFile:
+                        path: rollback/change_changed_by.sql
+                        relativeToChangelogFile: true

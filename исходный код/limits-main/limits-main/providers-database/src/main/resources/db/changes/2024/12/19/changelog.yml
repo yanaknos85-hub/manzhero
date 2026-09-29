@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20241219-1252"
+      author: medvedev-ad
+      context: "TRANSPORT-28658"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - sql:
+            dbms: postgresql
+            sql: CREATE UNIQUE INDEX limits_limit_year_limit_service_type_department_status_uk ON limits."limit" (limit_status,"year",department_id,limit_service_type) where limit_status <> 'CLOSED' and "year" >= '2024';

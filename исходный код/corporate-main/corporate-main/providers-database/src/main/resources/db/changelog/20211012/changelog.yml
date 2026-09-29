@@ -1,0 +1,86 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20211012"
+            author: medvedev-ad
+            changes:
+                -   renameColumn:
+                        schemaName: corporate
+                        tableName: messages_geo_zone
+                        oldColumnName: code
+                        newColumnName: old_code
+                -   addColumn:
+                        schemaName: corporate
+                        tableName: messages_geo_zone
+                        columns:
+                            -   column:
+                                    name: code
+                                    type: text
+                -   sql:
+                        sql: update corporate.messages_geo_zone set code = old_code
+                -   dropColumn:
+                        schemaName: corporate
+                        tableName: messages_geo_zone
+                        columnName: old_code
+                -   addNotNullConstraint:
+                        schemaName: corporate
+                        tableName: messages_geo_zone
+                        columnName: code
+                -   renameColumn:
+                        schemaName: corporate
+                        tableName: employee
+                        oldColumnName: changed_by
+                        newColumnName: old_changed_by
+                -   addColumn:
+                        schemaName: corporate
+                        tableName: employee
+                        columns:
+                            -   column:
+                                    name: changed_by
+                                    type: uuid
+                -   sql:
+                        sql: update corporate.employee set changed_by = old_changed_by::uuid
+                -   dropColumn:
+                        schemaName: corporate
+                        tableName: employee
+                        columnName: old_changed_by
+            rollback:
+                -   renameColumn:
+                        schemaName: corporate
+                        tableName: messages_geo_zone
+                        oldColumnName: code
+                        newColumnName: old_code
+                -   addColumn:
+                        schemaName: corporate
+                        tableName: messages_geo_zone
+                        columns:
+                            -   column:
+                                    name: code
+                                    type: int8
+                -   sql:
+                        sql: update corporate.messages_geo_zone set code = old_code::int8
+                -   dropColumn:
+                        schemaName: corporate
+                        tableName: messages_geo_zone
+                        columnName: old_code
+                -   addNotNullConstraint:
+                        schemaName: corporate
+                        tableName: messages_geo_zone
+                        columnName: code
+                -   renameColumn:
+                        schemaName: corporate
+                        tableName: employee
+                        oldColumnName: changed_by
+                        newColumnName: old_changed_by
+                -   addColumn:
+                        schemaName: corporate
+                        tableName: employee
+                        columns:
+                            -   column:
+                                    name: changed_by
+                                    type: varchar(100)
+                -   sql:
+                        sql: update corporate.employee set changed_by = old_changed_by::varchar(100)
+                -   dropColumn:
+                        schemaName: corporate
+                        tableName: employee
+                        columnName: old_changed_by

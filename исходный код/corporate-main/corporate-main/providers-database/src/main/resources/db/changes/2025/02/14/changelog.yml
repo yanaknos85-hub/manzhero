@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250214-0829"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.004"
+        - dropTable:
+            schemaName: corporate
+            tableName: easup_department
+        - dropTable:
+            schemaName: corporate
+            tableName: easup_employee
+        - dropTable:
+            schemaName: corporate
+            tableName: easup_saving_error
+        - renameColumn:
+            schemaName: corporate
+            tableName: department
+            oldColumnName: easup_id
+            newColumnName: sync_id
+        - renameColumn:
+            schemaName: corporate
+            tableName: position
+            oldColumnName: easup_id
+            newColumnName: sync_id
+        - renameColumn:
+            schemaName: corporate
+            tableName: organization
+            oldColumnName: easup_id
+            newColumnName: sync_id
+        - sql:
+            dbms: postgresql
+            sql: update corporate.organization o set sync_id = so.sync_id from corporate_sync.sync_organization so where o.id = so.id
+        - sql:
+            sql: drop schema corporate_sync cascade;
+  - changeSet:
+      id: "20250214-0839"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.004"
+        - addUniqueConstraint:
+            schemaName: corporate
+            tableName: department
+            columnNames: organization_id,sync_id
+            constraintName: corporate_department_organization_sync_uk
+        - addUniqueConstraint:
+            schemaName: corporate
+            tableName: position
+            columnNames: organization_id,sync_id
+            constraintName: corporate_department_position_sync_uk
+        - addUniqueConstraint:
+            schemaName: corporate
+            tableName: organization
+            columnNames: sync_id
+            constraintName: corporate_organization_sync_uk

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package ru.sber.transport.limits.grpc.service;
+
+import "google/protobuf/timestamp.proto";
+import "dto/cargo/MassLimitReservationModel.proto";
+
+service MassLimitReservationService {
+
+  rpc massLimitReservation(ru.sber.transport.limits.grpc.dto.cargo.MassLimitReservationRequestList)
+      returns(ru.sber.transport.limits.grpc.dto.cargo.MassLimitReservationResponseList) {}
+
+  rpc limitReservationCancel(ru.sber.transport.limits.grpc.dto.cargo.LimitReservationRequest)
+      returns(ru.sber.transport.limits.grpc.dto.cargo.LimitReservationResponse) {}
+
+}

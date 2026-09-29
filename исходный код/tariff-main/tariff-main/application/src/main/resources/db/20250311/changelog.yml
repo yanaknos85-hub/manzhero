@@ -1,0 +1,19 @@
+databaseChangeLog:
+    -   changeSet:
+            id: tariff_fleet/20250311-1
+            author: makarovm-d
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/add_table_service_station.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: tariff_fleet/20250311-2
+            author: makarovm-d
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/add_table_organization_contract.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false

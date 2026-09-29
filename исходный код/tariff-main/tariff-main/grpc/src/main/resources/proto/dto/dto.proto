@@ -1,0 +1,9 @@
+syntax = "proto3";
+option java_package = "ru.sber.transport.tariff_fleet.grpc.dto";
+option java_multiple_files = true;
+
+package ru.sber.transport.tariff_fleet.grpc.dto;
+
+message HasActiveByContractorIdRequest {
+  string contractorId = 1;
+}

@@ -1,0 +1,47 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20201112(2)
+            author: kireev
+            changes:
+                -   sqlFile:
+                        path: add_shared_ride_settings_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+                -   sqlFile:
+                        path: add_shared_ride_settings_item_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+                -   sqlFile:
+                        path: add_shared_ride_settings_item_attribute_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+                -   sqlFile:
+                        path: add_shared_ride_settings_item_employee_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+                -   sqlFile:
+                        path: add_shared_ride_settings_item_position_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+            rollback:
+                -   sqlFile:
+                        path: rollback_shared_ride_settings_item_position_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+                -   sqlFile:
+                        path: rollback_shared_ride_settings_item_employee_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+                -   sqlFile:
+                        path: rollback_shared_ride_settings_item_attribute_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+                -   sqlFile:
+                        path: rollback_shared_ride_settings_item_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+                -   sqlFile:
+                        path: rollback_shared_ride_settings_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+               

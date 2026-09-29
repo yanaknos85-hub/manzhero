@@ -1,0 +1,44 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20221227"
+            author: medvedev-ad
+            context: "20221227"
+            changes:
+                -   tagDatabase:
+                        tag: "20221227"
+                -   dropUniqueConstraint:
+                        schemaName: corporate
+                        tableName: position
+                        constraintName: corporate_position_easup_id_uk
+                -   addUniqueConstraint:
+                        schemaName: corporate
+                        tableName: position
+                        constraintName: uk_position_organization_id_easup_id
+                        columnNames: organization_id,easup_id
+            rollback:
+                -   dropUniqueConstraint:
+                        schemaName: corporate
+                        tableName: position
+                        constraintName: uk_position_organization_id_easup_id
+                -   addUniqueConstraint:
+                        schemaName: corporate
+                        tableName: position
+                        constraintName: corporate_position_easup_id_uk
+                        columnNames: easup_id
+    -   changeSet:
+            id: "20221227-1"
+            author: medvedev-ad
+            context: "20221227"
+            changes:
+                -   tagDatabase:
+                        tag: "20221227"
+                -   dropUniqueConstraint:
+                        schemaName: corporate
+                        tableName: position
+                        constraintName: corporate_position_organization_id_position_name_uk
+            rollback:
+                -   addUniqueConstraint:
+                        schemaName: corporate
+                        tableName: position
+                        constraintName: corporate_position_organization_id_position_name_uk
+                        columnNames: organization_id,position_name

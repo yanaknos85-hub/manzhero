@@ -1,0 +1,1 @@
+drop TABLE corporate.meeting_address;

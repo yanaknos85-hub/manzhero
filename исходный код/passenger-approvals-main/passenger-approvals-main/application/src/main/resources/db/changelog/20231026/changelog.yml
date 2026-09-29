@@ -1,0 +1,39 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20231026"
+            author: shabrov-ie
+            changes:
+                -   tagDatabase:
+                        tag: "20231026"
+                -   addColumn:
+                        schemaName: approvals
+                        tableName: final_trip_approvals
+                        columns:
+                            -   column:
+                                    type: text
+                                    name: time_zone
+                                    remarks: Тайм зона
+                -   addColumn:
+                        schemaName: approvals
+                        tableName: shared_ride_approvals
+                        columns:
+                            -   column:
+                                    type: text
+                                    name: time_zone
+                                    remarks: Тайм зона
+                -   addColumn:
+                        schemaName: approvals
+                        tableName: trip_request_approvals
+                        columns:
+                            -   column:
+                                    type: text
+                                    name: time_zone
+                                    remarks: Тайм зона
+                -   addColumn:
+                        schemaName: approvals
+                        tableName: update_trip_request_approvals
+                        columns:
+                            -   column:
+                                    type: text
+                                    name: time_zone
+                                    remarks: Тайм зона

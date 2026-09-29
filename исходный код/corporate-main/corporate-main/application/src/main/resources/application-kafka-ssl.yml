@@ -1,0 +1,68 @@
+spring.cloud.stream:
+    bindings:
+        confirmationDataOutputSsl-out-0:
+            destination: service.confirmation.data
+            binder: kafka-ssl
+        usersOutputSsl-out-0:
+            destination: service.users
+            binder: kafka-ssl
+        purposeOutputSsl-out-0:
+            destination: service.organization.trip.purpose
+            binder: kafka-ssl
+        cargoTypeOutputSsl-out-0:
+            destination: service.organization.cargo.type
+            binder: kafka-ssl
+        cargoDeliveryTimeOutputSsl-out-0:
+            destination: service.organization.cargo.deliverytime
+            binder: kafka-ssl
+        departmentsOutputSsl-out-0:
+            destination: service.organization.department
+            binder: kafka-ssl
+        employeesOutputSsl-out-0:
+            destination: service.organization.employee
+            binder: kafka-ssl
+        organizationsOutputSsl-out-0:
+            destination: service.organization
+            binder: kafka-ssl
+        transportOrgOutputSsl-out-0:
+            destination: service.organization.transportOrg
+            binder: kafka-ssl
+        personalCarsOutputSsl-out-0:
+            destination: service.organization.personalCar
+            binder: kafka-ssl
+        positionOutputSsl-out-0:
+            destination: service.organization.position
+            binder: kafka-ssl
+        delegateOutputSsl-out-0:
+            destination: service.organization.employee.delegate
+            binder: kafka-ssl
+        executorGroupOutputSsl-out-0:
+            destination: service.executor.group
+            group: ${spring.application.name}-ssl
+            binder: kafka-ssl
+        requestInputSsl-in-0:
+            group: ${spring.application.name}-ssl
+            binder: kafka-ssl
+            destination: service.request
+        integrationEasupInputSsl-in-0:
+            group: ${spring.application.name}-ssl
+            binder: kafka-ssl
+            destination: service.integration.easup
+            consumer:
+                batchMode: true
+        tripRequestApproveInputSsl-in-0:
+            group: ${spring.application.name}-ssl
+            binder: kafka-ssl
+            destination: service.trip.request.approve
+        geoZoneInputSsl-in-0:
+            group: ${spring.application.name}-ssl
+            binder: kafka-ssl
+            destination: service.geo.zones
+        accountsRolesInputSsl-in-0:
+            group: ${spring.application.name}-ssl
+            binder: kafka-ssl
+            destination: service.sudir.account.roles
+        confirmationDataInputSsl-in-0:
+            group: ${spring.application.name}-ssl
+            binder: kafka-ssl
+            destination: service.confirmation.approved

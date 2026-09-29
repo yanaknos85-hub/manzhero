@@ -1,0 +1,51 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250228-1419"
+      author: medvedev-ad
+      context: "TRANSPORT-30202"
+      changes:
+        - tagDatabase:
+            tag: "D-04.004.000"
+        - createTable:
+            schemaName: limits
+            tableName: employee_limits
+            remarks: Ответственные лица по лимитам
+            columns:
+              - column:
+                  name: employee_id
+                  type: uuid
+                  remarks: Идентификатор сотрудника
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limits_employee_limits_employee_id_nn
+                    referencedTableSchemaName: limits
+                    referencedTableName: employee
+                    referencedColumnName: id
+                    foreignKeyName: limits_employee_limits_employee_fk
+              - column:
+                  name: limit_id
+                  type: uuid
+                  remarks: Идентификатор лимита
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limits_employee_limits_limit_id_nn
+                    referencedTableSchemaName: limits
+                    referencedTableName: limit
+                    referencedColumnName: id
+                    foreignKeyName: limits_employee_limits_limit_fk
+              - column:
+                  name: start_date
+                  type: timestamp with timezone
+                  remarks: Дата начала действия
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limits_employee_limits_start_date_nn
+              - column:
+                  name: end_date
+                  type: timestamp with timezone
+                  remarks: Дата окончания действия
+        - addPrimaryKey:
+            schemaName: limits
+            tableName: employee_limits
+            columnNames: limit_id,employee_id
+            constraintName: limits_employee_limits_pk

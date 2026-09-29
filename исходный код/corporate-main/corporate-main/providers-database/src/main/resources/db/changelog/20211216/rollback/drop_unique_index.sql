@@ -1,0 +1,1 @@
+create unique index cargo_type_name_uindex on corporate.cargo_type (name);

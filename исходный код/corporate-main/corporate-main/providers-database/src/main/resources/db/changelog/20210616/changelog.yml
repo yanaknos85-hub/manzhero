@@ -1,0 +1,105 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20210616
+            author: medvedev-ad
+            changes:
+                -   addColumn:
+                        schemaName: corporate
+                        tableName: department
+                        columns:
+                            -   column:
+                                    name: department_head_personnel_number
+                                    type: text
+                                    remarks: Табельный номер руководителя. Проставляется автоматически если установлен departnemt_head и участвует в автоматической установке department_head если появился сотрудник с этим табелем
+                -   addColumn:
+                        schemaName: corporate
+                        tableName: employee
+                        columns:
+                            -   column:
+                                    name: supervisor_personnel_number
+                                    type: text
+                                    remarks: Табельный номер руководителя. Проставляется автоматически если установлен departnemt_head и участвует в автоматической установке department_head если появился сотрудник с этим табелем
+            rollback:
+                -   dropColumn:
+                        schemaName: corporate
+                        tableName: department
+                        columns:
+                            -   column:
+                                    name: department_head_personnel_number
+                -   dropColumn:
+                        schemaName: corporate
+                        tableName: employee
+                        columns:
+                            -   column:
+                                    name: supervisor_personnel_number
+    -   changeSet:
+            id: corporate/20210616-1
+            author: medvedev-ad
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/update_personnel_numbers.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sql:
+                        sql: select 1 #no need to rollback
+    -   changeSet:
+            id: corporate/20210616-2
+            author: medvedev-ad
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/update_employee_supervisor_personnel_numbers.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sql:
+                        sql: select 1 #no need to rollback
+    -   changeSet:
+            id: corporate/20210616-3
+            author: medvedev-ad
+            changes:
+                - createTable:
+                      schemaName: corporate
+                      tableName: messages_geo_zone
+                      columns:
+                          - column:
+                                name: id
+                                type: uuid
+                                remarks: Идентификатор
+                                constraints:
+                                    primaryKey: true
+                                    primaryKeyName: geo_zone_pkey
+                          - column:
+                                name: code
+                                type: int8
+                                remarks: Код геозоны
+                                constraints:
+                                    nullable: false
+                          - column:
+                                name: name
+                                type: text
+                                remarks: Название геозоны
+                                constraints:
+                                    nullable: false
+                          - column:
+                                name: parent_id
+                                type: uuid
+                                remarks: Идентификатор родительской геозоны
+                - addColumn:
+                      schemaName: corporate
+                      tableName: department
+                      columns:
+                          - column:
+                                name: geozone
+                                type: uuid
+                                remarks: Геозоны
+            rollback:
+                - dropTable:
+                      schemaName: corporate
+                      tableName: messages_geo_zone
+                - dropColumn:
+                      schemaName: corporate
+                      tableName: department
+                      columns:
+                          - column:
+                                name: geozone

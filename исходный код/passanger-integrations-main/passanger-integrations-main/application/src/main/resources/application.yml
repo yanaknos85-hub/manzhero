@@ -1,0 +1,37 @@
+server:
+    port: 8025
+spring:
+    config:
+        import:
+            - optional:configserver:${SPRING_CLOUD_CONFIG_URI}
+            - kafka.yml
+            - database.yml
+    security:
+        enabled: false
+    application:
+        name: integrations
+        version: @project.version@
+    jackson:
+        default-property-inclusion: non_null
+        serialization:
+            write_dates_as_timestamps: false
+processor:
+    mail:
+        xml:
+            sender:
+                rate: 60000
+            receiver:
+                rate: 60000
+security:
+    oauth2:
+        client:
+            client-id: ${GETT_CLIENT_ID:82e1b95a-8690-4c26-b45b-5465af3a1bd7.4af44b05-856b-4c40-8953-1b20623b0293}
+            client-secret: ${GETT_CLIENT_SECRET:ed54357a-78c9-4bba-b0da-11418fe21cec}
+            grant-type: client_credentials
+            access-token-uri: ${api.gett.baseUrl}/oauth/token #The address of the request token
+            scope: "order finance"
+scheduled:
+    rate: 10_000
+contractor-block:
+    duration-ms: ${CONTRACTOR_BLOCK_DURATION_MS:600000}
+    enabled: ${CONTRACTOR_BLOCK_ENABLED:true}

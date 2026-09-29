@@ -1,0 +1,14 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20201030
+            author: chuprin
+            changes:
+                -   sqlFile:
+                        path: rework_employee_attribute_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+            rollback:
+                -   sqlFile:
+                        path: rollback_rework_employee_attribute_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;

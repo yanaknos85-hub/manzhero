@@ -1,0 +1,30 @@
+spring:
+    datasource:
+        db-name: tariff_fleet
+        url: jdbc:postgresql://localhost:5432/transport
+        hikari:
+            schema: ${spring.datasource.db-name}
+            minimum-idle: 3                     #по умолчанию 10
+            idle-timeout: 10000                 #по умолчанию 600000
+            max-lifetime: 60000                 #по умолчанию 1800000
+    jpa:
+        properties:
+            hibernate:
+                default_schema: ${spring.datasource.db-name}
+                generate_statistics: ${HIBERNATE_GENERATE_STATISTICS:false}
+                jdbc:
+                    batch_size: 1000
+                order_inserts: true
+                order_updates: true
+        hibernate:
+            ddl-auto: validate
+        show-sql: ${SHOW_SQL:false}
+        open-in-view: false
+    liquibase:
+        change-log: classpath:db/changelog-master.yml
+        url: ${spring.datasource.url}
+        user: ${spring.datasource.username}
+        password: ${spring.datasource.password}
+        database-change-log-table: changelog_${spring.datasource.db-name}
+        database-change-log-lock-table: changelog_${spring.datasource.db-name}_lock
+        liquibase-schema: ${MIGRATIONS_SCHEMA:public}

@@ -1,0 +1,1318 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20230725-1607"
+            author: medvedev-ad
+            changes:
+                -   tagDatabase:
+                        tag: release/D-02.024.001
+                -   modifyDataType:
+                        schemaName: limits
+                        tableName: limit_request
+                        columnName: period
+                        newDataType: varchar(9)
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'JANUARY'
+                        where: period = '0'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'FEBRUARY'
+                        where: period = '1'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'MARCH'
+                        where: period = '2'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'APRIL'
+                        where: period = '3'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'MAY'
+                        where: period = '4'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'JUNE'
+                        where: period = '5'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'JULY'
+                        where: period = '6'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'AUGUST'
+                        where: period = '7'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'SEPTEMBER'
+                        where: period = '8'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'OCTOBER'
+                        where: period = '9'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'NOVEMBER'
+                        where: period = '10'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'DECEMBER'
+                        where: period = '11'
+            rollback:
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "0"
+                        where: period = 'JANUARY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "1"
+                        where: period = 'FEBRUARY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "2"
+                        where: period = 'MARCH'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "3"
+                        where: period = 'APRIL'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "4"
+                        where: period = 'MAY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "5"
+                        where: period = 'JUNE'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "6"
+                        where: period = 'JULY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "7"
+                        where: period = 'AUGUST'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "8"
+                        where: period = 'SEPTEMBER'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "9"
+                        where: period = 'OCTOBER'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "10"
+                        where: period = 'NOVEMBER'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "11"
+                        where: period = 'DECEMBER'
+                -   modifyDataType:
+                        schemaName: limits
+                        tableName: limit_request
+                        columnName: period
+                        newDataType: int2
+    -   changeSet:
+            id: "20230725-1612"
+            author: medvedev-ad
+            preConditions:
+              - columnExists:
+                  schemaName: limits
+                  tableName: limit_sharing_per_period
+                  columnName: period_number
+                onFail: MARK_RAN
+            changes:
+              -   tagDatabase:
+                    tag: release/D-02.024.001
+              -   dropIndex:
+                    schemaName: limits
+                    tableName: limit_sharing_per_period
+                    indexName: ux_limitsharingperperiod_1
+            rollback:
+              - createIndex:
+                  schemaName: limits
+                  tableName: limit_sharing_per_period
+                  columns:
+                    - column:
+                        name: limit_sharing_id
+                    - column:
+                        name: period_number
+                  unique: true
+                  indexName: ux_limitsharingperperiod_1
+    -   changeSet:
+            id: "20230725-1613"
+            author: medvedev-ad
+            changes:
+                -   tagDatabase:
+                        tag: release/D-02.024.001
+                -   addColumn:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            -   column:
+                                    name: period
+                                    type: varchar(9)
+                                    remarks: Период
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'JANUARY'
+                        where: period_number = '0'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'FEBRUARY'
+                        where: period_number = '1'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'MARCH'
+                        where: period_number = '2'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'APRIL'
+                        where: period_number = '3'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'MAY'
+                        where: period_number = '4'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'JUNE'
+                        where: period_number = '5'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'JULY'
+                        where: period_number = '6'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'AUGUST'
+                        where: period_number = '7'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'SEPTEMBER'
+                        where: period_number = '8'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'OCTOBER'
+                        where: period_number = '9'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'NOVEMBER'
+                        where: period_number = '10'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'DECEMBER'
+                        where: period_number = '11'
+                -   dropColumn:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columnName: period_number
+            rollback:
+                -   addColumn:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            -   column:
+                                    name: period_number
+                                    type: integer
+                                    remarks: Индекс периода
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period_number
+                                  valueNumeric: "0"
+                        where: period = 'JANUARY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period_number
+                                  valueNumeric: "1"
+                        where: period = 'FEBRUARY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period_number
+                                  valueNumeric: "2"
+                        where: period = 'MARCH'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period_number
+                                  valueNumeric: "3"
+                        where: period = 'APRIL'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period_number
+                                  valueNumeric: "4"
+                        where: period = 'MAY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period_number
+                                  valueNumeric: "5"
+                        where: period = 'JUNE'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period_number
+                                  valueNumeric: "6"
+                        where: period = 'JULY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period_number
+                                  valueNumeric: "7"
+                        where: period = 'AUGUST'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period_number
+                                  valueNumeric: "8"
+                        where: period = 'SEPTEMBER'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period_number
+                                  valueNumeric: "9"
+                        where: period = 'OCTOBER'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period_number
+                                  valueNumeric: "10"
+                        where: period = 'NOVEMBER'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            - column:
+                                  name: period_number
+                                  valueNumeric: "11"
+                        where: period = 'DECEMBER'
+                - dropColumn:
+                      schemaName: limits
+                      tableName: limit_sharing_per_period
+                      columnName: period
+    -   changeSet:
+            id: "20230725-1617"
+            author: medvedev-ad
+            changes:
+                -   tagDatabase:
+                        tag: release/D-02.024.001
+                -   modifyDataType:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columnName: period
+                        newDataType: varchar(9)
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'JANUARY'
+                        where: period = '0'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'FEBRUARY'
+                        where: period = '1'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'MARCH'
+                        where: period = '2'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'APRIL'
+                        where: period = '3'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'MAY'
+                        where: period = '4'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'JUNE'
+                        where: period = '5'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'JULY'
+                        where: period = '6'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'AUGUST'
+                        where: period = '7'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'SEPTEMBER'
+                        where: period = '8'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'OCTOBER'
+                        where: period = '9'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'NOVEMBER'
+                        where: period = '10'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'DECEMBER'
+                        where: period = '11'
+            rollback:
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "0"
+                        where: period = 'JANUARY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "1"
+                        where: period = 'FEBRUARY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "2"
+                        where: period = 'MARCH'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "3"
+                        where: period = 'APRIL'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "4"
+                        where: period = 'MAY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "5"
+                        where: period = 'JUNE'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "6"
+                        where: period = 'JULY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "7"
+                        where: period = 'AUGUST'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "8"
+                        where: period = 'SEPTEMBER'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "9"
+                        where: period = 'OCTOBER'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "10"
+                        where: period = 'NOVEMBER'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "11"
+                        where: period = 'DECEMBER'
+                -   modifyDataType:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columnName: period
+                        newDataType: int2
+    -   changeSet:
+            id: "20230725-1621"
+            author: medvedev-ad
+            preConditions:
+              - tableExists:
+                  schemaName: limits
+                  tableName: limit_stats
+                onFail: MARK_RAN
+            changes:
+                -   tagDatabase:
+                        tag: release/D-02.024.001
+                -   modifyDataType:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columnName: period
+                        newDataType: varchar(9)
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'JANUARY'
+                        where: period = '0'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'FEBRUARY'
+                        where: period = '1'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'MARCH'
+                        where: period = '2'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'APRIL'
+                        where: period = '3'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'MAY'
+                        where: period = '4'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'JUNE'
+                        where: period = '5'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'JULY'
+                        where: period = '6'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'AUGUST'
+                        where: period = '7'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'SEPTEMBER'
+                        where: period = '8'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'OCTOBER'
+                        where: period = '9'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'NOVEMBER'
+                        where: period = '10'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  value: 'DECEMBER'
+                        where: period = '11'
+            rollback:
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "0"
+                        where: period = 'JANUARY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "1"
+                        where: period = 'FEBRUARY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "2"
+                        where: period = 'MARCH'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "3"
+                        where: period = 'APRIL'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "4"
+                        where: period = 'MAY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "5"
+                        where: period = 'JUNE'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "6"
+                        where: period = 'JULY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "7"
+                        where: period = 'AUGUST'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "8"
+                        where: period = 'SEPTEMBER'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "9"
+                        where: period = 'OCTOBER'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "10"
+                        where: period = 'NOVEMBER'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columns:
+                            - column:
+                                  name: period
+                                  valueNumeric: "11"
+                        where: period = 'DECEMBER'
+                -   modifyDataType:
+                        schemaName: limits
+                        tableName: limit_stats
+                        columnName: period
+                        newDataType: varchar(9)
+    -   changeSet:
+            id: "20230725-1622"
+            author: medvedev-ad
+            changes:
+                -   tagDatabase:
+                        tag: release/D-02.024.001
+                -   modifyDataType:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columnName: source_period
+                        newDataType: varchar(9)
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  value: 'JANUARY'
+                        where: source_period = '0'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  value: 'FEBRUARY'
+                        where: source_period = '1'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  value: 'MARCH'
+                        where: source_period = '2'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  value: 'APRIL'
+                        where: source_period = '3'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  value: 'MAY'
+                        where: source_period = '4'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  value: 'JUNE'
+                        where: source_period = '5'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  value: 'JULY'
+                        where: source_period = '6'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  value: 'AUGUST'
+                        where: source_period = '7'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  value: 'SEPTEMBER'
+                        where: source_period = '8'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  value: 'OCTOBER'
+                        where: source_period = '9'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  value: 'NOVEMBER'
+                        where: source_period = '10'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  value: 'DECEMBER'
+                        where: source_period = '11'
+            rollback:
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  valueNumeric: "0"
+                        where: source_period = 'JANUARY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  valueNumeric: "1"
+                        where: source_period = 'FEBRUARY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  valueNumeric: "2"
+                        where: source_period = 'MARCH'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  valueNumeric: "3"
+                        where: source_period = 'APRIL'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  valueNumeric: "4"
+                        where: source_period = 'MAY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  valueNumeric: "5"
+                        where: source_period = 'JUNE'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  valueNumeric: "6"
+                        where: source_period = 'JULY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  valueNumeric: "7"
+                        where: source_period = 'AUGUST'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  valueNumeric: "8"
+                        where: source_period = 'SEPTEMBER'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  valueNumeric: "9"
+                        where: source_period = 'OCTOBER'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  valueNumeric: "10"
+                        where: source_period = 'NOVEMBER'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: source_period
+                                  valueNumeric: "11"
+                        where: source_period = 'DECEMBER'
+                -   modifyDataType:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columnName: source_period
+                        newDataType: int2
+    -   changeSet:
+            id: "20230725-1624"
+            author: medvedev-ad
+            changes:
+                -   tagDatabase:
+                        tag: release/D-02.024.001
+                -   modifyDataType:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columnName: target_period
+                        newDataType: varchar(9)
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  value: 'JANUARY'
+                        where: target_period = '0'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  value: 'FEBRUARY'
+                        where: target_period = '1'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  value: 'MARCH'
+                        where: target_period = '2'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  value: 'APRIL'
+                        where: target_period = '3'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  value: 'MAY'
+                        where: target_period = '4'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  value: 'JUNE'
+                        where: target_period = '5'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  value: 'JULY'
+                        where: target_period = '6'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  value: 'AUGUST'
+                        where: target_period = '7'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  value: 'SEPTEMBER'
+                        where: target_period = '8'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  value: 'OCTOBER'
+                        where: target_period = '9'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  value: 'NOVEMBER'
+                        where: target_period = '10'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  value: 'DECEMBER'
+                        where: target_period = '11'
+            rollback:
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  valueNumeric: "0"
+                        where: target_period = 'JANUARY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  valueNumeric: "1"
+                        where: target_period = 'FEBRUARY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  valueNumeric: "2"
+                        where: target_period = 'MARCH'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  valueNumeric: "3"
+                        where: target_period = 'APRIL'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  valueNumeric: "4"
+                        where: target_period = 'MAY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  valueNumeric: "5"
+                        where: target_period = 'JUNE'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  valueNumeric: "6"
+                        where: target_period = 'JULY'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  valueNumeric: "7"
+                        where: target_period = 'AUGUST'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  valueNumeric: "8"
+                        where: target_period = 'SEPTEMBER'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  valueNumeric: "9"
+                        where: target_period = 'OCTOBER'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  valueNumeric: "10"
+                        where: target_period = 'NOVEMBER'
+                -   update:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            - column:
+                                  name: target_period
+                                  valueNumeric: "11"
+                        where: target_period = 'DECEMBER'
+                -   modifyDataType:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columnName: target_period
+                        newDataType: int2
+    -   changeSet:
+            id: "20230725-1807"
+            author: medvedev-ad
+            changes:
+                -   tagDatabase:
+                        tag: release/D-02.024.001
+                -   addUniqueConstraint:
+                        schemaName: limits
+                        tableName: limit_sharing
+                        columnNames: transport_type,limit_id
+                        constraintName: limits_limit_sharing_transport_type_limit_uk
+            rollback:
+              -   dropUniqueConstraint:
+                    schemaName: limits
+                    tableName: limit_sharing
+                    columnNames: transport_type,limit_id
+                    constraintName: limits_limit_sharing_transport_type_limit_uk

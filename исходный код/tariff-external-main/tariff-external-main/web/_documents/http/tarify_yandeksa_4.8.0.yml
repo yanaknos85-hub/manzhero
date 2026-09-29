@@ -1,0 +1,133 @@
+openapi: 3.0.1
+info:
+  title: Тарифы внешнего сервиса
+  description: Сервис для получения тарифов из внешнего сервиса
+  version: 4.8.0
+servers:
+  - url: '{scheme}://{host}:{port}{api}'
+    description: Адрес для вызова
+    variables:
+      scheme:
+        enum:
+          - http
+          - https
+        default: http
+      host:
+        default: localhost
+      api:
+        default: /api/tariff/v4.8/external
+      port:
+        enum:
+          - '80'
+          - '8080'
+          - '443'
+          - '8443'
+        default: '80'
+security: 
+  - BearerToken: []
+paths:
+  /:
+    summary: Операции с тарифами
+    description: Список операций с внешними тарифами
+    get:
+      summary: Получить
+      description: Получить данные от сервиса
+      tags: 
+        - prices
+      operationId: get
+      parameters: 
+        - in: query
+          required: false
+          name: type
+          description: Тип тарифа
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/TariffType'
+        - in: query
+          required: true
+          name: coordinates
+          description: Координаты маршрута в формате `lat,long;lat,long`
+          schema:
+            type: string
+            example: '50.30,30.20;50.31,30.22'
+      responses:
+        200:
+          $ref: '#/components/responses/TariffData'
+        204:
+          description: Нет данных. Может говорить о том, что перевозчик не обслуживает территорию
+        401:
+          description: Не авторизован
+        502:
+          description: Ошибка получения данных. Может говорить о том, что сервис перевозчика не доступен
+components:
+  responses:
+    TariffData:
+      description: Данные тарифов
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TariffData'
+  schemas:
+    TariffData:
+      type: array
+      title: Тарифы
+      description: Данные тарифа
+      items:
+        $ref: '#/components/schemas/TariffItem'
+    TariffItem:
+      title: Тариф
+      description: Данные одного тарифа
+      required: 
+        - distance
+        - type
+        - price
+      properties:
+        distance:
+          title: Расстояние
+          description: Расстояние в метрах
+          type: number
+          example: 54.55
+        type:
+          $ref: '#/components/schemas/TariffType'
+        price:
+          title: Стоимость (руб)
+          description: Стоимость поездки (в рублях)
+          type: number
+          example: 3.45
+        time:
+          title: Время поездки
+          description: Рассчетное время поездки
+          allOf:
+            - $ref: '#/components/schemas/Period'
+    Period:
+      title: Время в пути
+      description: Время в пути в формате ISO-8601 (PTXHXMXS)
+      type: string
+      example: PT5M3S
+      pattern: ^P(\dD)?T(\dH)?(\dM)?(\dS)?$
+    TariffType:
+      type: string
+      title: Тип тарифа
+      description: |-
+        Тип тарифа для получения данных
+        
+        |Название |Описание                                             |
+        |---------|-----------------------------------------------------|
+        |ECONOMY  |Эконом                                               |
+        |COMFORT  |Комфорт                                              |
+        |BUSINESS |Улучшенный комфорт (в терминологии яндекса Комфорт+) |
+        |VIP      |Максимальный класс (в терминологии яндекса Бизнес)   |
+      format: enum
+      enum:
+        - ECONOMY
+        - COMFORT
+        - BUSINESS
+        - VIP
+  securitySchemes:
+    BearerToken:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Токен доступа
+# Powered by APIStudio

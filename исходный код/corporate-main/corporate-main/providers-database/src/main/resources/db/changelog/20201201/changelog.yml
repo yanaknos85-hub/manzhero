@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20201201-remastered-1
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - not:
+            - columnExists:
+                schemaName: corporate
+                tableName: shared_ride_settings
+                columnName: yellow_range_lower_border
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - addColumn:
+            schemaName: corporate
+            tableName: shared_ride_settings
+            columns:
+              - column:
+                  name: yellow_range_lower_border
+                  type: numeric(3)
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_shared_ride_settings_yellow_range_lower_border_nn
+                    check: yellow_range_lower_border >= 0 AND yellow_range_lower_border <= 100
+              - column:
+                  name: yellow_range_upper_border
+                  type: numeric(3)
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_shared_ride_settings_yellow_range_upper_border_nn
+                    check: yellow_range_upper_border >= 0 AND yellow_range_upper_border <= 100
+        - sql:
+            sql: alter table corporate.shared_ride_settings add constraint yellow_range_borders_check check (yellow_range_upper_border >= yellow_range_lower_border)

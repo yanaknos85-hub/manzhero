@@ -1,0 +1,49 @@
+databaseChangeLog:
+    -   changeSet:
+            id: 20250904-1
+            author: klyunkov-va
+            dbms: postgresql
+            context: "!test"
+            changes:
+                -   sqlFile:
+                        path: change/structure_syncronization.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: 20250904-2
+            author: klyunkov-va
+            dbms: postgresql
+            context: "!test"
+            changes:
+                -   sqlFile:
+                        path: change/prepare_structure_syncronization.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: 20250904-3
+            author: klyunkov-va
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: change/alter_ddl.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: 20250904-4
+            author: klyunkov-va
+            dbms: postgresql
+            context: "!test"
+            changes:
+                -   sqlFile:
+                        path: change/additional_structure_syncronization.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: 20250904-5
+            author: klyunkov-va
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: change/add_constraints.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false

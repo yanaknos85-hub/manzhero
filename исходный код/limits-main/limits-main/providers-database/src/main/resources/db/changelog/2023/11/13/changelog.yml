@@ -1,0 +1,114 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20231113-1326"
+      author: medvedev-ad
+      context: "TRANSPORT-16955"
+      dbms: postgresql
+      changes:
+        - tagDatabase:
+            tag: "D-02.038.000"
+        - createIndex:
+            schemaName: limits
+            tableName: limit_stats
+            column:
+              name: period_sharing_id
+            indexName: limits_limit_stats_period_sharing_id_idx
+            unique: true
+  - changeSet:
+      id: "20231113-1330"
+      author: medvedev-ad
+      context: "TRANSPORT-16955"
+      dbms: postgresql
+      changes:
+        - tagDatabase:
+            tag: "D-02.038.000"
+        - sql:
+            sql: drop materialized view limits.limit_stats_spending;
+        - sql:
+            sql: >-
+              create materialized view limits.limit_stats_spending as select
+                  sharing_id,
+                  period_sharing_id,
+                  limit_stats.organization_id as organization_id,
+                  limit_stats.year as year,
+                  transport_type,
+                  limit_stats.period as period,
+                  limit_spending.sum_spent as sum_spent,
+                  limit_spending.request_id as request_id
+              from limits.limit_stats inner join limits.limit_spending on period_sharing_id = limit_sharing_per_period_id
+              where limit_spending_status = 'SPENT' and sum_spent > 0
+              order by sharing_id, period_sharing_id;
+      rollback:
+        - sql:
+            sql: drop materialized view limits.limit_stats_spending;
+        - sql:
+            sql: >-
+              create materialized view limits.limit_stats_spending as select
+                  sharing_id,
+                  period_sharing_id,
+                  limit_stats.organization_id as organization_id,
+                  limit_stats.year as year,
+                  transport_type,
+                  limit_stats.period as period,
+                  limit_spending.sum_spent as sum_spent
+              from limits.limit_stats inner join limits.limit_spending on period_sharing_id = limit_sharing_per_period_id
+              where limit_spending_status = 'SPENT' and sum_spent > 0
+              order by sharing_id, period_sharing_id;
+        - createIndex:
+            schemaName: limits
+            tableName: limit_stats_spending
+            columns:
+              - column:
+                  name: organization_id
+              - column:
+                  name: period
+              - column:
+                  name: transport_type
+              - column:
+                  name: year
+            indexName: limits_limit_stats_spending_organization_id_period_transport_type_year_idx
+  - changeSet:
+      id: "20231113-1330"
+      author: medvedev-ad
+      context: "TRANSPORT-16955"
+      dbms: h2
+      changes:
+        - tagDatabase:
+            tag: "D-02.038.000"
+        - sql:
+            sql: drop view limits.limit_stats_spending;
+        - sql:
+            sql: create view limits.limit_stats_spending as select sharing_id, period_sharing_id, limit_stats.organization_id as organization_id, limit_stats."year" as "year", transport_type, limit_stats.period as period, limit_spending.sum_spent as sum_spent, limit_spending.request_id as request_id from limits.limit_stats inner join limits.limit_spending on period_sharing_id = limit_sharing_per_period_id where limit_spending_status = 'SPENT' and sum_spent > 0 order by sharing_id, period_sharing_id;
+      rollback:
+        - sql:
+            sql: drop view limits.limit_stats_spending;
+        - sql:
+            sql: create view limits.limit_stats_spending as select sharing_id, period_sharing_id, limit_stats.organization_id as organization_id, limit_stats."year" as "year", transport_type, limit_stats.period as period, limit_spending.sum_spent as sum_spent from limits.limit_stats inner join limits.limit_spending on period_sharing_id = limit_sharing_per_period_id where limit_spending_status = 'SPENT' and sum_spent > 0 order by sharing_id, period_sharing_id;
+  - changeSet:
+      id: "20231113-1331"
+      author: medvedev-ad
+      context: "TRANSPORT-16955"
+      dbms: postgresql
+      changes:
+        - tagDatabase:
+            tag: "D-02.038.000"
+        - createIndex:
+            schemaName: limits
+            tableName: limit_stats_spending
+            column:
+              name: request_id
+            indexName: limits_limit_stats_spending_request_id_idx
+            unique: true
+        - createIndex:
+            schemaName: limits
+            tableName: limit_stats_spending
+            columns:
+              - column:
+                  name: organization_id
+              - column:
+                  name: period
+              - column:
+                  name: transport_type
+              - column:
+                  name: year
+            indexName: limits_limit_stats_spending_organization_id_period_transport_type_year_idx

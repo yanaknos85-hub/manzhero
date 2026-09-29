@@ -1,0 +1,122 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20260709-1600"
+      author: kurakin
+      context: "TRANSPORT-43925"
+      changes:
+        - createTable:
+            schemaName: ${schema_name}
+            tableName: messaging
+            ifNotExists: true
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: идентификатор записи
+                  constraints:
+                    primaryKey: true
+                    notNull: true
+              - column:
+                  name: fraud_case_id
+                  type: uuid
+                  remarks: идентификатор разбирательства
+                  constraints:
+                    notNull: true
+              - column:
+                  name: message_date
+                  type: timestamp
+                  remarks: дата/время отправки письма
+                  constraints:
+                    notNull: true
+              - column:
+                  name: from_email
+                  type: varchar(255)
+                  remarks: отправитель
+                  constraints:
+                    notNull: true
+              - column:
+                  name: to_email
+                  type: varchar(255)
+                  remarks: получатель
+                  constraints:
+                    notNull: true
+              - column:
+                  name: body
+                  type: text
+                  remarks: текст письма
+                  constraints:
+                    notNull: true
+  - changeSet:
+      id: "20260709-1601"
+      author: kurakin
+      context: "TRANSPORT-43925"
+      changes:
+        - createTable:
+            schemaName: ${schema_name}
+            tableName: attachments
+            ifNotExists: true
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: идентификатор записи
+                  constraints:
+                    primaryKey: true
+                    notNull: true
+              - column:
+                  name: email_message_id
+                  type: uuid
+                  remarks: идентификатор сообщения
+                  constraints:
+                    notNull: true
+              - column:
+                  name: file_name
+                  type: varchar(255)
+                  remarks: имя файла
+                  defaultValue: unnamed
+                  constraints:
+                    notNull: true
+              - column:
+                  name: file_id
+                  type: uuid
+                  remarks: идентификатор файла в s3
+              - column:
+                  name: folder_id
+                  type: uuid
+                  remarks: идентификатор папки в s3
+  - changeSet:
+      id: "20260709-1602"
+      author: kurakin
+      context: "TRANSPORT-43925"
+      changes:
+        - addColumn:
+            schemaName: ${schema_name}
+            tableName: fraud
+            columns:
+              - column:
+                  name: ai_verdict
+                  type: varchar(16)
+                  remarks: Решение о фроде от Агента
+              - column:
+                  name: ai_comment
+                  type: text
+                  remarks: Комментарий по решению о фроде от Агента
+              - column:
+                  name: need_validation
+                  type: boolean
+                  remarks: Флаг необходимости валидации человека
+                  defaultValue: false
+              - column:
+                  name: verdict
+                  type: varchar(16)
+                  remarks: Решение о фроде от человека
+              - column:
+                  name: reason
+                  type: text
+                  remarks: Комментарий по решению о фроде от человека
+
+
+
+
+
+

@@ -1,0 +1,14 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/210224-1
+            author: alekseev-pa
+            changes:
+                -   sqlFile:
+                        path: change/drop_unique_constraints.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+            rollback:
+                -   sqlFile:
+                        path: rollback/rollback.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;

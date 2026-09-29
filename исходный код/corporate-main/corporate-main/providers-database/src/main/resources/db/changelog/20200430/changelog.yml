@@ -1,0 +1,17 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20200430
+            author: mad
+            changes:
+                -   sqlFile:
+                        endDelimiter: ;
+                        path: add_address_table.sql
+                        relativeToChangelogFile: true
+                -   sqlFile:
+                        endDelimiter: ;
+                        path: link_address_to_employee.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sqlFile:
+                        path: rollback_all.sql
+                        relativeToChangelogFile: true

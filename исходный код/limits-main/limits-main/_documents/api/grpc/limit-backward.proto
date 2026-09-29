@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+package ru.sber.transport.limits.reserve.backward.grpc;
+
+import "google/protobuf/empty.proto";
+
+/*
+ * Перераспределение средств.
+ */
+service Resharing {
+
+  /*
+   * Распределить период в период.
+   *
+   * @param PeriodPeriodMessage данные для перераспределения.
+   * @return заглушка.
+   */
+  rpc PeriodPeriod(PeriodPeriodMessage) returns (google.protobuf.Empty) {}
+
+  /*
+   * Распределить период в резерв.
+   *
+   * @param PeriodReserveMessage данные для перераспределения.
+   * @return заглушка.
+   */
+  rpc PeriodReserve(PeriodReserveMessage) returns (google.protobuf.Empty) {}
+}
+
+/*
+ * Данные для распределения периода в период.
+  */
+message PeriodPeriodMessage {
+
+  /*
+  * Вид услуги.
+  */
+  string serviceType = 1;
+
+  /*
+  * Год.
+  */
+  uint32 year = 2;
+
+  /*
+  * Организация.
+  */
+  string organizationId = 3;
+
+  /*
+  * Подразделение.
+  */
+  string departmentId = 4;
+
+  /*
+  * Тип транспорта.
+  */
+  string transportType = 5;
+
+  /*
+  * Исходный период.
+  */
+  string source = 6;
+
+  /*
+  * Целевой период.
+  */
+  string target = 7;
+
+  /*
+  * Сумма в копейках.
+  */
+  int64 sum = 8;
+
+}
+
+/*
+ * Данные для распределения периода в резерв.
+  */
+message PeriodReserveMessage {
+
+  /*
+  * Вид услуги.
+  */
+  string serviceType = 1;
+
+  /*
+  * Год.
+  */
+  uint32 year = 2;
+
+  /*
+  * Организация.
+  */
+  string organizationId = 3;
+
+  /*
+  * Подразделение.
+  */
+  string departmentId = 4;
+
+  /*
+  * Тип транспорта.
+  */
+  string transportType = 5;
+
+  /*
+  * Исходный период.
+  */
+  string source = 6;
+
+  /*
+  * Сумма в копейках.
+  */
+  int64 sum = 7;
+
+}

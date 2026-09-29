@@ -1,0 +1,12 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20210426
+            author: medvedev-mm
+            changes:
+                -   sqlFile:
+                        path: change/change_position_name.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sqlFile:
+                        path: rollback/restore_position_name.sql
+                        relativeToChangelogFile: true

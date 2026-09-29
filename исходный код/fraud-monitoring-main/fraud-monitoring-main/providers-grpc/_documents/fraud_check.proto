@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package ru.sber.transport.fraud.monitoring.grpc;
+
+option java_multiple_files = true;
+option java_package = "ru.sber.transport.fraud.monitoring.grpc";
+
+/*
+ * Сервис для проверки фрод-записей по заявке на поездку.
+ */
+service FraudCheckService {
+
+  /*
+   * Получить фрод-записи по идентификатору заявки.
+   */
+  rpc GetFraudInfo(FraudInfoRequest) returns (FraudInfoResponse);
+}
+
+/*
+ * Запрос на получение фрод-записей.
+ */
+message FraudInfoRequest {
+
+  /*
+   * Идентификатор заявки на поездку.
+   */
+  string requestId = 1;
+}
+
+/*
+ * Ответ со списком фрод-записей.
+ */
+message FraudInfoResponse {
+
+  /*
+   * Список фрод-записей.
+   */
+  repeated FraudInfo records = 1;
+}
+
+/*
+ * Фрод-запись.
+ */
+message FraudInfo {
+
+  /*
+   * Идентификатор фрод-записи.
+   */
+  string id = 1;
+
+  /*
+   * Идентификатор заявки на поездку.
+   */
+  string requestId = 2;
+
+  /*
+   * Человекочитаемый идентификатор поездки.
+   */
+  string humanReadableId = 3;
+
+  /*
+   * Идентификатор пассажира.
+   */
+  string passengerId = 4;
+
+  /*
+   * Тип мошенничества.
+   */
+  string fraudType = 5;
+
+  /*
+   * Комментарий фрод-проверки.
+   */
+  string comment = 6;
+}

@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250912-0822"
+      author: medvedev-ad
+      context: "TRANSPORT-35786"
+      changes:
+        - tagDatabase:
+            tag: "D-04.017.000"
+        - addColumn:
+            schemaName: approvals
+            tableName: trip_request_approvals
+            columns:
+              - column:
+                  name: fraud_message
+                  type: text
+                  remarks: Информация о фроде

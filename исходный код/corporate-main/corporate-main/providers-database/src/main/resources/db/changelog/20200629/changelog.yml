@@ -1,0 +1,185 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20200619-remastered
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - not:
+            - tableExists:
+                schemaName: corporate
+                tableName: t_history
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - createTable:
+            schemaName: corporate
+            tableName: t_history
+            remarks: 'История изменений записей в таблицах'
+            columns:
+              - column:
+                  name: id
+                  type: integer
+                  remarks: 'Первичный ключ'
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: corporate_t_history_pk
+              - column:
+                  name: schema_name
+                  type: text
+                  remarks: 'Идентификатор операции (посылки)'
+              - column:
+                  name: table_name
+                  type: text
+                  remarks: 'Название таблицы'
+              - column:
+                  name: operation
+                  type: text
+                  remarks: 'Операция'
+              - column:
+                  name: who
+                  type: text
+                  remarks: 'Кто произвел изменения'
+                  defaultOnNull: true
+                  defaultValueComputed: current_user
+              - column:
+                  name: new_val
+                  type: json
+                  remarks: 'Новое значение'
+              - column:
+                  name: old_val
+                  type: json
+                  remarks: 'Старое значение'
+              - column:
+                  name: dt_insert
+                  type: timestamp
+                  remarks: 'Дата-время создания записи'
+                  defaultOnNull: true
+                  defaultValueComputed: now()
+  - changeSet:
+      id: 20200619-remastered-1
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - not:
+            - tableExists:
+                schemaName: corporate
+                tableName: nsi_report
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - sql:
+            sql: CREATE TYPE corporate.nsi_type AS enum ('EMPLOYEE');
+        - sql:
+            dbms: postgresql
+            sql: COMMENT ON TYPE corporate.nsi_type is 'Типы НСИ';
+      rollback:
+        - sql:
+            sql: DROP TYPE corporate.nsi_type cascade;
+  - changeSet:
+      id: 20200619-remastered-2
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - not:
+            - tableExists:
+                schemaName: corporate
+                tableName: nsi_report
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - createTable:
+            schemaName: corporate
+            tableName: nsi_report
+            remarks: 'Таблица сохранения информации о операциях загрузки'
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  remarks: 'Уникальный идентификатор (первичный ключ)'
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: corporate_nsi_report_pk
+              - column:
+                  name: nsi_name
+                  type: corporate.nsi_type
+                  remarks: 'Наименование справочника'
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_nsi_report_nsi_name_nn
+              - column:
+                  name: mode
+                  type: varchar(50)
+                  remarks: 'Режим работы с записями'
+              - column:
+                  name: status
+                  type: varchar(50)
+                  remarks: 'Статус операции'
+              - column:
+                  name: totalProcessed
+                  type: numeric
+                  remarks: 'Всего обработано'
+              - column:
+                  name: totalRecordsBeforeLoading
+                  type: numeric
+                  remarks: 'Количество записей до начала манипуляций'
+                  defaultOnNull: true
+                  defaultValueNumeric: 0
+              - column:
+                  name: inserted
+                  type: numeric
+                  remarks: 'Количество новых записей'
+                  defaultOnNull: true
+                  defaultValueNumeric: 0
+              - column:
+                  name: updated
+                  type: numeric
+                  remarks: 'Количество обновленных записей'
+                  defaultOnNull: true
+                  defaultValueNumeric: 0
+              - column:
+                  name: replaced
+                  type: numeric
+                  remarks: 'Количество замененных записей'
+                  defaultOnNull: true
+                  defaultValueNumeric: 0
+              - column:
+                  name: unchanged
+                  type: numeric
+                  remarks: 'Количество записей без изменений'
+                  defaultOnNull: true
+                  defaultValueNumeric: 0
+              - column:
+                  name: description
+                  type: varchar(255)
+                  remarks: 'Описание'
+              - column:
+                  name: login
+                  type: varchar(250)
+                  remarks: 'Логин того, кто начал операцию'
+              - column:
+                  name: dt_insert
+                  type: timestamp with timezone
+                  remarks: 'Дата-время создания записи'
+                  defaultOnNull: true
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_nsi_report_dt_insert_nn
+        - sqlFile:
+            dbms: postgresql
+            path: create_function.sql
+            relativeToChangelogFile: true
+            splitStatements: false
+            endDelimiter: ;
+      rollback:
+        - sqlFile:
+            path: rollback_all.sql
+            relativeToChangelogFile: true
+        - dropTable:
+            schemaName: corporate
+            tableName: nsi_report
+            cascade: true

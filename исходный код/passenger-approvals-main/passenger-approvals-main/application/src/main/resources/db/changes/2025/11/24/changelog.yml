@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20251124-0822"
+      author: farkhutdinov.ed
+      context:
+      changes:
+        - dropColumn:
+            schemaName: approvals
+            tableName: trip_request_approvals
+            columns:
+              - column:
+                  name: fraud_message

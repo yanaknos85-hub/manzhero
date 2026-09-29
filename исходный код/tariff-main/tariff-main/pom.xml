@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ru.sber.transport</groupId>
+        <artifactId>fleet-common-parent</artifactId>
+        <version>5.8.0.5</version>
+    </parent>
+
+    <groupId>ru.sber.transport.tariff</groupId>
+    <artifactId>parent</artifactId>
+    <version>5.12</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>grpc</module>
+        <module>application</module>
+    </modules>
+
+    <properties>
+        <!-- Sonar properties -->
+        <sonar.projectKey>TRANSPORT_FLEET_tariff</sonar.projectKey>
+        <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
+        <sonar.exclusions>
+            file:**/config/*,
+            file:**/constant/*,
+            file:**/dto/*,
+            file:**/exception/*,
+            file:**/database/model/*,
+            file:**/model/*
+        </sonar.exclusions>
+    </properties>
+</project>

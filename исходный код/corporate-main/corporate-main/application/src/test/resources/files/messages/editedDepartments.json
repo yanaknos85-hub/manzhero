@@ -1,0 +1,53 @@
+[
+  {
+    "organizationEasupId": "13109958",
+    "easupId": "10089076",
+    "updateDate": "2021-01-22",
+    "code": "ВО",
+    "departmentName": "Вернадское отделение",
+    "startRecordingDate": "2012-01-01",
+    "levelCode": 2,
+    "levelName": "Управление",
+    "typeLevelCode": 4,
+    "status": "INACTIVE"
+  },
+  {
+    "organizationEasupId": "13109958",
+    "easupId": "1204002",
+    "parentEasupId": "258964758",
+    "updateDate": "2021-12-17",
+    "code": "1204002",
+    "departmentName": "Test240202 name",
+    "startRecordingDate": "1900-01-01",
+    "departmentHeadNumber": "999002",
+    "levelCode": 1,
+    "levelName": "Департамент",
+    "typeLevelCode": 98,
+    "status": "INACTIVE"
+  },
+  {
+    "organizationEasupId": "13109958",
+    "easupId": "258964758",
+    "updateDate": "2021-01-22",
+    "code": "314159261",
+    "departmentName": "easuptest name",
+    "startRecordingDate": "2012-01-01",
+    "levelCode": 2,
+    "levelName": "Управление",
+    "typeLevelCode": 4,
+    "status": "ACTIVE"
+  },
+  {
+    "organizationEasupId": "13109958",
+    "easupId": "10095789",
+    "parentEasupId": "258964758",
+    "updateDate": "2021-01-22",
+    "code": "314159261",
+    "departmentName": "easuptest name",
+    "startRecordingDate": "1800-01-01",
+    "departmentHeadNumber": "777888123",
+    "levelCode": 0,
+    "typeLevelCode": 0,
+    "status": "ACTIVE"
+  }
+]

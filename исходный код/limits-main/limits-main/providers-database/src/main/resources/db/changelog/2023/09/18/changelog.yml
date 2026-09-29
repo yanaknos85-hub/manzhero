@@ -1,0 +1,79 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20230918-1448"
+      author: medvedev-ad
+      context: "TRANSPORT-16366"
+      preConditions:
+        - tableExists:
+            schemaName: limits
+            tableName: limit_stats
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: "D-02.030.000"
+        - dropTable:
+            schemaName: limits
+            tableName: limit_stats
+      rollback:
+        - createTable:
+            schemaName: limits
+            tableName: limit_stats
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: limits_limit_stats_pk
+              - column:
+                  name: organization_id
+                  type: uuid
+                  remarks: Организация
+                  constraints:
+                    nullable: true
+                    notNullConstraintName: limits_limit_stats_organization_id_nn
+              - column:
+                  name: transport_type
+                  type: text
+                  remarks: Тип транспорта
+                  constraints:
+                    nullable: true
+                    notNullConstraintName: limits_limit_stats_transport_type_nn
+              - column:
+                  name: year
+                  type: integer
+                  remarks: Год
+                  constraints:
+                    nullable: true
+                    notNullConstraintName: limits_limit_stats_year_nn
+              - column:
+                  name: period
+                  type: varchar(9)
+                  remarks: Период
+                  constraints:
+                    nullable: true
+                    notNullConstraintName: limits_limit_stats_period_nn
+              - column:
+                  name: budget
+                  type: bigint
+                  remarks: Бюджет
+                  constraints:
+                    nullable: true
+                    notNullConstraintName: limits_limit_stats_budget_nn
+              - column:
+                  name: spending
+                  type: bigint
+                  remarks: Траты
+                  constraints:
+                    nullable: true
+                    notNullConstraintName: limits_limit_stats_spending_nn
+              - column:
+                  name: update_time
+                  type: timestamp
+                  defaultOnNull: true
+                  defaultValueComputed: now()
+                  remarks: Время обновления
+                  constraints:
+                    nullable: true
+                    notNullConstraintName: limits_limit_stats_update_time_nn

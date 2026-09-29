@@ -1,0 +1,24 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20201214
+            author: medvedev-ad
+            changes:
+                -   sqlFile:
+                        path: create_approvals_schema.sql
+                        relativeToChangelogFile: true
+                -   sqlFile:
+                        path: create_approvals_table.sql
+                        relativeToChangelogFile: true
+                -   sqlFile:
+                        path: link_with_employee.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sqlFile:
+                        path: rollback_link_with_employee.sql
+                        relativeToChangelogFile: true
+                -   sqlFile:
+                        path: rollback_create_approvals_table.sql
+                        relativeToChangelogFile: true
+                -   sqlFile:
+                        path: rollback_create_approvals_schema.sql
+                        relativeToChangelogFile: true

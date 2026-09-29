@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package ru.sber.transport.limits.grpc.dto.cargo;
+option java_package = "ru.sber.transport.limits.grpc.dto.cargo";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+message MassLimitReservationRequestList {
+  repeated LimitReservationRequest listLimitReservations = 1;
+  string action = 2;
+  string reservationStrategy = 3;
+  string userId = 4;
+}
+
+message LimitReservationRequest {
+  string organizationId = 1;
+  string action = 2;
+  string departmentId = 3;
+  string employeeId = 4;
+  string transportType = 5;
+  int64 sum = 6;
+  int64 bonusSum = 7;
+  int32 moneySaved = 8;
+  google.protobuf.Timestamp plannedDate = 9;
+  string requestId = 10;
+  bool checkLimit = 11;
+  string humanReadableId = 12;
+  bool coop = 13;
+  bool driver = 14;
+  string id = 15;
+  string userId = 16;
+}
+
+message MassLimitReservationResponseList {
+  repeated LimitReservationResponse limitReservationResponse = 1;
+  string limitReservationStatus = 2;
+  NullableString message = 3;
+}
+
+
+message LimitReservationResponse {
+  string tripRequestId = 1;
+  NullableString limitId = 2;
+  NullableString message = 3;
+  NullableString humanReadableId = 4;
+  string limitReservationStatus = 5;
+}
+
+message NullableString {
+  oneof kind {
+    google.protobuf.NullValue null = 1;
+    string data = 2;
+  }
+}

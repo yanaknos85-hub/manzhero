@@ -1,0 +1,36 @@
+spring:
+  profiles:
+    active: kafka,kafka-avro
+  application:
+    name: fraud_monitoring
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  cloud:
+    vault:
+      enabled: false
+  config:
+    import: optional:configserver:${spring.cloud.config.uri}
+  liquibase:
+    enabled: true
+    change-log: db/changelog-master.yml
+    url: ${spring.datasource.url}
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    database-change-log-table: changelog_${spring.application.name}
+    database-change-log-lock-table: changelog_${spring.application.name}_lock
+    liquibase-schema: ${MIGRATIONS_SCHEMA:public}
+grpc:
+  enabled: true
+  server:
+    port: 6565
+  client:
+    GLOBAL:
+      negotiation-type: plaintext
+    corporate:
+      address: discovery:///${grpc.corporate:grpc-corporate}
+openapi:
+  fraud-monitoring:
+    base-path: /
+avro:
+  messaging:
+    enabled: ${AVRO_MESSAGING_ENABLED:false}

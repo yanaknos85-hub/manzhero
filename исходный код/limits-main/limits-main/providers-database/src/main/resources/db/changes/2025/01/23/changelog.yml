@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250123-1257"
+      author: medvedev-ad
+      context: "TRANSPORT-25492"
+      preConditions:
+        - not:
+            - columnExists:
+                schemaName: limits
+                tableName: limit_spending
+                columnName: employee_id
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: "D-04.002.000"
+        - addColumn:
+            schemaName: limits
+            tableName: limit_spending
+            columns:
+              - column:
+                  name: employee_id
+                  type: uuid
+                  remarks: Сотрудник

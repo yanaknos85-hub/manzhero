@@ -1,0 +1,9 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20220926"
+            author: medvedev-ad
+            changes:
+                -   dropNotNullConstraint:
+                        schemaName: corporate
+                        tableName: user
+                        columnName: login

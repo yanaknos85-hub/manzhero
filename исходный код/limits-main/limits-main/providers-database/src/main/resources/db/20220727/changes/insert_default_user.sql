@@ -1,0 +1,1 @@
+INSERT INTO limits.employee (id, department_id, humanreadableid, supervisor_id, user_id, active, first_name, last_name, patronymic, personnel_number, position_id, organization_id) VALUES ('00000000-0000-0000-0000-000000000000', null, 'DEFAULT', null, '00000000-0000-0000-0000-000000000000', true, 'DEFAULT', 'DEFAULT', 'DEFAULT', null, '00000000-0000-0000-0000-000000000000', null);

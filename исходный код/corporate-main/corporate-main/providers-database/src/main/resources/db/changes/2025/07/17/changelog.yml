@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250717-1545"
+      author: belov-av
+      context: "TRANSPORT-34009"
+      dbms: postgresql
+      changes:
+        - tagDatabase:
+            tag: "D-04.013.000"
+        - addColumn:
+            schemaName: corporate
+            tableName: executor_group
+            columns:
+              - column:
+                  name: contractors
+                  type: jsonb
+                  remarks: 'Список контрагентов'
+              - column:
+                  name: additional_feature
+                  type: varchar(20)
+                  remarks: 'Дополнительный признак'
+      rollback:
+        - dropColumn:
+            schemaName: corporate
+            tableName: executor_group
+            columns:
+              - column:
+                  name: contractors
+              - column:
+                  name: additional_feature
+  - changeSet:
+      id: "20250717-1545"
+      author: belov-av
+      context: "TRANSPORT-34009"
+      dbms: h2
+      changes:
+        - tagDatabase:
+            tag: "D-04.013.000"
+        - addColumn:
+            schemaName: corporate
+            tableName: executor_group
+            columns:
+              - column:
+                  name: contractors
+                  type: json
+                  remarks: 'Список контрагентов'
+              - column:
+                  name: additional_feature
+                  type: varchar(20)
+                  remarks: 'Дополнительный признак'
+      rollback:
+        - dropColumn:
+            schemaName: corporate
+            tableName: executor_group
+            columns:
+              - column:
+                  name: contractors
+              - column:
+                  name: additional_feature

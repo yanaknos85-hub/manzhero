@@ -1,0 +1,1 @@
+call migrations.fill_roles('corporate', 'GET /groups/', 'ROLE_ENGINEER_CORP_CLIENT', true);

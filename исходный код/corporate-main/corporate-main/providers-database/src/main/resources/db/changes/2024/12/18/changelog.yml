@@ -1,0 +1,129 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20241218-0922"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - addColumn:
+            schemaName: corporate
+            tableName: easup_department
+            columns:
+              - column:
+                  name: parent_id
+                  type: varchar(20)
+                  remarks: 'ЕАСУП идентификатор родителя'
+        - addColumn:
+            schemaName: corporate
+            tableName: easup_position
+            columns:
+              - column:
+                  name: organization_id
+                  type: varchar(20)
+                  remarks: 'ЕАСУП идентификатор организации'
+  - changeSet:
+      id: "20241218-1159"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - addColumn:
+            schemaName: corporate
+            tableName: position
+            columns:
+              - column:
+                  name: update_time
+                  type: timestamp with timezone
+                  remarks: 'Дата обновления записи'
+                  defaultOnNull: true
+                  defaultValueComputed: now()
+        - sql:
+            dbms: postgresql
+            sql: update corporate.position set update_time = easup_update_time
+        - sql:
+            dbms: postgresql
+            sql: update corporate.position set update_time = now() where update_time is null
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: position
+            columnName: update_time
+            constraintName: corporate_position_update_time_nn
+        - dropColumn:
+            schemaName: corporate
+            tableName: position
+            columns:
+              - column:
+                  name: easup_forming_date
+              - column:
+                  name: easup_update_time
+      rollback:
+        - addColumn:
+            schemaName: corporate
+            tableName: position
+            columns:
+              - column:
+                  name: easup_forming_date
+                  type: date
+              - column:
+                  name: easup_update_time
+                  type: timestamp with timezone
+        - dropNotNullConstraint:
+            schemaName: corporate
+            tableName: position
+            columnName: update_time
+            constraintName: corporate_position_update_time_nn
+        - dropColumn:
+            schemaName: corporate
+            tableName: position
+            columns:
+              - column:
+                  name: update_time
+  - changeSet:
+      id: "20241218-1439"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate
+            baseTableName: easup_employee
+            baseColumnNames: id
+            referencedTableSchemaName: corporate
+            referencedTableName: employee
+            referencedColumnNames: id
+            constraintName: corporate_easup_employee_employee_fk
+        - createIndex:
+            schemaName: corporate
+            tableName: easup_employee
+            column:
+              - name: id
+            indexName: corporate_easup_employee_employee_idx
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate
+            baseTableName: employee
+            baseColumnNames: organization_id
+            referencedTableSchemaName: corporate
+            referencedTableName: organization
+            referencedColumnNames: id
+            constraintName: corporate_employee_organization_id_fk
+        - createIndex:
+            schemaName: corporate
+            tableName: employee
+            column:
+              - name: organization_id
+            indexName: corporate_employee_organization_idx
+  - changeSet:
+      id: "20241218-1632"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: employee
+            columnName: org_structure_type
+            constraintName: corporate_employee_org_structure_type_nn

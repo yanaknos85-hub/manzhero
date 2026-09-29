@@ -1,0 +1,285 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250630-0835"
+      author: medvedev-ad
+      context: "TRANSPORT-33337"
+      changes:
+        - tagDatabase:
+            tag: "D-04.010.002"
+        - modifyDataType:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columnName: transport_type_id
+            newDataType: varchar(50)
+        - renameColumn:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            oldColumnName: transport_type_id
+            newColumnName: transport_type
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: TAXI
+            where: transport_type = '7f18ce71-99a7-47b5-b285-335058c6715c'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: PERSONAL
+            where: transport_type = '1a33601d-4db4-4720-8d09-95f015770fe0'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: CARSHARING
+            where: transport_type = '7f18ce71-65a7-47b5-b285-335058c6515c'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: PUBLIC
+            where: transport_type = 'fa96da51-068d-4cf5-bfd2-4cd28d717e13'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: GROUP_TRANSFER
+            where: transport_type = 'ab6efcb9-dce2-4545-82f7-f75e51e670c3'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: BICYCLE
+            where: transport_type = '6f18ce82-99a7-34b5-b285-335058c6715c'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: WALK
+            where: transport_type = '1f13ce82-99a7-34b5-b285-225058b6715c'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: SCOOTER
+            where: transport_type = '1f13ce82-99a7-34b5-b285-225058b6715c'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: DEDICATED
+            where: transport_type = 'c6ab83a2-0637-11ec-9a03-0242ac130003'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: COURIER
+            where: transport_type = '296c1c60-0aa3-4e06-85a0-f5efc021d8c9'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: DOMESTIC_COURIER
+            where: transport_type = 'd090237f-f1f8-4282-b318-6064f5891354'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: INTERREGIONAL
+            where: transport_type = 'e2722f95-1043-41d0-8a57-09182c6410c6'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: INDIVIDUAL
+            where: transport_type = 'e2722f95-1043-41d0-8a57-09182c6410c7'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: OFFICIAL
+            where: transport_type = 'a760c70f-fcf6-0d11-20fe-0818fdbb15ff'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: PRIVATE
+            where: transport_type = '9a46760e-09cf-c8c2-149e-6177118083dd'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: SPECIAL
+            where: transport_type = '8bf3e674-ad6b-a86c-eb72-9cd9b55e9924'
+      rollback:
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: 7f18ce71-99a7-47b5-b285-335058c6715c
+            where: transport_type = 'TAXI'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: 1a33601d-4db4-4720-8d09-95f015770fe0
+            where: transport_type = 'PERSONAL'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: 7f18ce71-65a7-47b5-b285-335058c6515c
+            where: transport_type = 'CARSHARING'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: fa96da51-068d-4cf5-bfd2-4cd28d717e13
+            where: transport_type = 'PUBLIC'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: ab6efcb9-dce2-4545-82f7-f75e51e670c3
+            where: transport_type = 'GROUP_TRANSFER'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: 6f18ce82-99a7-34b5-b285-335058c6715c
+            where: transport_type = 'BICYCLE'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: 1f13ce82-99a7-34b5-b285-225058b6715c
+            where: transport_type = 'WALK'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: 1f13ce82-99a7-34b5-b285-225058b6715c
+            where: transport_type = 'SCOOTER'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: c6ab83a2-0637-11ec-9a03-0242ac130003
+            where: transport_type = 'DEDICATED'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: 296c1c60-0aa3-4e06-85a0-f5efc021d8c9
+            where: transport_type = 'COURIER'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: d090237f-f1f8-4282-b318-6064f5891354
+            where: transport_type = 'DOMESTIC_COURIER'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: e2722f95-1043-41d0-8a57-09182c6410c6
+            where: transport_type = 'INTERREGIONAL'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: e2722f95-1043-41d0-8a57-09182c6410c7
+            where: transport_type = 'INDIVIDUAL'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: a760c70f-fcf6-0d11-20fe-0818fdbb15ff
+            where: transport_type = 'OFFICIAL'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: 9a46760e-09cf-c8c2-149e-6177118083dd
+            where: transport_type = 'PRIVATE'
+        - update:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columns:
+              - column:
+                  name: transport_type
+                  value: 8bf3e674-ad6b-a86c-eb72-9cd9b55e9924
+            where: transport_type = 'SPECIAL'
+        - renameColumn:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            newColumnName: transport_type_id
+            oldColumnName: transport_type
+        - modifyDataType:
+            schemaName: ${schemaName}
+            tableName: tariff_message
+            columnName: transport_type_id
+            newDataType: uuid

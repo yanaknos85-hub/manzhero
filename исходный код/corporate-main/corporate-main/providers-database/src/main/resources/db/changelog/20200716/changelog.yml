@@ -1,0 +1,14 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20200716
+            author: uas
+            changes:
+                -   sqlFile:
+                        path: add_columns.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+            rollback:
+                -   sqlFile:
+                        path: rollback_add_columns.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;

@@ -1,0 +1,2 @@
+call migrations.fill_roles('corporate', 'DELETE /executorGroup/{executorGroupId}/', 'ROLE_ADMIN_DATA_MASTER', true);
+call migrations.fill_roles('corporate', 'DELETE /executorGroup/{executorGroupId}/', 'ROLE_ADMIN_CORP_CLIENT', true);

@@ -1,0 +1,13 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20230810-0746"
+            author: medvedev-ad
+            context: "20230810"
+            changes:
+                -   tagDatabase:
+                        tag: "release/D-02.026.000"
+                - addUniqueConstraint:
+                    schemaName: corporate
+                    tableName: department
+                    columnNames: easup_id,organization_id
+                    constraintName: corporate_department_easup_id_organization_id_uk

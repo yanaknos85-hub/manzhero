@@ -1,0 +1,16 @@
+databaseChangeLog:
+    -   changeSet:
+            id: tariff_fleet/20231213-1
+            author: klyunkov-va
+            dbms: postgresql
+            changes:
+                -  addUniqueConstraint:
+                       columnNames:  uvhd
+                       constraintName:  contract_pk3
+                       schemaName:  tariff_fleet
+                       tableName:  contract
+            rollback:
+                -  dropUniqueConstraint:
+                       constraintName:  contract_pk3
+                       schemaName:  tariff_fleet
+                       tableName:  contract

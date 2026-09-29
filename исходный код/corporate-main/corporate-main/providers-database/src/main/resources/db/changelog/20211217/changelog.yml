@@ -1,0 +1,22 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20211217"
+            author: aas
+            changes:
+                -   dropColumn:
+                        schemaName: corporate
+                        tableName: department
+                        columnName: structure_path
+            rollback:
+                -   addColumn:
+                        schemaName: corporate
+                        tableName: department
+                        columns:
+                            -   column:
+                                    name: structure_path
+                                    type: text
+                        
+
+
+    
+                                    

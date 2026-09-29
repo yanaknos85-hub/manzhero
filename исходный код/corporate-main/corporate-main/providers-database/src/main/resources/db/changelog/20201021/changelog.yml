@@ -1,0 +1,14 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20201021
+            author: apa
+            changes:
+                -   sqlFile:
+                        path: create_transportorg_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+            rollback:
+                -   sqlFile:
+                        path: rollback_create_transportorg_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;

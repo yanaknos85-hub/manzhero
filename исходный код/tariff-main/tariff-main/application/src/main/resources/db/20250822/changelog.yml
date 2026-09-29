@@ -1,0 +1,27 @@
+databaseChangeLog:
+    -   changeSet:
+            id: tariff_fleet/20250822-1
+            author: tanini-v
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/alter_service_point_drop_name_column.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    - changeSet:
+        id: tariff_fleet/20250822-2
+        author: azatsepilin
+        dbms: postgresql
+        changes:
+          - sqlFile:
+              path: changes/add_roles.sql
+              relativeToChangelogFile: true
+              splitStatements: false
+          - sqlFile:
+              path: changes/rename_fuel_contract_contractor_name.sql
+              relativeToChangelogFile: true
+              splitStatements: false
+          - sqlFile:
+              path: changes/rename_repair_contract_contractor_name.sql
+              relativeToChangelogFile: true
+              splitStatements: false

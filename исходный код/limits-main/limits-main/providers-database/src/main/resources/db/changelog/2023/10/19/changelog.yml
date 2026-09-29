@@ -1,0 +1,61 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20231019-1356"
+      author: medvedev-ad
+      context: "TRANSPORT-16955"
+      dbms: postgresql
+      changes:
+        - tagDatabase:
+            tag: "D-02.036.000"
+        - sql:
+            dbms: postgresql
+            sql: >-
+              create materialized view limits.limit_stats_spending as select
+                  sharing_id,
+                  period_sharing_id,
+                  limit_stats.organization_id as organization_id,
+                  limit_stats.year as year,
+                  transport_type,
+                  limit_stats.period as period,
+                  limit_spending.sum_spent as sum_spent
+              from limits.limit_stats inner join limits.limit_spending on period_sharing_id = limit_sharing_per_period_id
+              where limit_spending_status = 'SPENT' and sum_spent > 0
+              order by sharing_id, period_sharing_id;
+      rollback:
+        - sql:
+            dbms: postgresql
+            sql: drop materialized view limits.limit_stats_spending;
+  - changeSet:
+      id: "20231019-1356"
+      author: medvedev-ad
+      context: "TRANSPORT-16955"
+      dbms: h2
+      changes:
+        - tagDatabase:
+            tag: "D-02.036.000"
+        - sql:
+            sql: create view limits.limit_stats_spending as select sharing_id, period_sharing_id, limit_stats.organization_id as organization_id, limit_stats."year" as "year", transport_type, limit_stats.period as period, limit_spending.sum_spent as sum_spent from limits.limit_stats inner join limits.limit_spending on period_sharing_id = limit_sharing_per_period_id where limit_spending_status = 'SPENT' and sum_spent > 0 order by sharing_id, period_sharing_id;
+      rollback:
+        - sql:
+            sql: drop view limits.limit_stats_spending;
+  - changeSet:
+      id: "20231019-1422"
+      author: medvedev-ad
+      context: "TRANSPORT-16955"
+      dbms: postgresql
+      changes:
+        - tagDatabase:
+            tag: "D-02.034.000"
+        - createIndex:
+            schemaName: limits
+            tableName: limit_stats_spending
+            columns:
+              - column:
+                  name: organization_id
+              - column:
+                  name: period
+              - column:
+                  name: transport_type
+              - column:
+                  name: year
+            indexName: limits_limit_stats_spending_organization_id_period_transport_type_year_idx

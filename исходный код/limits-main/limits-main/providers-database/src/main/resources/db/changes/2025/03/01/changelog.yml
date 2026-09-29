@@ -1,0 +1,76 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250301-0957"
+      author: medvedev-ad
+      context: "TRANSPORT-30202"
+      changes:
+        - tagDatabase:
+            tag: "D-04.004.000"
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit
+            columnName: creation_time
+            newDataType: timestamp with timezone
+      rollback:
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit
+            columnName: creation_time
+            newDataType: timestamp
+  - changeSet:
+      id: "20250301-1001"
+      author: medvedev-ad
+      context: "TRANSPORT-30202"
+      changes:
+        - tagDatabase:
+            tag: "D-04.004.000"
+        - addColumn:
+            schemaName: limits
+            tableName: limit
+            columns:
+              - column:
+                  name: update_time
+                  type: timestamp with timezone
+                  remarks: Время последнего изменения
+              - column:
+                  name: hash
+                  type: varchar(36)
+                  remarks: Хэш объекта
+  - changeSet:
+      id: "20250301-1002"
+      author: medvedev-ad
+      context: "TRANSPORT-30202"
+      changes:
+        - tagDatabase:
+            tag: "D-04.004.000"
+        - update:
+            schemaName: limits
+            tableName: limit
+            columns:
+              - column:
+                  name: update_time
+                  valueComputed: creation_time
+            where: update_time is null
+        - update:
+            schemaName: limits
+            tableName: limit
+            columns:
+              - column:
+                  name: hash
+                  valueComputed: id::text
+            where: hash is null
+      rollback:
+        - sql:
+            sql: select 1
+  - changeSet:
+      id: "20250301-1004"
+      author: medvedev-ad
+      context: "TRANSPORT-30202"
+      changes:
+        - tagDatabase:
+            tag: "D-04.004.000"
+        - addNotNullConstraint:
+            schemaName: limits
+            tableName: limit
+            columnName: update_time
+            constraintName: limits_limit_update_time_nn

@@ -1,0 +1,66 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20260415-0001"
+      author: belov-av
+      dbms: postgresql
+      changes:
+        - sql:
+            sql: |
+              CREATE TYPE corporate.role_action_type AS ENUM (
+                'ADD_COURIER',
+                'REMOVE_COURIER',
+                'UPDATE',
+                'REMOVE_ALL'
+              )
+        - createTable:
+            schemaName: corporate
+            tableName: role_history
+            remarks: "История назначения и отзывания ролей сотрудников"
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: "Идентификатор записи истории"
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: corporate_role_history_pk
+              - column:
+                  name: employee_id
+                  type: uuid
+                  remarks: "Идентификатор сотрудника"
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_role_history_employee_id_nn
+              - column:
+                  name: role_names
+                  type: text
+                  remarks: "Список ролей, которые были назначены"
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_role_history_role_names_nn
+              - column:
+                  name: action_type
+                  type: corporate.role_action_type
+                  remarks: "Тип действия: ADD_COURIER, REMOVE_COURIER, UPDATE, REMOVE_ALL"
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_role_history_action_type_nn
+              - column:
+                  name: action_time
+                  type: timestamp
+                  remarks: "Время выполнения действия"
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_role_history_action_time_nn
+              - column:
+                  name: comment
+                  type: text
+                  remarks: "Комментарий к действию"
+        - sql:
+            sql: create index idx_role_history_employee_id on corporate.role_history(employee_id)
+        - sql:
+            sql: create index idx_role_history_role_names on corporate.role_history(role_names)
+        - sql:
+            sql: create index idx_role_history_action_time on corporate.role_history(action_time)
+        - sql:
+            sql: create index idx_role_history_action_type on corporate.role_history(action_type)

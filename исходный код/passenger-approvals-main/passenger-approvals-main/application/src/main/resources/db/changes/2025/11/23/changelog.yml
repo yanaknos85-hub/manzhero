@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20251123-0822"
+      author: farkhutdinov.ed
+      context:
+      changes:
+        - tagDatabase:
+            tag: "D-04.022.000"
+        - createTable:
+            schemaName: approvals
+            tableName: fraud
+            remarks: Информация о фроде заявок
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: approvals_fraud_pk
+              - column:
+                  name: type
+                  type: varchar(255)
+                  remarks: Тип фрод-подозрения
+              - column:
+                  name: request_id
+                  type: uuid
+                  remarks: Идентификатор заявки
+              - column:
+                  name: request_approval_id
+                  type: uuid
+                  remarks: Ссылка на согласование заявки
+              - column:
+                  name: comment
+                  type: text
+                  remarks: Комментарий, описывающий подозрение на фрод
+        - createIndex:
+            schemaName: approvals
+            tableName: fraud
+            columns:
+              - column:
+                  name: request_id
+            indexName: idx_fraud_request_id
+        - addNotNullConstraint:
+            schemaName: approvals
+            tableName: fraud
+            columnName: request_approval_id
+            constraintName: approvals_fraud_request_approval_id_not_null

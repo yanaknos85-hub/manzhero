@@ -1,0 +1,28 @@
+databaseChangeLog:
+    -   changeSet:
+            id: tariff_fleet/20240304-1
+            author: makarovm-d
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: change/create_company_sq.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: tariff_fleet/20240304-2
+            author: makarovm-d
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: change/add_unique_constraint_tariff.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: tariff_fleet/20240304-3
+            author: makarovm-d
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: change/add_role_new_tariff.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false

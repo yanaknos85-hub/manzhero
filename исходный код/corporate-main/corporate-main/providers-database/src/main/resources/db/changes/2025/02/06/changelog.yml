@@ -1,0 +1,64 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250206-1041"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.003"
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: easup_position
+            columnName: id
+            constraintName: corporate_easup_position_id_nn
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: easup_department
+            columnName: id
+            constraintName: corporate_easup_department_id_nn
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: easup_position
+            columnName: organization_id
+            constraintName: corporate_easup_position_organization_id_nn
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: easup_department
+            columnName: organization_id
+            constraintName: corporate_easup_department_organization_id_nn
+  - changeSet:
+      id: "20250206-1537"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      preConditions:
+        - indexExists:
+            schemaName: corporate
+            tableName: employee
+            constraintName: corporate_employee_organization_personnel_number_uk
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.003"
+        - dropIndex:
+            schemaName: corporate
+            tableName: employee
+            indexName: corporate_employee_organization_personnel_number_uk
+  - changeSet:
+      id: "20250206-1550"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      preConditions:
+        - not:
+          - uniqueConstraintExists:
+              schemaName: corporate
+              tableName: employee
+              constraintName: corporate_employee_organization_personnel_number_uk
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.003"
+        - addUniqueConstraint:
+            schemaName: corporate
+            tableName: employee
+            constraintName: corporate_employee_organization_personnel_number_uk
+            columnNames: organization_id,personnel_number

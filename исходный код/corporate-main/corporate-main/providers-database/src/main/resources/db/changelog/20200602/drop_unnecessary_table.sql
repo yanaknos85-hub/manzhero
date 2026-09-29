@@ -1,0 +1,1 @@
+DROP TABLE corporate.employee_transport_types;

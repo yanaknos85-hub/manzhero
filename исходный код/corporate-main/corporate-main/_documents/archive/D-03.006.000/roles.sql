@@ -1,0 +1,4 @@
+call migrations.fill_roles('corporate', 'POST /{organizationId}/departments/{departmentId}/employees/{employeeId}/files/upload', 'ROLE_EMPLOYEE_CORP_CLIENT', true);
+call migrations.fill_roles('corporate', 'POST /{organizationId}/departments/{departmentId}/employees/{employeeId}/files/upload', 'ROLE_ENGINEER_CORP_CLIENT', true);
+call migrations.fill_roles('corporate', 'GET /{organizationId}/departments/{departmentId}/employees/{employeeId}/files/download/{fileName}', 'ROLE_EMPLOYEE_CORP_CLIENT', true);
+call migrations.fill_roles('corporate', 'GET /{organizationId}/departments/{departmentId}/employees/{employeeId}/files/download/{fileName}', 'ROLE_ENGINEER_CORP_CLIENT', true);

@@ -1,0 +1,422 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20230816-0808"
+            author: medvedev-ad
+            context: TRANSPORT-15696
+            changes:
+              -   tagDatabase:
+                    tag: release/D-02.024.001
+              -   modifyDataType:
+                    schemaName: limits
+                    tableName: limit_history
+                    columnName: period
+                    newDataType: varchar(9)
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          value: 'JANUARY'
+                    where: period = '0'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          value: 'FEBRUARY'
+                    where: period = '1'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          value: 'MARCH'
+                    where: period = '2'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          value: 'APRIL'
+                    where: period = '3'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          value: 'MAY'
+                    where: period = '4'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          value: 'JUNE'
+                    where: period = '5'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          value: 'JULY'
+                    where: period = '6'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          value: 'AUGUST'
+                    where: period = '7'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          value: 'SEPTEMBER'
+                    where: period = '8'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          value: 'OCTOBER'
+                    where: period = '9'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          value: 'NOVEMBER'
+                    where: period = '10'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          value: 'DECEMBER'
+                    where: period = '11'
+            rollback:
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          valueNumeric: 0
+                    where: period = 'JANUARY'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          valueNumeric: 1
+                    where: period = 'FEBRUARY'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          valueNumeric: 2
+                    where: period = 'MARCH'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          valueNumeric: 3
+                    where: period = 'APRIL'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          valueNumeric: 4
+                    where: period = 'MAY'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          valueNumeric: 5
+                    where: period = 'JUNE'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          valueNumeric: 6
+                    where: period = 'JULY'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          valueNumeric: 7
+                    where: period = 'AUGUST'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          valueNumeric: 8
+                    where: period = 'SEPTEMBER'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          valueNumeric: 9
+                    where: period = 'OCTOBER'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          valueNumeric: 10
+                    where: period = 'NOVEMBER'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: period
+                          valueNumeric: 11
+                    where: period = 'DECEMBER'
+              -   modifyDataType:
+                    schemaName: limits
+                    tableName: limit_history
+                    columnName: period
+                    newDataType: int2
+    -   changeSet:
+            id: "20230816-0822"
+            author: medvedev-ad
+            context: TRANSPORT-15696
+            changes:
+              -   tagDatabase:
+                    tag: release/D-02.024.001
+              -   modifyDataType:
+                    schemaName: limits
+                    tableName: limit_history
+                    columnName: counterpart_period
+                    newDataType: varchar(9)
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          value: 'JANUARY'
+                    where: counterpart_period = '0'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          value: 'FEBRUARY'
+                    where: counterpart_period = '1'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          value: 'MARCH'
+                    where: counterpart_period = '2'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          value: 'APRIL'
+                    where: counterpart_period = '3'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          value: 'MAY'
+                    where: counterpart_period = '4'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          value: 'JUNE'
+                    where: counterpart_period = '5'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          value: 'JULY'
+                    where: counterpart_period = '6'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          value: 'AUGUST'
+                    where: counterpart_period = '7'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          value: 'SEPTEMBER'
+                    where: counterpart_period = '8'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          value: 'OCTOBER'
+                    where: counterpart_period = '9'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          value: 'NOVEMBER'
+                    where: counterpart_period = '10'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          value: 'DECEMBER'
+                    where: counterpart_period = '11'
+            rollback:
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          valueNumeric: 0
+                    where: counterpart_period = 'JANUARY'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          valueNumeric: 1
+                    where: counterpart_period = 'FEBRUARY'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          valueNumeric: 2
+                    where: counterpart_period = 'MARCH'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          valueNumeric: 3
+                    where: counterpart_period = 'APRIL'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          valueNumeric: 4
+                    where: counterpart_period = 'MAY'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          valueNumeric: 5
+                    where: counterpart_period = 'JUNE'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          valueNumeric: 6
+                    where: counterpart_period = 'JULY'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          valueNumeric: 7
+                    where: counterpart_period = 'AUGUST'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          valueNumeric: 8
+                    where: counterpart_period = 'SEPTEMBER'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          valueNumeric: 9
+                    where: counterpart_period = 'OCTOBER'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          valueNumeric: 10
+                    where: counterpart_period = 'NOVEMBER'
+              -   update:
+                    schemaName: limits
+                    tableName: limit_history
+                    columns:
+                      - column:
+                          name: counterpart_period
+                          valueNumeric: 11
+                    where: counterpart_period = 'DECEMBER'
+              -   modifyDataType:
+                    schemaName: limits
+                    tableName: limit_history
+                    columnName: counterpart_period
+                    newDataType: int2
+

@@ -1,0 +1,38 @@
+databaseChangeLog:
+    -   changeSet:
+            id: tariff_fleet/20231208-1
+            author: klyunkov-va
+            dbms: postgresql
+            changes:
+                -  addUniqueConstraint:
+                       columnNames:  contractor_id, number
+                       constraintName:  contract_pk2
+                       schemaName:  tariff_fleet
+                       tableName:  contract
+            rollback:
+                -  dropUniqueConstraint:
+                       constraintName:  contract_pk2
+                       schemaName:  tariff_fleet
+                       tableName:  contract
+    -   changeSet:
+            id: tariff_fleet/20231208-2
+            author: klyunkov-va
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: change/add_role_contract.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: tariff_fleet/20231208-3
+            author: klyunkov-va
+            dbms: postgresql
+            changes:
+                -   addColumn:
+                        schemaName:  tariff_fleet
+                        tableName: contract
+                        columns:
+                            -   column:
+                                    name: contractor_name
+                                    type: varchar(50)
+                                    remarks:  Наименование контрагента

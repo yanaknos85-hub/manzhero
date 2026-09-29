@@ -1,0 +1,10 @@
+databaseChangeLog:
+    -   changeSet:
+            id: tariff_fleet/20250415
+            author: tanini-v
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: change/get_departments_role.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false

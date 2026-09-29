@@ -1,0 +1,54 @@
+server:
+    port: 0
+spring:
+    main:
+        allow-bean-definition-overriding: true
+    config:
+        import:
+            - optional:configserver:http://localhost:8888
+            - kafka-test.yml
+            - database.yml
+    cloud:
+        discovery:
+            enabled: false
+        vault:
+            enabled: false
+        openfeign:
+            client:
+                config:
+                    disp-ext-client:
+                        url: http://localhost:65432
+                        connectTimeout: 10000
+                        readTimeout: 60000
+    security:
+        enabled: false
+    application:
+        name: integrations
+    jackson:
+        default-property-inclusion: non_null
+        serialization:
+            write_dates_as_timestamps: false
+    datasource:
+        username: postgres
+processor:
+    mail:
+        xml:
+            sender:
+                rate: 60000
+            receiver:
+                rate: 60000
+security:
+    oauth2:
+        client:
+            client-id: ${GETT_CLIENT_ID:82e1b95a-8690-4c26-b45b-5465af3a1bd7.8f6ebc6a-964a-4f52-9f1e-bc908e69c687}
+            client-secret: ${GETT_CLIENT_SECRET:b8bb5cdd-d906-4ba3-8e8a-7e413fda42bc}
+            grant_type: client_credentials
+            access-token-uri: ${api.gett.baseUrl}/oauth/token #The address of the request token
+            scope: "order finance"
+    enabled: false
+scheduled:
+    rate: 10_000
+logging:
+    file:
+        path: "${LOG_PATH:log/services}"
+        name: "${logging.file.path}/${spring.application.name}/server.log"

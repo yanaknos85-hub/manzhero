@@ -1,0 +1,26 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20220829-3"
+            author: shadrin-mv
+            dbms: postgresql
+            preConditions:
+                -   onFail: MARK_RAN
+                -   not:
+                        -   columnExists:
+                                schemaName: approvals
+                                tableName: final_trip_approvals
+                                columnName: approval_date
+            changes:
+                -   addColumn:
+                        schemaName: approvals
+                        tableName: final_trip_approvals
+                        columns:
+                            -   column:
+                                    name: approval_date
+                                    type: timestamp
+                                    remarks: Дата и время утверждения поездки
+            rollback:
+                -   dropColumn:
+                        schemaName: approvals
+                        tableName: final_trip_approvals
+                        columnName: approval_date

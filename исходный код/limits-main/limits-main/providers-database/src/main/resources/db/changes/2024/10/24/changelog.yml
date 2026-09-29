@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20241024-1141"
+      author: medvedev-ad
+      context: "TRANSPORT-26801"
+      changes:
+        - tagDatabase:
+            tag: "D-03.018.000"
+        - createIndex:
+            schemaName: limits
+            tableName: employee
+            columns:
+              - column:
+                  name: department_id
+              - column:
+                  name: active
+            indexName: limits_employee_department_id_active_idx

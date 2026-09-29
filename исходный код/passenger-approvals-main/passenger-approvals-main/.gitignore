@@ -1,0 +1,6 @@
+target
+.flattened-pom.xml
+.gigaide
+.idea
+allure-results
+application-local.yml

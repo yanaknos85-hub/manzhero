@@ -1,0 +1,2 @@
+INSERT INTO approvals.fraud (id, type, request_id, approval_id, comment) VALUES ('25316cad-a4fa-8ffe-52b6-c07afad3a423'::uuid, 'SPLIT', '06cd6b01-83ee-9214-8472-a072fd500657'::uuid, '357e5e52-150d-4bcb-875c-fa3d8e7e9025'::uuid, 'some text'),
+                                                                                ('08d6d9ad-c5f0-9e05-e65a-b2ed3d9d688f'::uuid, 'RADIUS', 'c551f84a-40c8-c29a-733f-ef446eddab6b'::uuid, '357e5e52-150d-4bcb-875c-fa3d8e7e9025'::uuid, 'some more text');

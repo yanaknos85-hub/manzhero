@@ -1,0 +1,22 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8080
+  cloud:
+    stream:
+      default-binder: integration
+  datasource:
+    username: postgres
+  liquibase:
+    enabled: false
+  threads:
+    virtual:
+      enabled: false
+bean:
+  threading:
+    enabled: false
+grpc:
+  server:
+    port: -1

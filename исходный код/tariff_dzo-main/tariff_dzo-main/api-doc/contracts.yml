@@ -1,0 +1,543 @@
+openapi: 3.0.0
+info:
+  title: Contracts API
+  description: API для работы с договорами
+  version: 1.0.0
+
+paths:
+  /api/tariff-repair/contracts/search:
+    post:
+      tags:
+        - Договор
+      summary: Получить список договоров
+      description: Получение списка договоров с постраничной выгрузкой
+      operationId: searchContracts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContractSearchRequest'
+            example:
+              contractType: INCOME
+              active: true
+              organizationIds:
+                - 6e6e04b7-1912-422a-820a-1a6777dfde1b
+              contractorId:
+                - 6e6e04b7-1912-422a-820a-1a6777d11e1b
+              startDate: "2026-08-01"
+              endDate: "2027-08-01"
+              status: ACTIVE
+              page: 0
+              size: 10
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractSearchResponse'
+              example:
+                content:
+                  - id: 23852a10-7ae3-4661-8e8a-44ae42e7d8da
+                    organizationIds:
+                      - 6e6e04b7-1912-422a-820a-1a6777dfde1b
+                    organizationNames:
+                      - 000001_Тестовая_организация_01
+                    region: "Москва и Московская область, Москва"
+                    serviceType: REPAIR_AND_MAINTENANCE
+                    amountWithoutVat: 123
+                    userId: 83aacc27-56e7-4341-bde3-077a6276880c
+                    creationTime: 1787050490902
+                    startDate: "2026-08-01"
+                    endDate: "2027-08-01"
+                    active: true
+                    tariffsExist: false
+                    contractNumber: "62514"
+                    vatValue: 10
+                    regionIds:
+                      - c526065a-9d20-4889-9921-83adcb217b61
+                      - 2c6f7c55-69bd-4efb-a4e9-167c4fc3c9f0
+                    settings: []
+                    contractType: INCOME
+                    restrictionType: NONE
+                    restrictedIds: []
+                pageable:
+                  pageNumber: 0
+                  pageSize: 10
+                  sort:
+                    empty: false
+                    sorted: true
+                    unsorted: false
+                  offset: 0
+                  paged: true
+                  unpaged: false
+                last: false
+                totalElements: 23
+                totalPages: 3
+                size: 10
+                number: 0
+                sort:
+                  empty: false
+                  sorted: true
+                  unsorted: false
+                first: true
+                numberOfElements: 10
+                empty: false
+
+  /api/tariff-fleet/contracts:
+    post:
+      tags:
+        - Договор
+      summary: Создать договор
+      description: Добавление нового договора
+      operationId: createContract
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContractCreateRequest'
+            example:
+              organizationIds:
+                - 03b67a2e-22c1-40c3-8681-26df9b448913
+              serviceType: AUTOSERVICE
+              contractNumber: "договор1"
+              amountWithoutVat: 135000
+              startDate: "2026-09-22"
+              endDate: "2026-09-25"
+              vatValue: 10
+              restrictionType: WHITE_LIST
+              restrictedIds:
+                - eb12eb8c-83ea-4816-868a-ba60598cc894
+                - adcb8608-b414-47c3-a19b-7ef2524ee83b
+                - b7e3af46-abb2-4c83-a1b0-4e78ad889506
+              contractType: OUTCOME
+              pointName: "m parts"
+              logo: ""
+      responses:
+        '201':
+          description: Created
+
+  /api/tariff-fleet/contracts/{id}:
+    get:
+      tags:
+        - Договор
+      summary: Получить договор
+      description: Получение информации о договоре по идентификатору
+      operationId: getContract
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор договора
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContractDto'
+              example:
+                id: 1cb1407d-1777-4eea-8dca-49c8b100ebe1
+                contractorId: b32f7d6f-fda8-4918-afce-23f1e880fb76
+                organizationIds: []
+                region: "Оренбургская область"
+                serviceType: REPAIR_AND_MAINTENANCE
+                amountWithoutVat: 7654326
+                userId: 882d2b59-8eac-477f-84d2-256d814b1395
+                creationTime: 1775209625484
+                startDate: "2026-04-03"
+                endDate: "2027-05-31"
+                active: true
+                tariffsExist: false
+                contractNumber: "оренбург выд расх"
+                vatValue: 22
+                regionIds:
+                  - 841c96a9-c690-4248-b121-5774e5a84ebb
+                contractType: OUTCOME
+                restrictionType: NONE
+                restrictedIds: []
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+
+    patch:
+      tags:
+        - Договор
+      summary: Обновить договор
+      description: Частичное обновление договора (возможно изменение одного или нескольких полей)
+      operationId: updateContract
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор договора
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContractUpdateRequest'
+            example:
+              contractNumber: "оренбург выд расх"
+              amountWithoutVat: 7654326
+              pointName: "m parts"
+              logo: ""
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+
+    delete:
+      tags:
+        - Договор
+      summary: Удалить договор
+      description: Удаление договора по идентификатору
+      operationId: deleteContract
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор договора
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+
+components:
+  schemas:
+    ContractSearchRequest:
+      type: object
+      properties:
+        contractType:
+          $ref: '#/components/schemas/ContractType'
+        active:
+          type: boolean
+          description: Фильтр по активному статусу
+        organizationIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Идентификаторы организаций
+          maxItems: 1000
+        contractorId:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Идентификаторы контрагентов
+          maxItems: 1000
+        startDate:
+          type: string
+          format: date
+          description: Дата начала действия договора
+        endDate:
+          type: string
+          format: date
+          description: Дата окончания действия договора
+        status:
+          $ref: '#/components/schemas/ContractStatus'
+        page:
+          type: integer
+          format: int32
+          description: Номер страницы
+          default: 0
+        size:
+          type: integer
+          format: int32
+          description: Размер страницы
+          default: 10
+
+    ContractSearchResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContractDto'
+          maxItems: 1000
+          description: Список договоров
+        pageable:
+          $ref: '#/components/schemas/Pageable'
+        last:
+          type: boolean
+          description: Является ли страница последней
+        totalElements:
+          type: integer
+          format: int64
+          description: Общее количество элементов
+        totalPages:
+          type: integer
+          format: int32
+          description: Общее количество страниц
+        size:
+          type: integer
+          format: int32
+          description: Размер страницы
+        number:
+          type: integer
+          format: int32
+          description: Номер текущей страницы
+        sort:
+          $ref: '#/components/schemas/SortObject'
+        first:
+          type: boolean
+          description: Является ли страница первой
+        numberOfElements:
+          type: integer
+          format: int32
+          description: Количество элементов на текущей странице
+        empty:
+          type: boolean
+          description: Пуста ли страница
+
+    ContractDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Идентификатор договора
+        contractorId:
+          type: string
+          format: uuid
+          description: Идентификатор контрагента
+        organizationIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Идентификаторы организаций
+          maxItems: 1000
+        organizationNames:
+          type: array
+          items:
+            type: string
+          description: Названия организаций
+          maxItems: 1000
+        region:
+          type: string
+          description: Регион
+        serviceType:
+          $ref: '#/components/schemas/ServiceType'
+        amountWithoutVat:
+          type: integer
+          format: int64
+          description: Сумма без НДС
+        userId:
+          type: string
+          format: uuid
+          description: Идентификатор пользователя
+        creationTime:
+          type: integer
+          format: int64
+          description: Время создания (epoch timestamp)
+        startDate:
+          type: string
+          format: date
+          description: Дата начала действия договора
+        endDate:
+          type: string
+          format: date
+          description: Дата окончания действия договора
+        active:
+          type: boolean
+          description: Активный ли договор
+        tariffsExist:
+          type: boolean
+          description: Существуют ли тарифы
+        contractNumber:
+          type: string
+          maxLength: 50
+          minLength: 1
+          description: Номер договора
+        vatValue:
+          type: integer
+          format: int32
+          description: Значение НДС
+        regionIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Идентификаторы регионов
+          maxItems: 1000
+        settings:
+          type: array
+          items:
+            type: object
+          description: Настройки
+          maxItems: 1000
+        contractType:
+          $ref: '#/components/schemas/ContractType'
+        restrictionType:
+          $ref: '#/components/schemas/RestrictionType'
+        restrictedIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Ограниченные идентификаторы (белый/чёрный список)
+          maxItems: 1000
+
+    ContractCreateRequest:
+      type: object
+      properties:
+        organizationIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Идентификаторы организаций
+          maxItems: 1000
+        serviceType:
+          $ref: '#/components/schemas/ServiceType'
+        contractNumber:
+          type: string
+          maxLength: 50
+          minLength: 1
+          description: Номер договора
+        amountWithoutVat:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 999999999
+          description: Сумма без НДС (только целое число, максимум 9 знаков, минимум 1 знак)
+        startDate:
+          type: string
+          format: date
+          description: Дата начала действия договора
+        endDate:
+          type: string
+          format: date
+          description: Дата окончания действия договора
+        vatValue:
+          type: integer
+          format: int32
+          description: Значение НДС
+        restrictionType:
+          $ref: '#/components/schemas/RestrictionType'
+        restrictedIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Ограниченные идентификаторы (белый/чёрный список)
+          maxItems: 1000
+        contractType:
+          $ref: '#/components/schemas/ContractType'
+        pointName:
+          type: string
+          maxLength: 255
+          description: Наименование точки
+          pattern: "^[^\\\\\\/:*?\"<>|+ ]+[^\\\\\\/:*?\"<>|+.]*$"
+        logo:
+          type: string
+          description: Логотип в формате base64
+
+    ContractUpdateRequest:
+      type: object
+      properties:
+        contractNumber:
+          type: string
+          maxLength: 50
+          minLength: 1
+          description: Номер договора
+        amountWithoutVat:
+          type: integer
+          format: int64
+          minimum: 0
+          maximum: 999999999
+          description: Сумма без НДС (только целое число, максимум 9 знаков, минимум 1 знак)
+        pointName:
+          type: string
+          maxLength: 255
+          description: Наименование точки
+          pattern: "^[^\\\\\\/:*?\"<>|+ ]+[^\\\\\\/:*?\"<>|+.]*$"
+        logo:
+          type: string
+          description: Логотип в формате base64
+
+    ContractType:
+      type: string
+      enum:
+        - INCOME
+        - OUTCOME
+      description: Тип договора
+
+    ServiceType:
+      type: string
+      enum:
+        - REPAIR_AND_MAINTENANCE
+        - AUTOSERVICE
+      description: Тип сервиса
+
+    RestrictionType:
+      type: string
+      enum:
+        - NONE
+        - WHITE_LIST
+        - BLACK_LIST
+      description: Тип ограничения
+
+    ContractStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - INACTIVE
+      description: Статус договора
+
+    Pageable:
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          format: int32
+          description: Номер страницы
+        pageSize:
+          type: integer
+          format: int32
+          description: Размер страницы
+        sort:
+          $ref: '#/components/schemas/SortObject'
+        offset:
+          type: integer
+          format: int64
+          description: Смещение
+        paged:
+          type: boolean
+          description: Пагинация включена
+        unpaged:
+          type: boolean
+          description: Пагинация отключена
+
+    SortObject:
+      type: object
+      properties:
+        empty:
+          type: boolean
+          description: Пуста ли сортировка
+        sorted:
+          type: boolean
+          description: Сортировка активна
+        unsorted:
+          type: boolean
+          description: Сортировка не активна

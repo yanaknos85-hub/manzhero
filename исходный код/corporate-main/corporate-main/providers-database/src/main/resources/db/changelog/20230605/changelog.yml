@@ -1,0 +1,29 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20230605"
+            author: sigalovaa
+            context: "20230605"
+            changes:
+                -   tagDatabase:
+                        tag: "20230605"
+                -   addColumn:
+                        schemaName: corporate
+                        tableName: department
+                        columns:
+                            -   column:
+                                    name: filial_flag
+                                    type: boolean
+                                    remarks: флаг филиала
+                                    defaultValue: false
+                -   update:
+                        schemaName: corporate
+                        tableName: department
+                        columns:
+                            -   column:
+                                    name: filial_flag
+                                    value: false
+            rollback:
+                -   dropColumn:
+                        schemaName: corporate
+                        tableName: department
+                        columnName: filial_flag

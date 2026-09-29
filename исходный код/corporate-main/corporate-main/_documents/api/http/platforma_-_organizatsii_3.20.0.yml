@@ -1,0 +1,467 @@
+openapi: 3.0.3
+info:
+  title: Платформа - Организации
+  version: 3.24.0
+  description: Набор операций по работе с оргштатной структурой
+servers:
+  - url: '{scheme}://{host}:{port}{api}'
+    description: Адрес для вызова
+    variables:
+      scheme:
+        enum:
+          - http
+          - https
+        default: http
+      host:
+        default: localhost
+      api:
+        default: /api/organizations/v3.24/
+      port:
+        enum:
+          - '80'
+          - '8080'
+          - '443'
+          - '8443'
+        default: '80'
+paths:
+  /:
+    summary: Организации
+    description: Операции с организациями
+    post:
+      summary: Добавить
+      description: Добавить организацию
+      tags:
+        - organizations
+      operationId: add
+      requestBody:
+        $ref: '#/components/requestBodies/Organization'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationData'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '409':
+          $ref: '#/components/responses/409'
+  /self:
+    summary: Иформация о себе
+    description: Информация о вошедшем пользователе
+    get:
+      summary: Получить
+      description: Получить информацию о вошедшем пользователе
+      tags:
+        - self
+      operationId: get
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeData'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+components:
+  responses:
+    '401':
+      description: Не авторизован
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Unauthorized'
+    '403':
+      description: Нет доступа к ресурсу
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Forbidden'
+    '404':
+      description: Нет ресурса
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFound'
+    '409':
+      description: Ресурс конфликтует с существующим
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Conflict'
+  requestBodies:
+    Organization:
+      description: Данные организации
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NewOrganizationData'
+  schemas:
+    EmployeeData:
+      type: object
+      title: Сотрудник
+      description: Информация о сотруднике
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        userId:
+          $ref: '#/components/schemas/UUID'
+        firstName:
+          title: Имя
+          type: string
+          description: Имя
+        lastName:
+          title: Фамилия
+          type: string
+          description: Фамилия
+        patronymic:
+          title: Отчество
+          type: string
+          description: Отчество
+        personnelNumber:
+          title: ТН
+          type: string
+          description: Табельный номер
+        positionId:
+          $ref: '#/components/schemas/UUID'
+        mobilePhone:
+          title: Мобильный
+          type: string
+          description: Мобильный номер телефона
+        isPhoneConfirmed:
+          title: Номер подтвержден
+          type: boolean
+          description: Номер подтвержден
+        email:
+          title: E-Mail
+          type: string
+          description: Адрес электронной почты
+        supervisorId:
+          $ref: '#/components/schemas/UUID'
+        departmentId:
+          $ref: '#/components/schemas/UUID'
+        organizationId:
+          $ref: '#/components/schemas/UUID'
+        positionName:
+          title: Должность
+          description: Название должности сотрудника
+          type: string
+        status:
+          $ref: '#/components/schemas/ActiveStatus'
+        attributes:
+          title: Атрибуты
+          description: Список атрибутов сотрудника
+          type: array
+          items:
+            $ref: '#/components/schemas/Attribute'
+        humanReadableId:
+          title: Человекочитаемый идентификатор
+          description: Человекочитаемый идентификатор
+          type: string
+        roles:
+          title: Роли
+          description: Список ролей
+          type: array
+          items:
+            type: string
+            title: Роль
+            description: Название роли
+        approvals:
+          title: Согласования
+          description: Количество согласований
+          type: integer
+        isDepartmentHead:
+          title: Руководитель
+          description: Сотрудник это руководитель
+          type: boolean
+        managedDepartments:
+          title: Список подчиннных подразделений
+          description: Список идентификаторов подчиннных подразделений
+          type: array
+          items:
+            $ref: '#/components/schemas/UUID'
+        consent:
+          title: ПДн подписан
+          description: Признак подписания ПДн
+          type: boolean
+        orgStructureType:
+          $ref: '#/components/schemas/StructureType'
+    Attribute:
+      title: Атрибут
+      description: Описание атрибута сотрудника
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        name:
+          title: Наименование
+          description: Наименование атрибута
+          type: string
+          maxLength: 128
+          minLength: 1
+        status:
+          $ref: '#/components/schemas/ActiveStatus'
+    StructureType:
+      type: string
+      format: enum
+      title: Тип оргштатки
+      description: Допустипые типы оргштатной структуры
+      enum:
+        - INTERNAL
+        - EXTERNAL
+    NewOrganizationData:
+      type: object
+      title: Новые данные организации
+      description: Новые данные организации для добавления/изменения
+      required:
+        - address
+        - officialName
+        - msrn
+        - tid
+      properties:
+        officialName:
+          type: string
+          title: Название
+          description: Официальное наименование
+          minLength: 1
+        address:
+          type: string
+          title: Адрес
+          description: Официальный адрес организации
+          minLength: 1
+        contacts:
+          type: array
+          title: Контакты
+          description: Список контактов
+          items:
+            $ref: '#/components/schemas/Contact'
+        msrn:
+          type: string
+          title: ОГРН
+          description: ОГРН органициции
+        organizationCode:
+          type: integer
+          title: Код
+          description: Код организации
+        tid:
+          type: string
+          title: ИНН
+          description: Индивидуальный номер налогоплательщика организации
+          minimum: 10
+          maximum: 12
+        easupId:
+          type: string
+          title: Идентификатор ЕАСУП
+          description: Идентификатор организации в единой автоматизированной системе управления пользователями банка
+    OrganizationData:
+      type: object
+      title: Данные организации
+      description: Данные организации для добавления/изменения
+      required:
+        - id
+        - address
+        - officialName
+        - status
+        - digitId
+        - msrn
+        - tid
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        digitId:
+          type: integer
+          title: Номер организации
+          description: Номер организации для идентификации организации пользователем и для составления других человеко-читаемых идентификаторов
+        status:
+          $ref: '#/components/schemas/ActiveStatus'
+        officialName:
+          type: string
+          title: Название
+          description: Официальное наименование
+          minLength: 1
+        address:
+          type: string
+          title: Адрес
+          description: Официальный адрес организации
+          minLength: 1
+        contacts:
+          type: array
+          title: Контакты
+          description: Список контактов
+          items:
+            $ref: '#/components/schemas/Contact'
+        msrn:
+          type: string
+          title: ОГРН
+          description: ОГРН органициции
+        organizationCode:
+          type: integer
+          title: Код
+          description: Код организации
+        tid:
+          type: string
+          title: ИНН
+          description: Индивидуальный номер налогоплательщика организации
+          minimum: 10
+          maximum: 12
+        easupId:
+          type: string
+          title: Идентификатор ЕАСУП
+          description: Идентификатор организации в единой автоматизированной системе управления пользователями банка
+        organizationGroup:
+          $ref: '#/components/schemas/OrganizationGroup'
+    OrganizationGroup:
+      title: Группа организаций
+      description: Группа организаций
+      type: object
+      required:
+        - id
+        - name
+        - internal
+      properties:
+        id:
+          $ref: '#/components/schemas/UUID'
+        name:
+          title: Наименование
+          description: Наименование группы организаций
+          type: string
+          maxLength: 255
+        internal:
+          title: Внутренний
+          description: Признак внутренней группы
+          type: boolean
+    ActiveStatus:
+      title: Статус активности
+      description: Статус активности сущностей
+      type: string
+      format: enum
+      default: ACTIVE
+      enum:
+        - ACTIVE
+        - INACTIVE
+    Contact:
+      type: object
+      title: Контакт
+      description: Описание контактных данных
+      required:
+        - type
+        - value
+      properties:
+        type:
+          $ref: '#/components/schemas/ContactType'
+        value:
+          type: string
+          title: Значение
+          description: Значение контакта
+    ContactType:
+      type: string
+      title: Тип контакта
+      description: |-
+        Допустимые варианты контактных данных
+
+        |Значение|Описание               |
+        |--------|-----------------------|
+        |PHONE   |Номер телефона         |
+        |EMAIL   |Адрес электронной почты|
+        |SITE    |Адрес веб-сайта        |
+      format: enum
+      enum:
+        - PHONE
+        - EMAIL
+        - SITE
+    UUID:
+      title: Идентификатор
+      type: string
+      format: uuid
+    Unauthorized:
+      description: Пользователь не авторизован или токен истек/отозван
+    Forbidden:
+      description: Пользователь авторизован, но у него нет прав доступа к ресурсу
+    NotFound:
+      description: По указанному URL не найден ресурс
+      type: object
+      properties:
+        message:
+          title: Сообщение об ошибке
+          description: Общее сообщение об ошибке
+          type: string
+        path:
+          title: Путь запроса
+          type: string
+        entity:
+          description: Запрашиваемая сущность
+          properties:
+            id:
+              title: Идентификатор
+              description: Идентификатор запрашиваемой сущности
+              type: string
+            name:
+              title: Название
+              description: Название запрашиваемой сущности
+              type: string
+        timestamp:
+          title: Дата-время
+          type: string
+          format: date-time
+    Conflict:
+      description: Данные запроса конфликтуют с существующими в системе данными
+      type: object
+      properties:
+        message:
+          title: Сообщение об ошибке
+          description: Общее сообщение об ошибке
+          type: string
+        timestamp:
+          title: Дата-время
+          type: string
+          format: date-time
+        path:
+          title: Путь запроса
+          type: string
+        entity:
+          description: Запрашиваемая сущность
+          properties:
+            id:
+              title: Идентификатор
+              description: Идентификатор запрашиваемой сущности
+              type: string
+            name:
+              title: Название
+              description: Название запрашиваемой сущности
+              type: string
+        problems:
+          title: Конфликтующие сущности
+          description: Список конфликтов
+          type: array
+          items:
+            description: Описание проблемы запроса
+            type: object
+            properties:
+              field:
+                title: Поле
+                description: Наименование поля с проблемой
+                type: string
+              value:
+                title: Значение
+                description: Полученное от клиента значение
+                type: string
+  securitySchemes:
+    BearerToken:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      description: Токен доступа
+security:
+  - BearerToken: []
+
+# Powered by APIStudio

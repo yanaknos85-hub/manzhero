@@ -1,0 +1,11 @@
+**/target/
+.idea
+*.iml
+*.private.env.json
+.mvn
+/**/allure-results
+/.gigacode/
+/.gigaide/gigaide.properties
+.run
+application-local.yml
+.flattened-pom.xml

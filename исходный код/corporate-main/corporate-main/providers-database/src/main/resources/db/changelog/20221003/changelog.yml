@@ -1,0 +1,24 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20221003"
+            author: medvedev-ad
+            changes:
+                -   addUniqueConstraint:
+                        schemaName: corporate
+                        tableName: position
+                        columnNames: easup_id
+                        constraintName: corporate_position_easup_id_uk
+                -   addUniqueConstraint:
+                        schemaName: corporate
+                        tableName: department
+                        columnNames: easup_id
+                        constraintName: corporate_department_easup_id_uk
+    -   changeSet:
+            id: "20221003-1"
+            author: medvedev-ad
+            changes:
+                -   addUniqueConstraint:
+                        schemaName: corporate
+                        tableName: position
+                        columnNames: organization_id,position_name
+                        constraintName: corporate_position_organization_id_position_name_uk

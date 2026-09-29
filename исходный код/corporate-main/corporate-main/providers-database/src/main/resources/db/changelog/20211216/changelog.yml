@@ -1,0 +1,24 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20211216"
+            author: smirnova
+            changes:
+                -   sqlFile:
+                        path: changes/add_column.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sqlFile:
+                        path: rollback/drop_column.sql
+                        relativeToChangelogFile: true
+    -   changeSet:
+            id: "20211216_1"
+            author: smirnova
+            changes:
+                -   sqlFile:
+                        path: changes/drop_unique_index.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sqlFile:
+                        path: rollback/drop_unique_index.sql
+                        relativeToChangelogFile: true
+                   

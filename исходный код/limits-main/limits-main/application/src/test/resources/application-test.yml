@@ -1,0 +1,76 @@
+
+grpc:
+  server:
+    port: -1
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost
+  datasource:
+    username: postgres
+  cloud:
+    config.uri: localhost
+    stream:
+      bindings:
+        departmentsInput-in-0:
+          group: ${spring.application.name}
+          destination: service.organization.department
+          binder: integration
+        employeesInput-in-0:
+          group: ${spring.application.name}
+          destination: service.organization.employee
+          binder: integration
+        organizationsInput-in-0:
+          group: ${spring.application.name}
+          destination: service.organization
+          binder: integration
+        deadlineSettingsInput-in-0:
+          group: ${spring.application.name}
+          destination: service.organization.deadlineSettings
+          binder: integration
+        limitSpendInput-in-0:
+          group: ${spring.application.name}
+          destination: service.limits.spend
+          binder: integration
+          consumer:
+            maxAttempts: 1
+            defaultRetryable: false
+  liquibase:
+    test-rollback-on-update: false
+    liquibase-schema: public
+    change-log: classpath:/db/changelog-master.yml
+    enabled: false
+logging:
+  level:
+    #        root: DEBUG
+    org.hibernate.sql: "${LOG_HIBERNATE_SQL:DEBUG}"
+    org.hibernate.type: "${LOG_HIBERNATE_TYPE:INFO}"
+    org.hibernate.engine.internal.StatefulPersistenceContext: ERROR
+    org.apache.kafka.clients.consumer.internals.ConsumerCoordinator: ERROR
+    org.springframework.kafka.core.KafkaTemplate: ${KAFKA_TEMPLATE_LOG_LEVEL:INFO}
+    ru.sberbank.ditsib: "${LOG_LEVEL:DEBUG}"
+    org.apache.poi.xssf.streaming.SXSSFCreationHelper: INFO
+    ru.sberbank.ditsib.excel.writer.DataWriter: INFO
+    org.springframework.transaction: "${LOG_HIBERNATE_SQL:INFO}"
+    org.springframework.orm.jpa: "${LOG_HIBERNATE_SQL:INFO}"
+    ru.sberbank.ditsib.transport.work_order.feign: INFO
+  ##  Используется для записи файла в fluent-bit.
+  ##  На текущий момент в OpenShift файл будет доступен по пути /log/{название_сервиса}/server.log
+  pattern:
+    file:
+      "{
+                \"service\": \"${spring.application.name}\",
+                \"date\": \"%d{yyyy-MM-dd}\",
+                \"time\": \"%d{HH:mm:ss.SSS}\",
+                \"level\": \"%level\",
+                \"traceId\": \"%X{traceId:-}\",
+                \"spanId\": \"%X{spanId:-}\",
+                \"parentSpanId\": \"%X{parentSpanId:-}\",
+                \"message\": \"%replace(%replace(%msg){'\"', '\\\\\"'}){'[\n\t]', ' '}\",
+                \"stack\": [\"%replace(%replace(%replace(%ex){'\"', '\\''}){'\n\t', '\",\"'}){'\n', ''}\"]
+            }%nopex%n"
+  file:
+    path: "${LOG_PATH:/var/log/services}"
+    name: "${logging.file.path}/${spring.application.name}/server.log"

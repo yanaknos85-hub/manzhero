@@ -1,0 +1,29 @@
+works:
+  files:
+    -   url: /limits
+        fileType:
+          - xlsx
+          - xls
+          - ods
+        collections:
+          -   name: Лимиты
+              type: ru.sberbank.ditsib.transport.limits.dto.file.LimitDataFileDto
+              mappings:
+                -   from: Тип объекта
+                    to: limitObjectType
+                -   from: Тип лимита
+                    to: limitType
+                -   from: Код подразделения/ТН сотрудника
+                    to: departmentCode
+                -   from: Наименование подразделения/Имя сотрудника
+                    to: limitObjectName
+                -   from: Год
+                    to: year
+                -   from: Тип транспорта
+                    to: transportType
+                -   from: Сумма
+                    to: sum
+                -   from: Баланс
+                    to: balance
+                -   from: Статус
+                    to: status

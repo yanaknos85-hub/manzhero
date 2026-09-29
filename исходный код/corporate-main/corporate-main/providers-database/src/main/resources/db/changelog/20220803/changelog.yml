@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20220803"
+      author: blandin-ad
+      changes:
+        - sqlFile:
+            path: changes/add_is_handmade_field.sql
+            relativeToChangelogFile: true
+        - sqlFile:
+            path: changes/add_comment_to_field.sql
+            relativeToChangelogFile: true
+      rollback:
+        - sqlFile:
+            path: rollback/drop_column.sql
+            relativeToChangelogFile: true

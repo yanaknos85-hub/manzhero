@@ -1,0 +1,322 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20231215-1059"
+      author: medvedev-ad
+      context: "TRANSPORT-19227"
+      changes:
+        - tagDatabase:
+            tag: "D-02.044.000"
+        - createIndex:
+            schemaName: limits
+            tableName: department
+            columns:
+              - column:
+                  name: code
+            indexName: limits_department_code_idx
+        - createIndex:
+            schemaName: limits
+            tableName: limit
+            columns:
+              - column:
+                  name: parent_id
+            indexName: limits_limit_parent_idx
+  - changeSet:
+      id: "20231215-1113"
+      author: medvedev-ad
+      context: "TRANSPORT-19227"
+      changes:
+        - tagDatabase:
+            tag: "D-02.044.000"
+        - addNotNullConstraint:
+            schemaName: limits
+            tableName: limit_spending
+            columnName: limit_sharing_per_period_id
+            constraintName: limits_limit_spending_limit_sharing_per_period_nn
+  - changeSet:
+      id: "20231215-1131"
+      author: medvedev-ad
+      context: "TRANSPORT-19227"
+      dbms: postgresql
+      changes:
+        - tagDatabase:
+            tag: "D-02.044.000"
+        - sql:
+            sql: drop materialized view limits.limit_stats_spending
+        - sql:
+            sql: drop materialized view limits.limit_stats
+        - dropColumn:
+            schemaName: limits
+            tableName: limit_sharing
+            columnName: organization_id
+        - dropColumn:
+            schemaName: limits
+            tableName: limit_sharing_per_period
+            columnName: organization_id
+        - dropColumn:
+            schemaName: limits
+            tableName: limit_sharing_percents
+            columnName: organization_id
+        - sql:
+            sql: >-
+              create materialized view limits.limit_stats as
+              SELECT lspp.id AS period_sharing_id,
+                  l.organization_id as organization_id,
+                  lspp.period,
+                  l.year,
+                  ls.id AS sharing_id,
+                  ls.transport_type,
+                  lspp.sum
+                 FROM limits.limit_sharing_per_period lspp
+                   JOIN limits.limit_sharing ls ON ls.id = lspp.limit_sharing_id
+                   JOIN limits."limit" l ON l.id = ls.limit_id
+                WHERE l.limit_status::text = 'SHARED'::text AND lspp.sum > 0;
+        - sql:
+            sql: >-
+              create materialized view limits.limit_stats_spending as
+              SELECT limit_stats.sharing_id,
+                  limit_stats.period_sharing_id,
+                  limit_stats.organization_id,
+                  limit_stats.year,
+                  limit_stats.transport_type,
+                  limit_stats.period,
+                  limit_spending.sum_spent,
+                  limit_spending.request_id
+                 FROM limits.limit_stats
+                   JOIN limits.limit_spending ON limit_stats.period_sharing_id = limit_spending.limit_sharing_per_period_id
+                WHERE limit_spending.limit_spending_status::text = 'SPENT'::text AND limit_spending.sum_spent > 0
+                ORDER BY limit_stats.sharing_id, limit_stats.period_sharing_id;
+        - createIndex:
+            schemaName: limits
+            tableName: limit
+            column:
+              name: organization_id
+            indexName: limits_limit_organization_idx
+        - createIndex:
+            schemaName: limits
+            tableName: limit_stats
+            column:
+              name: period_sharing_id
+            indexName: limits_limit_stats_period_sharing_id_idx
+            unique: true
+        - createIndex:
+            schemaName: limits
+            tableName: limit_stats
+            columns:
+              - column:
+                  name: organization_id
+              - column:
+                  name: transport_type
+              - column:
+                  name: year
+            indexName: limits_limit_stats_organization_id_period_transport_type_year_idx
+        - createIndex:
+            schemaName: limits
+            tableName: limit_stats_spending
+            column:
+              name: request_id
+            indexName: limits_limit_stats_spending_request_id_idx
+            unique: true
+        - createIndex:
+            schemaName: limits
+            tableName: limit_stats_spending
+            columns:
+              - column:
+                  name: organization_id
+              - column:
+                  name: period
+              - column:
+                  name: transport_type
+              - column:
+                  name: year
+            indexName: limits_limit_stats_spending_organization_id_period_transport_type_year_idx
+      rollback:
+        - tagDatabase:
+            tag: "D-02.044.000"
+        - sql:
+            sql: drop materialized view limits.limit_stats_spending
+        - sql:
+            sql: drop materialized view limits.limit_stats
+        - addColumn:
+            schemaName: limits
+            tableName: limit_sharing
+            columns:
+              - column:
+                  name: organization_id
+                  type: uuid
+                  remarks: Идентификатор организации
+        - addColumn:
+            schemaName: limits
+            tableName: limit_sharing_per_period
+            columns:
+              - column:
+                  name: organization_id
+                  type: uuid
+                  remarks: Идентификатор организации
+        - addColumn:
+            schemaName: limits
+            tableName: limit_sharing_percents
+            columns:
+              - column:
+                  name: organization_id
+                  type: uuid
+                  remarks: Идентификатор организации
+        - sql:
+            sql: >-
+              create materialized view limits.limit_stats as
+              SELECT lspp.id AS period_sharing_id,
+                  lspp.organization_id as organization_id,
+                  lspp.period,
+                  l.year,
+                  ls.id AS sharing_id,
+                  ls.transport_type,
+                  lspp.sum
+                 FROM limits.limit_sharing_per_period lspp
+                   JOIN limits.limit_sharing ls ON ls.id = lspp.limit_sharing_id
+                   JOIN limits."limit" l ON l.id = ls.limit_id
+                WHERE l.limit_status::text = 'SHARED'::text AND lspp.sum > 0;
+        - sql:
+            sql: >-
+              create materialized view limits.limit_stats_spending as
+              SELECT limit_stats.sharing_id,
+                  limit_stats.period_sharing_id,
+                  limit_stats.organization_id,
+                  limit_stats.year,
+                  limit_stats.transport_type,
+                  limit_stats.period,
+                  limit_spending.sum_spent,
+                  limit_spending.request_id
+                 FROM limits.limit_stats
+                   JOIN limits.limit_spending ON limit_stats.period_sharing_id = limit_spending.limit_sharing_per_period_id
+                WHERE limit_spending.limit_spending_status::text = 'SPENT'::text AND limit_spending.sum_spent > 0
+                ORDER BY limit_stats.sharing_id, limit_stats.period_sharing_id;
+        - dropIndex:
+            schemaName: limits
+            tableName: limit
+            column:
+              name: organization_id
+            indexName: limits_limit_organization_idx
+        - createIndex:
+            schemaName: limits
+            tableName: limit_stats
+            column:
+              name: period_sharing_id
+            indexName: limits_limit_stats_period_sharing_id_idx
+            unique: true
+        - createIndex:
+            schemaName: limits
+            tableName: limit_stats
+            columns:
+              - column:
+                  name: organization_id
+              - column:
+                  name: transport_type
+              - column:
+                  name: year
+            indexName: limits_limit_stats_organization_id_period_transport_type_year_idx
+        - createIndex:
+            schemaName: limits
+            tableName: limit_stats_spending
+            column:
+              name: request_id
+            indexName: limits_limit_stats_spending_request_id_idx
+            unique: true
+        - createIndex:
+            schemaName: limits
+            tableName: limit_stats_spending
+            columns:
+              - column:
+                  name: organization_id
+              - column:
+                  name: period
+              - column:
+                  name: transport_type
+              - column:
+                  name: year
+            indexName: limits_limit_stats_spending_organization_id_period_transport_type_year_idx
+        - createIndex:
+            schemaName: limits
+            tableName: limit_sharing_per_period
+            column:
+              name: organization_id
+            indexName: limit_sharing_per_period_organization_id_idx
+  - changeSet:
+      id: "20231215-1131"
+      author: medvedev-ad
+      context: "TRANSPORT-19227"
+      dbms: h2
+      changes:
+        - tagDatabase:
+            tag: "D-02.044.000"
+        - sql:
+            sql: drop view limits.limit_stats_spending
+        - sql:
+            sql: drop view limits.limit_stats
+        - dropColumn:
+            schemaName: limits
+            tableName: limit_sharing
+            columnName: organization_id
+        - dropColumn:
+            schemaName: limits
+            tableName: limit_sharing_per_period
+            columnName: organization_id
+        - dropColumn:
+            schemaName: limits
+            tableName: limit_sharing_percents
+            columnName: organization_id
+        - sql:
+            sql: create view limits.limit_stats as SELECT lspp.id AS period_sharing_id, l.organization_id as organization_id, lspp.period, l."year", ls.id AS sharing_id, ls.transport_type, lspp.sum FROM limits.limit_sharing_per_period lspp JOIN limits.limit_sharing ls ON ls.id = lspp.limit_sharing_id JOIN limits."limit" l ON l.id = ls.limit_id WHERE l.limit_status::text = 'SHARED'::text AND lspp.sum > 0;
+        - sql:
+            sql: create view limits.limit_stats_spending as SELECT limit_stats.sharing_id, limit_stats.period_sharing_id, limit_stats.organization_id, limit_stats."year", limit_stats.transport_type, limit_stats.period, limit_spending.sum_spent, limit_spending.request_id FROM limits.limit_stats  JOIN limits.limit_spending ON limit_stats.period_sharing_id = limit_spending.limit_sharing_per_period_id WHERE limit_spending.limit_spending_status::text = 'SPENT'::text AND limit_spending.sum_spent > 0 ORDER BY limit_stats.sharing_id, limit_stats.period_sharing_id;
+        - createIndex:
+            schemaName: limits
+            tableName: limit
+            column:
+              name: organization_id
+            indexName: limits_limit_organization_idx
+      rollback:
+        - tagDatabase:
+            tag: "D-02.044.000"
+        - sql:
+            sql: drop view limits.limit_stats_spending
+        - sql:
+            sql: drop view limits.limit_stats
+        - addColumn:
+            schemaName: limits
+            tableName: limit_sharing
+            columns:
+              - column:
+                  name: organization_id
+                  type: uuid
+                  remarks: Идентификатор организации
+        - addColumn:
+            schemaName: limits
+            tableName: limit_sharing_per_period
+            columns:
+              - column:
+                  name: organization_id
+                  type: uuid
+                  remarks: Идентификатор организации
+        - addColumn:
+            schemaName: limits
+            tableName: limit_sharing_percents
+            columns:
+              - column:
+                  name: organization_id
+                  type: uuid
+                  remarks: Идентификатор организации
+        - sql:
+            sql: create view limits.limit_stats as SELECT lspp.id AS period_sharing_id, lspp.organization_id as organization_id, lspp.period, l."year", ls.id AS sharing_id, ls.transport_type, lspp.sum FROM limits.limit_sharing_per_period lspp JOIN limits.limit_sharing ls ON ls.id = lspp.limit_sharing_id JOIN limits."limit" l ON l.id = ls.limit_id WHERE l.limit_status::text = 'SHARED'::text AND lspp.sum > 0;
+        - sql:
+            sql: create view limits.limit_stats_spending as SELECT limit_stats.sharing_id, limit_stats.period_sharing_id, limit_stats.organization_id, limit_stats."year", limit_stats.transport_type, limit_stats.period, limit_spending.sum_spent, limit_spending.request_id FROM limits.limit_stats JOIN limits.limit_spending ON limit_stats.period_sharing_id = limit_spending.limit_sharing_per_period_id WHERE limit_spending.limit_spending_status::text = 'SPENT'::text AND limit_spending.sum_spent > 0 ORDER BY limit_stats.sharing_id, limit_stats.period_sharing_id;
+        - dropIndex:
+            schemaName: limits
+            tableName: limit
+            column:
+              name: organization_id
+            indexName: limits_limit_organization_idx
+        - createIndex:
+            schemaName: limits
+            tableName: limit_sharing_per_period
+            column:
+              name: organization_id
+            indexName: limit_sharing_per_period_organization_id_idx

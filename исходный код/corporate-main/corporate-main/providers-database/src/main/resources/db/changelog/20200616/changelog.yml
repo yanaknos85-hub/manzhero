@@ -1,0 +1,13 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20200616
+            author: apa
+            changes:
+                -   sqlFile:
+                        path: add_delegates.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+            rollback:
+                -   sqlFile:
+                        path: rollback_add_delegates.sql
+                        relativeToChangelogFile: true

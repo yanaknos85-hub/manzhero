@@ -1,0 +1,12 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20211128_6"
+            author: smirnova
+            changes:
+                -   sqlFile:
+                        path: changes/modify_cargo_type.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sqlFile:
+                        path: rollback/rollback_cargo_type.sql
+                        relativeToChangelogFile: true

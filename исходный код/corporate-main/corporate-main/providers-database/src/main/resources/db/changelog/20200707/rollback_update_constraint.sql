@@ -1,0 +1,1 @@
+alter table corporate.delegate add constraint uk_delegate_supevisor_date unique (user_id, supervisor_id, start_date);

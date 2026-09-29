@@ -1,0 +1,92 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250205-1054"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.002"
+        - createTable:
+            schemaName: corporate
+            tableName: sync_tasks
+            remarks: Задачи синхронизации
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор задачи синхронизации
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: corporate_sync_tasks_pk
+              - column:
+                  name: organization_id
+                  type: varchar(20)
+                  remarks: Организация
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_tasks_organization_nn
+              - column:
+                  name: positions
+                  type: integer
+                  remarks: Количество должностей
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_tasks_positions_nn
+                    check: positions >= 0
+              - column:
+                  name: departments
+                  type: integer
+                  remarks: Количество подразделений
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_tasks_departments_nn
+                    check: departments >= 0
+              - column:
+                  name: employees
+                  type: integer
+                  remarks: Количество сотрудников
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_tasks_employees_nn
+                    check: employees >= 0
+              - column:
+                  name: positions_processed
+                  type: integer
+                  remarks: Количество должностей обработано
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_tasks_positions_processed_nn
+                    check: positions_processed >= 0
+              - column:
+                  name: departments_processed
+                  type: integer
+                  remarks: Количество подразделений обработано
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_tasks_departments_processed_nn
+                    check: departments_processed >= 0
+              - column:
+                  name: employees_processed
+                  type: integer
+                  remarks: Количество сотрудников обработано
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_tasks_employees_processed_nn
+                    check: employees_processed >= 0
+              - column:
+                  name: in_progress
+                  type: boolean
+                  remarks: Выполняется ли задача
+                  defaultOnNull: true
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_tasks_in_progress_nn
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate
+            baseTableName: sync_tasks
+            baseColumnNames: organization_id
+            referencedTableSchemaName: corporate
+            referencedTableName: easup_organization
+            referencedColumnNames: easup_id
+            constraintName: corporate_sync_tasks_organization_fk

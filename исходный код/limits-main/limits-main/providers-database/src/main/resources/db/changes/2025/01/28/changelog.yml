@@ -1,0 +1,579 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250128-0858"
+      author: medvedev-ad
+      context: "TRANSPORT-25492"
+      changes:
+        - tagDatabase:
+            tag: "D-04.002.000"
+        - sql:
+            sql: create type limits.status as enum('SHARED', 'PLANNING', 'CLOSED');
+        - sql:
+            sql: create type limits.type as enum('EMPLOYEE', 'DEPARTMENT');
+        - sql:
+            sql: create type limits.sharing_type as enum('MONTHLY', 'QUARTER', 'PERCENTS');
+        - sql:
+            sql: create type limits.service_type as enum('PASSENGER', 'CARGO', 'REPAIR');
+        - sql:
+            sql: create type limits.spending_status as enum('SPENT', 'RESERVED', 'CANCELED');
+      rollback:
+        - sql:
+            sql: drop type limits.status;
+        - sql:
+            sql: drop type limits.type;
+        - sql:
+            sql: drop type limits.sharing_type;
+        - sql:
+            sql: drop type limits.service_type;
+        - sql:
+            sql: drop type limits.spending_status;
+  - changeSet:
+      id: "20250128-0900"
+      author: medvedev-ad
+      context: "TRANSPORT-25492"
+      dbms: postgresql
+      changes:
+        - tagDatabase:
+            tag: "D-04.002.000"
+        - sql:
+            dbms: postgresql
+            sql: drop materialized view limits.limit_stats_spending
+        - sql:
+            dbms: postgresql
+            sql: drop materialized view limits.limit_stats
+        - sql:
+            sql: DROP INDEX limits.limits_limit_year_limit_service_type_department_status_uk;
+      rollback:
+        - sql:
+            dbms: postgresql
+            sql: >-
+              create materialized view limits.limit_stats as
+              SELECT lspp.id AS period_sharing_id,
+                  l.organization_id as organization_id,
+                  lspp.period,
+                  l.year,
+                  ls.id AS sharing_id,
+                  ls.transport_type,
+                  lspp.sum
+                 FROM limits.limit_sharing_per_period lspp
+                   JOIN limits.limit_sharing ls ON ls.id = lspp.limit_sharing_id
+                   JOIN limits."limit" l ON l.id = ls.limit_id
+                WHERE l.limit_status::text = 'SHARED'::text AND lspp.sum > 0;
+        - sql:
+            dbms: postgresql
+            sql: >-
+              create materialized view limits.limit_stats_spending as
+              SELECT limit_stats.sharing_id,
+                  limit_stats.period_sharing_id,
+                  limit_stats.organization_id,
+                  limit_stats.year,
+                  limit_stats.transport_type,
+                  limit_stats.period,
+                  limit_spending.sum_spent,
+                  limit_spending.request_id
+                 FROM limits.limit_stats
+                   JOIN limits.limit_spending ON limit_stats.period_sharing_id = limit_spending.limit_sharing_per_period_id
+                WHERE limit_spending.limit_spending_status::text = 'SPENT'::text AND limit_spending.sum_spent > 0
+                ORDER BY limit_stats.sharing_id, limit_stats.period_sharing_id;
+        - sql:
+            sql: CREATE UNIQUE INDEX limits_limit_year_limit_service_type_department_status_uk ON limits."limit" (limit_status, year, department_id, limit_service_type) WHERE (((limit_status)::text <> 'CLOSED'::text) AND (year >= 2024));
+  - changeSet:
+      id: "20250128-0901"
+      author: medvedev-ad
+      context: "TRANSPORT-25492"
+      changes:
+        - tagDatabase:
+            tag: "D-04.002.000"
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit
+            columnName: limit_status
+            newDataType: limits.status
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit
+            columnName: limit_type
+            newDataType: limits.type
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit
+            columnName: limit_sharing_type
+            newDataType: limits.sharing_type
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit
+            columnName: limit_service_type
+            newDataType: limits.service_type
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_spending
+            columnName: limit_spending_status
+            newDataType: limits.spending_status
+      rollback:
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit
+            columnName: limit_status
+            newDataType: varchar(100)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit
+            columnName: limit_type
+            newDataType: varchar(100)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit
+            columnName: limit_sharing_type
+            newDataType: varchar(100)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit
+            columnName: limit_service_type
+            newDataType: varchar(100)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_spending
+            columnName: limit_spending_status
+            newDataType: varchar(100)
+  - changeSet:
+      id: "20250128-1028"
+      author: medvedev-ad
+      context: "TRANSPORT-25492"
+      changes:
+        - tagDatabase:
+            tag: "D-04.002.000"
+        - sql:
+            sql: create type limits.approval_status as enum('AWAITING_APPROVAL', 'APPROVED', 'DECLINED');
+        - sql:
+            sql: create type limits.operation_type as enum('DEPOSIT', 'SPEND');
+        - sql:
+            sql: create type limits.operation_status as enum('DONE', 'RESERVED', 'CANCELED');
+        - sql:
+            sql: create type limits.prefix as enum('LD', 'LU', 'OL');
+        - sql:
+            sql: create type limits.history_type as enum('OPEN', 'CLOSE', 'DELETE', 'TRANSFER_TO_LIMIT', 'TRANSFER_FROM_LIMIT', 'TRANSFER_INSIDE_LIMIT_BETWEEN_TRANSPORT_TYPES', 'TRANSFER_INSIDE_LIMIT_BETWEEN_PERIODS', 'TRANSFER_FROM_ECONOMY', 'TRANSFER_TO_ECONOMY', 'RESERVE', 'CANCEL_RESERVE');
+      rollback:
+        - sql:
+            sql: drop type limits.approval_status;
+        - sql:
+            sql: drop type limits.operation_type;
+        - sql:
+            sql: drop type limits.operation_status;
+        - sql:
+            sql: drop type limits.prefix;
+        - sql:
+            sql: drop type limits.history_type;
+  - changeSet:
+      id: "20250128-1051"
+      author: medvedev-ad
+      context: "TRANSPORT-25492"
+      changes:
+        - tagDatabase:
+            tag: "D-04.002.000"
+        - dropForeignKeyConstraint:
+            baseTableName: method_roles
+            baseTableSchemaName: limits
+            constraintName: method_roles_method_id_fkey
+        - dropTable:
+            schemaName: limits
+            tableName: transport_type
+        - dropTable:
+            schemaName: limits
+            tableName: methods
+        - dropTable:
+            schemaName: limits
+            tableName: method_roles
+      rollback:
+        - createTable:
+            schemaName: limits
+            tableName: transport_type
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: transport_type_pkey
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limits_transport_type_name_nn
+                    unique: true
+                    uniqueConstraintName: transport_type_name_key
+        - createTable:
+            schemaName: limits
+            tableName: methods
+            remarks: Информация о методах
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: ID метода
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: methods_pkey
+              - column:
+                  name: name
+                  type: varchar
+                  remarks: Наименование метода
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limits_methods_name_nn
+                    unique: true
+                    uniqueConstraintName: methods_name_key
+              - column:
+                  name: description
+                  type: varchar
+                  remarks: Описание метода
+        - createTable:
+            schemaName: limits
+            tableName: method_roles
+            remarks: Связи методов и ролей
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: ID связи
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: method_roles_pkey
+              - column:
+                  name: method_id
+                  type: uuid
+                  remarks: ID метода
+              - column:
+                  name: role_code
+                  type: varchar
+                  remarks: Наименование роли
+        - addUniqueConstraint:
+            schemaName: limits
+            tableName: method_roles
+            columnNames: method_id, role_code
+            constraintName: method_roles_role_method_uk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: limits
+            baseTableName: method_roles
+            baseColumnNames: method_id
+            referencedTableSchemaName: limits
+            referencedTableName: methods
+            referencedColumnNames: id
+            constraintName: method_roles_method_id_fkey
+  - changeSet:
+      id: "20250128-1052"
+      author: medvedev-ad
+      context: "TRANSPORT-25492"
+      changes:
+        - tagDatabase:
+            tag: "D-04.002.000"
+        - sql:
+            sql: create type limits.period as enum('JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER', 'Q1', 'Q2', 'Q3', 'Q4');
+        - sql:
+            sql: create type limits.request_status as enum('INIT', 'DONE_FULLY', 'DONE_PARTLY', 'CANCELLED');
+        - sql:
+            sql: create type limits.settings as enum('EMP_LIMIT_REMAINS_TARGET', 'DEP_LIMIT_REMAINS_TARGET', 'EMP_LIMIT_GREEN_FROM', 'EMP_LIMIT_GREEN_UNTIL', 'EMP_LIMIT_YELLOW_FROM', 'EMP_LIMIT_YELLOW_UNTIL', 'EMP_LIMIT_RED_FROM', 'EMP_LIMIT_RED_UNTIL', 'DEP_LIMIT_GREEN_FROM', 'DEP_LIMIT_GREEN_UNTIL', 'DEP_LIMIT_YELLOW_FROM', 'DEP_LIMIT_YELLOW_UNTIL', 'DEP_LIMIT_RED_FROM', 'DEP_LIMIT_RED_UNTIL')
+        - sql:
+            sql: create type limits.transfer_history_type as enum('GENERAL', 'TO_ECONOMY', 'FROM_ECONOMY')
+      rollback:
+        - sql:
+            sql: drop type limits.period;
+        - sql:
+            sql: drop type limits.request_status;
+        - sql:
+            sql: drop type limits.settings;
+        - sql:
+            sql: drop type limits.transfer_history_type;
+  - changeSet:
+      id: "20250128-1053"
+      author: medvedev-ad
+      context: "TRANSPORT-25492"
+      changes:
+        - tagDatabase:
+            tag: "D-04.002.000"
+        - sql:
+            sql: create type limits.ask_target as enum('PARENT', 'SIBLINGS')
+        - sql:
+            sql: create type limits.transport_type as enum('TAXI', 'PERSONAL', 'PUBLIC', 'CARSHARING', 'GROUP_TRANSFER', 'BICYCLE', 'WALK', 'SCOOTER', 'DEDICATED', 'COURIER', 'DOMESTIC_COURIER', 'INTERREGIONAL', 'INDIVIDUAL', 'OFFICIAL', 'PRIVATE', 'SPECIAL')
+      rollback:
+        - sql:
+            sql: drop type limits.ask_target;
+        - sql:
+            sql: drop type limits.transport_type;
+  - changeSet:
+      id: "20250128-1133"
+      author: medvedev-ad
+      context: "TRANSPORT-25492"
+      changes:
+        - tagDatabase:
+            tag: "D-04.002.000"
+        - sql:
+            dbms: postgresql
+            sql: drop materialized view if exists limits.limit_stats_spending
+        - sql:
+            dbms: postgresql
+            sql: drop materialized view if exists limits.limit_stats
+        - sql:
+            dbms: postgresql
+            sql: DROP INDEX if exists limits.limits_limit_year_limit_service_type_department_status_uk;
+        - modifyDataType:
+            schemaName: limits
+            tableName: approver
+            columnName: approval_state
+            newDataType: limits.approval_status
+        - modifyDataType:
+            schemaName: limits
+            tableName: bonus_request
+            columnName: operation
+            newDataType: limits.operation_type
+        - modifyDataType:
+            schemaName: limits
+            tableName: bonus_request
+            columnName: status
+            newDataType: limits.operation_status
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_history
+            columnName: history_type
+            newDataType: limits.history_type
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_history
+            columnName: transport_type
+            newDataType: limits.transport_type
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_history
+            columnName: counterpart_transport_type
+            newDataType: limits.transport_type
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_history
+            columnName: limit_service_type
+            newDataType: limits.service_type
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_history
+            columnName: period
+            newDataType: limits.period
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_request
+            columnName: period
+            newDataType: limits.period
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_request
+            columnName: transport_type
+            newDataType: limits.transport_type
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_sharing
+            columnName: transport_type
+            newDataType: limits.transport_type
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_sharing_per_period
+            columnName: period
+            newDataType: limits.period
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_transfer_history
+            columnName: target_period
+            newDataType: limits.period
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_transfer_history
+            columnName: source_transport_type
+            newDataType: limits.transport_type
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_transfer_history
+            columnName: target_transport_type
+            newDataType: limits.transport_type
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_transfer_history
+            columnName: source_period
+            newDataType: limits.period
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_transfer_history
+            columnName: history_type
+            newDataType: limits.transfer_history_type
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_request
+            columnName: request_status
+            newDataType: limits.request_status
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_request
+            columnName: limit_type
+            newDataType: limits.type
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_request
+            columnName: ask_targets
+            newDataType: limits.ask_target
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_settings
+            columnName: name
+            newDataType: limits.settings
+        - sql:
+            sql: drop type limits.prefix;
+        - sql:
+            dbms: postgresql
+            sql: CREATE UNIQUE INDEX limits_limit_year_limit_service_type_department_status_uk ON limits."limit" (limit_status, year, department_id, limit_service_type) WHERE (((limit_status)::limits.status <> 'CLOSED'::limits.status) AND (year >= 2024));
+        - sql:
+            dbms: postgresql
+            sql: >-
+              create materialized view limits.limit_stats as
+              SELECT lspp.id AS period_sharing_id,
+                  l.organization_id as organization_id,
+                  lspp.period,
+                  l.year,
+                  ls.id AS sharing_id,
+                  ls.transport_type,
+                  lspp.sum
+                 FROM limits.limit_sharing_per_period lspp
+                   JOIN limits.limit_sharing ls ON ls.id = lspp.limit_sharing_id
+                   JOIN limits."limit" l ON l.id = ls.limit_id
+                WHERE l.limit_status::limits.status = 'SHARED'::limits.status AND lspp.sum > 0;
+        - sql:
+            dbms: postgresql
+            sql: >-
+              create materialized view limits.limit_stats_spending as
+              SELECT limit_stats.sharing_id,
+                  limit_stats.period_sharing_id,
+                  limit_stats.organization_id,
+                  limit_stats.year,
+                  limit_stats.transport_type,
+                  limit_stats.period,
+                  limit_spending.sum_spent,
+                  limit_spending.request_id
+                 FROM limits.limit_stats
+                   JOIN limits.limit_spending ON limit_stats.period_sharing_id = limit_spending.limit_sharing_per_period_id
+                WHERE limit_spending.limit_spending_status::limits.spending_status = 'SPENT'::limits.spending_status AND limit_spending.sum_spent > 0
+                ORDER BY limit_stats.sharing_id, limit_stats.period_sharing_id;
+      rollback:
+        - sql:
+            dbms: postgresql
+            sql: drop materialized view limits.limit_stats_spending
+        - sql:
+            dbms: postgresql
+            sql: drop materialized view limits.limit_stats
+        - sql:
+            dbms: postgresql
+            sql: DROP INDEX limits.limits_limit_year_limit_service_type_department_status_uk;
+        - sql:
+            sql: create type limits.prefix as enum('LD', 'LU', 'OL');
+        - modifyDataType:
+            schemaName: limits
+            tableName: approver
+            columnName: approval_state
+            newDataType: varchar(255)
+        - modifyDataType:
+            schemaName: limits
+            tableName: bonus_request
+            columnName: operation
+            newDataType: text
+        - modifyDataType:
+            schemaName: limits
+            tableName: bonus_request
+            columnName: status
+            newDataType: text
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_history
+            columnName: history_type
+            newDataType: text
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_history
+            columnName: transport_type
+            newDataType: text
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_history
+            columnName: counterpart_transport_type
+            newDataType: text
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_history
+            columnName: limit_service_type
+            newDataType: text
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_history
+            columnName: period
+            newDataType: varchar(9)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_request
+            columnName: period
+            newDataType: varchar(9)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_request
+            columnName: transport_type
+            newDataType: varchar(255)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_sharing
+            columnName: transport_type
+            newDataType: varchar(100)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_sharing_per_period
+            columnName: period
+            newDataType: varchar(9)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_transfer_history
+            columnName: target_period
+            newDataType: varchar(9)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_transfer_history
+            columnName: source_transport_type
+            newDataType: varchar(255)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_transfer_history
+            columnName: target_transport_type
+            newDataType: varchar(255)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_transfer_history
+            columnName: source_period
+            newDataType: varchar(9)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_transfer_history
+            columnName: history_type
+            newDataType: varchar(100)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_request
+            columnName: request_status
+            newDataType: varchar(255)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_request
+            columnName: limit_type
+            newDataType: varchar(255)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_request
+            columnName: ask_targets
+            newDataType: varchar(32)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_settings
+            columnName: name
+            newDataType: varchar(255)
+        - sql:
+            dbms: postgresql
+            sql: CREATE UNIQUE INDEX limits_limit_year_limit_service_type_department_status_uk ON limits."limit" (limit_status, year, department_id, limit_service_type) WHERE (((limit_status)::limits.status <> 'CLOSED'::limits.status) AND (year >= 2024));

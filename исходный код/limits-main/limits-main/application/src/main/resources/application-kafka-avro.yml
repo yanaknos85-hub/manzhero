@@ -1,0 +1,33 @@
+spring.cloud:
+  stream:
+    binders:
+      kafka-avro:
+        type: kafka
+        environment:
+          spring.cloud.stream.kafka.binder:
+            consumerProperties:
+              value.deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+              key.deserializer: org.apache.kafka.common.serialization.JsonDeserializer
+            producerProperties:
+              value.serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+              key.serializer: org.apache.kafka.common.serialization.JsonSerializer
+    bindings:
+      departmentsInputAvro-in-0:
+        group: ${spring.application.name}-avro
+        destination: service-organization-department
+        binder: kafka-avro
+        consumer:
+          useNativeDecoding: true
+      employeesInputAvro-in-0:
+        group: ${spring.application.name}-avro
+        destination: service-organization-employee
+        binder: kafka-avro
+        consumer:
+          useNativeDecoding: true
+      organizationsInputAvro-in-0:
+        group: ${spring.application.name}-avro
+        destination: service-organization
+        binder: kafka-avro
+        content-type: application/*+avro
+        consumer:
+          useNativeDecoding: true

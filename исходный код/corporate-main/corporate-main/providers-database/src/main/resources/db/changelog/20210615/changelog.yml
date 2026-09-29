@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20210615-remastered
+      context: TRANSPORT-28755
+      author: medvedev-ad
+      preConditions:
+        - not:
+            - tableExists:
+                schemaName: corporate
+                tableName: messages_roles
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - createTable:
+            schemaName: corporate
+            tableName: messages_roles
+            remarks: Таблица сообщений с ролями
+            columns:
+              - column:
+                  name: code
+                  type: varchar(255)
+                  remarks: Код роли
+                  constraints:
+                      primaryKey: true
+                      primaryKeyName: message_roles_pkey
+              - column:
+                  name: name
+                  type: text
+                  remarks: Название роли
+  - changeSet:
+      id: 20210615-remastered-1
+      context: TRANSPORT-28755
+      author: medvedev-ad
+      preConditions:
+        - tableExists:
+            schemaName: corporate
+            tableName: messages_roles
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - modifyDataType:
+            schemaName: corporate
+            tableName: messages_roles
+            newDataType: varchar(255)
+            columnName: code
+      rollback:
+        - modifyDataType:
+            schemaName: corporate
+            tableName: messages_roles
+            columnName: code
+            newDataType: text

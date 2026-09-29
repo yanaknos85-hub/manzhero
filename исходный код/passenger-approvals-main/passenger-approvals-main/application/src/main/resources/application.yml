@@ -1,0 +1,71 @@
+server:
+    port: 8013
+
+spring:
+    application:
+        name: approvals
+    config:
+        import:
+            - optional:configserver:${SPRING_CLOUD_CONFIG_URI}
+            - kafka.yml
+    datasource:
+        url: jdbc:postgresql://localhost:5432/transport
+        username: postgres
+        password: root
+        driver-class-name: org.postgresql.Driver
+        type: com.zaxxer.hikari.HikariDataSource
+        hikari:
+            maximum-pool-size:  3
+            connection-test-query:  SELECT 1
+            schema: approvals
+    jpa:
+        properties:
+            hibernate:
+                search:
+                    automatic_indexing:
+                        strategy: session
+                    schema_management:
+                        strategy: drop-and-create
+                jdbc:
+                    batch_size: 25
+                    lob:
+                        non_contextual_creation: true
+                dialect: org.hibernate.dialect.PostgreSQLDialect
+        hibernate:
+            ddl-auto: validate
+        show-sql: ${SHOW_SQL:false}
+        open-in-view: false
+    liquibase:
+        enabled: true
+        change-log: classpath:db/changelog-master.yml
+        url: ${spring.datasource.url}
+        user: ${spring.datasource.username}
+        password: ${spring.datasource.password}
+        database-change-log-table: changelog_${spring.application.name}
+        database-change-log-lock-table: changelog_${spring.application.name}_lock
+        liquibase-schema: ${MIGRATIONS_SCHEMA:public}
+    jackson:
+        default-property-inclusion: non_null
+        serialization:
+            WRITE_DATES_AS_TIMESTAMPS: false
+            WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS: false
+    profiles:
+        active: logging
+    cloud:
+        vault:
+            enabled: false
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health
+feign.url.limits: ${FEIGN_URL_LIMITS:http://localhost:8009}
+security:
+    roles:
+        enabled: true
+grpc:
+    client:
+        GLOBAL:
+            negotiation-type: plaintext
+        grpc-corporate:
+            address: discovery:///${grpc.corporate:grpc-corporate}

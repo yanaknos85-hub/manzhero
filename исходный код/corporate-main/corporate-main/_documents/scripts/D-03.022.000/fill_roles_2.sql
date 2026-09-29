@@ -1,0 +1,1 @@
+call migrations.fill_roles('corporate', 'GET /self/', 'ROLE_MEDIC', true);

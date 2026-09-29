@@ -1,0 +1,159 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20201022-remastered
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - foreignKeyConstraintExists:
+            baseSchemaName: corporate
+            baseTableName: delegate
+            foreignKeyName: transport_type_type_id_fk
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - dropForeignKeyConstraint:
+            baseTableSchemaName: corporate
+            baseTableName: delegate
+            constraintName: transport_type_type_id_fk
+            cascade: true
+  - changeSet:
+      id: 20201022-remastered-1
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - foreignKeyConstraintExists:
+            baseSchemaName: corporate
+            baseTableName: delegate
+            foreignKeyName: transport_type_type_fk
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - dropForeignKeyConstraint:
+            baseTableSchemaName: corporate
+            baseTableName: delegate
+            constraintName: transport_type_type_fk
+            cascade: true
+  - changeSet:
+      id: 20201022-remastered-2
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      dbms: h2
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - dropUniqueConstraint:
+            schemaName: corporate
+            tableName: employee_transport_type
+            uniqueColumns: employee_id,transport_type_id
+            constraintName: CONSTRAINT_C
+  - changeSet:
+      id: 20201022-remastered-3
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - primaryKeyExists:
+            schemaName: corporate
+            tableName: employee_transport_type
+            constraintName: employee_transport_type_pkey
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - dropPrimaryKey:
+            schemaName: corporate
+            tableName: employee_transport_type
+            constraintName: employee_transport_type_pkey
+            cascade: true
+  - changeSet:
+      id: 20201022-remastered-4
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - not:
+            columnExists:
+              schemaName: corporate
+              tableName: delegate
+              columnName: transport_type
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - addColumn:
+            schemaName: corporate
+            tableName: delegate
+            columns:
+              - column:
+                  name: transport_type
+                  type: varchar(50)
+        - dropIndex:
+            schemaName: corporate
+            tableName: delegate
+            indexName: ux_delegate
+            cascade: true
+        - dropView:
+            schemaName: corporate
+            viewName: delegate_a_v
+        - addColumn:
+            schemaName: corporate
+            tableName: employee_transport_type
+            columns:
+              - column:
+                  name: transport_type
+                  type: varchar(50)
+        - sqlFile:
+            dbms: postgresql
+            path: remove_transport_types.sql
+            relativeToChangelogFile: true
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: employee_transport_type
+            columnName: transport_type
+            constraintName: corporate_employee_transport_type_transport_type_nn
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: employee_transport_type
+            columnName: employee_id
+            constraintName: corporate_employee_transport_type_employee_id_nn
+        - addPrimaryKey:
+            schemaName: corporate
+            tableName: employee_transport_type
+            constraintName: employee_transport_type_pkey
+            columnNames: employee_id,transport_type
+        - dropColumn:
+            schemaName: corporate
+            tableName: delegate
+            cascade: true
+            columnName: transport_type_id
+        - dropColumn:
+            schemaName: corporate
+            tableName: employee_transport_type
+            cascade: true
+            columnName: transport_type_id
+        - createView:
+            schemaName: corporate
+            viewName: delegate_a_v
+            replaceIfExists: true
+            selectQuery: select * from corporate.delegate where status = 'ACTIVE'
+            remarks: Делегаты, активные записи
+  - changeSet:
+      id: 20201022-remastered-5
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - not:
+            indexExists:
+              schemaName: corporate
+              tableName: delegate
+              indexName: ux_delegate
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - sql:
+            dbms: postgresql
+            sql: CREATE UNIQUE INDEX ux_delegate ON corporate.delegate (user_id, supervisor_id, transport_type, start_date) WHERE status = 'ACTIVE';
+        - sql:
+            dbms: h2
+            sql: CREATE UNIQUE INDEX ux_delegate ON corporate.delegate (user_id, supervisor_id, transport_type, start_date);

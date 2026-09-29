@@ -1,0 +1,34 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20220623"
+            author: malkov-aa
+            changes:
+                -   sqlFile:
+                        path: changes/alter_table_bonus_request.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sqlFile:
+                        path: rollback/alter_table_bonus_request.sql
+                        relativeToChangelogFile: true
+    -   changeSet:
+            id: "20220623-1"
+            author: shabrov-ie
+            changes:
+                -   sqlFile:
+                        path: changes/alter_table_bonus_request_transport_type.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sqlFile:
+                        path: rollback/alter_table_bonus_request_transport_type.sql
+                        relativeToChangelogFile: true
+    -   changeSet:
+            id: "20220623-2"
+            author: shabrov-ie
+            changes:
+                -   sqlFile:
+                        path: changes/drop_index_bonus.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sqlFile:
+                        path: rollback/drop_index_bonus.sql
+                        relativeToChangelogFile: true

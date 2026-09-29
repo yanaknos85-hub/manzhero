@@ -1,0 +1,1 @@
+drop SCHEMA corporate_approvals cascade;

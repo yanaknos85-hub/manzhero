@@ -1,0 +1,363 @@
+openapi: 3.0.3
+info:
+  title: Лимиты
+  description: Сервис по управлению лимитами
+  version: "1"
+servers:
+  - url: '{scheme}://{host}:{port}/api/limits'
+    description: Адрес для вызова
+    variables:
+      scheme:
+        default: http
+        enum:
+          - http
+          - https
+      host:
+        default: localhost
+      port:
+        default: "80"
+        enum:
+          - "80"
+          - "8080"
+          - "443"
+          - "8443"
+components:
+  schemas:
+    TaskStartedDto:
+      title: Информация о задаче
+      description: Информация о запущенной задаче
+      properties:
+        result_url:
+          title: Результирующий URL
+          description: URL для скачивания файла
+          type: string
+          format: url
+        started:
+          title: Запущено
+          description: Флаг о том, что запущена выгрузка
+          type: boolean
+    ImportResultDTO:
+      title: Результат импорта
+      description: Результат импорта
+      properties:
+        resultStatus:
+          title: Статус
+          description: Статус результата
+          type: string
+          format: enum
+          enum:
+            - SUCCESS
+            - FAIL
+        inserted:
+          title: Вставки
+          description: Количество вставок
+          type: number
+          format: int64
+        updated:
+          title: Вставки
+          description: Количество вставок
+          type: number
+          format: int64
+        deleted:
+          title: Удаление
+          description: Количество удалений
+          type: number
+          format: int64
+        unchanged:
+          title: Не изменено
+          description: Количество строк, значение которых не поменялось
+          type: number
+          format: int64
+        errors:
+          title: Ошибок
+          description: Количество строк с ошибками
+          type: number
+          format: int64
+        total:
+          title: Всего
+          description: Общее количество строк
+          type: number
+          format: int64
+        errorDescrs:
+          title: Ошибки
+          description: Описания ошибок
+          type: array
+          items:
+            type: string
+    UUID:
+      title: Идентификатор
+      type: string
+      format: uuid
+      pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+    LocalDateTime:
+      title: Дата-время
+      type: string
+      format: datetime
+      pattern: yyyy-MM-ddTHH:mm:ss.sss
+    Period:
+      title: Период
+      oneOf:
+        - $ref: '#/components/schemas/Quarter'
+        - $ref: '#/components/schemas/Month'
+    HumanReadableId:
+      title: Человекочитаемый идентификатор лимита
+      type: string
+      format: string
+      pattern: "\\w{2}-\\d{4}-\\d{8}"
+  securitySchemes:
+    BearerToken:
+      description: Токен доступа
+      scheme: bearer
+      type: http
+      bearerFormat: JWT
+paths:
+  /limits/import/{organizationId}:
+    post:
+      summary: Загрузка лимитов
+      description: Загрузка лимитов
+      security:
+        - BearerToken: []
+      tags:
+        - Администратор корп. клиента
+        - Инженер корп. клиента
+        - Администратор мастер-данных
+      parameters:
+        - in: path
+          name: organizationId
+          description: Идентификатор организации
+          required: true
+          schema:
+            title: Организация
+            anyOf:
+              - $ref: '#/components/schemas/UUID'
+        - in: query
+          name: updateRule
+          description: Правила обновления
+          required: false
+          schema:
+            title: Правило обновления
+            type: string
+            format: enum
+            enum:
+              - ADD
+              - UPDATE
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: string
+              format: byte
+              title: Массив байт файла
+      responses:
+        200:
+          description: Ок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportResultDTO'
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Отсутствует какой-либо ресурс
+  /limits/import/simulation/{organizationId}:
+    post:
+      summary: Загрузка лимитов (симуляция)
+      description: Загрузка лимитов
+      security:
+        - BearerToken: []
+      tags:
+        - Администратор корп. клиента
+        - Инженер корп. клиента
+        - Администратор мастер-данных
+      parameters:
+        - in: path
+          name: organizationId
+          description: Идентификатор организации
+          required: true
+          schema:
+            title: Организация
+            anyOf:
+              - $ref: '#/components/schemas/UUID'
+        - in: query
+          name: updateRule
+          description: Правила обновления
+          required: false
+          schema:
+            title: Правило обновления
+            type: string
+            format: enum
+            enum:
+              - ADD
+              - UPDATE
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: string
+              format: byte
+              title: Массив байт файла
+      responses:
+        200:
+          description: Ок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportResultDTO'
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Отсутствует какой-либо ресурс
+  /limits/export/{organizationId}/{year}:
+    get:
+      summary: Экспорт лимитов
+      description: Экспорт лимитов
+      security:
+        - BearerToken: []
+      tags:
+        - Администратор корп. клиента
+        - Инженер корп. клиента
+        - Администратор мастер-данных
+      parameters:
+        - in: path
+          name: organizationId
+          description: Идентификатор организации
+          required: true
+          schema:
+            title: Организация
+            anyOf:
+              - $ref: '#/components/schemas/UUID'
+        - in: path
+          name: year
+          description: Год
+          required: true
+          schema:
+            title: Год
+            type: number
+      responses:
+        200:
+          description: Ок
+          content:
+            text/csv:
+              schema:
+                type: string
+                title: Файл
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Отсутствует какой-либо ресурс
+  /limits/exportstats/{organizationId}/{year}/{month}/{day}:
+    get:
+      summary: Экспорт статистики по лимитам в XLS
+      description: Экспорт статистики по лимитам в XLS
+      security:
+        - BearerToken: []
+      tags:
+        - Администратор корп. клиента
+        - Инженер корп. клиента
+        - Администратор мастер-данных
+      parameters:
+        - in: path
+          name: organizationId
+          description: Идентификатор организации
+          required: true
+          schema:
+            title: Организация
+            anyOf:
+              - $ref: '#/components/schemas/UUID'
+        - in: path
+          name: year
+          description: Год
+          required: true
+          schema:
+            title: Год
+            type: number
+      responses:
+        200:
+          description: Ок
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                title: Файл
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Отсутствует какой-либо ресурс
+  /limits/exportAsync/org/{organizationId}/year/{year}:
+    get:
+      summary: Экспорт лимитов асинхронный
+      description: Экспорт лимитов
+      security:
+        - BearerToken: []
+      tags:
+        - Администратор корп. клиента
+        - Инженер корп. клиента
+        - Администратор мастер-данных
+      parameters:
+        - in: path
+          name: organizationId
+          description: Идентификатор организации
+          required: true
+          schema:
+            title: Организация
+            anyOf:
+              - $ref: '#/components/schemas/UUID'
+        - in: path
+          name: year
+          description: Год
+          required: true
+          schema:
+            title: Год
+            type: number
+      responses:
+        200:
+          description: Ок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskStartedDto'
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Отсутствует какой-либо ресурс
+  /limits/getAsync/{fileName}:
+    get:
+      summary: Экспорт статистики по лимитам в XLS
+      description: Экспорт статистики по лимитам в XLS
+      security:
+        - BearerToken: []
+      tags:
+        - Администратор корп. клиента
+        - Инженер корп. клиента
+        - Администратор мастер-данных
+      parameters:
+        - in: path
+          name: fileName
+          description: Имя файла
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Ок
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                title: Файл
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Отсутствует какой-либо ресурс

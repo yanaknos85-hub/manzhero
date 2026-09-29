@@ -1,0 +1,1 @@
+drop index corporate.cargo_type_name_uindex;

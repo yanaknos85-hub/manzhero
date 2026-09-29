@@ -1,0 +1,1 @@
+ALTER TYPE tariff_fleet.contractor_type ADD VALUE 'OFFLINE';

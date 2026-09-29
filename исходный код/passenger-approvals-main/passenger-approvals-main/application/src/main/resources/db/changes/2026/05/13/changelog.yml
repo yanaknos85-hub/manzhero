@@ -1,0 +1,83 @@
+databaseChangeLog:
+    -   changeSet:
+            id: 20260519-1
+            author: klyunkov-va
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: change/alter_ddl.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+            rollback:
+                -   sqlFile:
+                        path: rollback/alter_ddl.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+          id: 20260519-2
+          author: klyunkov-va
+          dbms: postgresql
+          context: "!test"
+          changes:
+            -   sqlFile:
+                  path: change/alter_dml_shared_ride_approvals.sql
+                  relativeToChangelogFile: true
+                  splitStatements: false
+    -   changeSet:
+          id: 20260519-3
+          author: klyunkov-va
+          dbms: postgresql
+          context: "!test"
+          changes:
+            -   sqlFile:
+                  path: change/alter_dml_update_trip_request_approvals.sql
+                  relativeToChangelogFile: true
+                  splitStatements: false
+    -   changeSet:
+          id: 20260519-4
+          author: klyunkov-va
+          dbms: postgresql
+          context: "!test"
+          changes:
+            -   sqlFile:
+                  path: change/alter_dml_trip_request_approvals.sql
+                  relativeToChangelogFile: true
+                  splitStatements: false
+    -   changeSet:
+          id: 20260519-5
+          author: klyunkov-va
+          dbms: postgresql
+          context: "!test"
+          changes:
+            -   sqlFile:
+                  path: change/alter_dml_final_trip_approvals.sql
+                  relativeToChangelogFile: true
+                  splitStatements: false
+    -   changeSet:
+          id: 20260519-6
+          author: klyunkov-va
+          dbms: postgresql
+          changes:
+            -   sqlFile:
+                  path: change/alter_ddl_constraints.sql
+                  relativeToChangelogFile: true
+                  splitStatements: false
+          rollback:
+            -   sqlFile:
+                  path: rollback/alter_ddl_constraints.sql
+                  relativeToChangelogFile: true
+                  splitStatements: false
+    -   changeSet:
+          id: 20260519-7
+          author: klyunkov-va
+          dbms: postgresql
+          changes:
+            -   sqlFile:
+                  path: change/alter_ddl_indexes.sql
+                  relativeToChangelogFile: true
+                  splitStatements: false
+          rollback:
+            -   sqlFile:
+                  path: rollback/alter_ddl_indexes.sql
+                  relativeToChangelogFile: true
+                  splitStatements: false

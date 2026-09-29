@@ -1,0 +1,15 @@
+spring:
+    security:
+        oauth2:
+            resourceserver:
+                jwt:
+                    jwk-set-uri: ${JWK_URI}
+                    jws-algorithms: RS512
+    cloud:
+        openfeign:
+            client:
+                config:
+                    order-client:
+                        url: http://as-sbertransport-taxi.sbermock.sigma.sbrf.ru
+                        connectTimeout: 10000
+                        readTimeout: 60000

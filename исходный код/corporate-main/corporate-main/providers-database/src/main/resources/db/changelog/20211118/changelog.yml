@@ -1,0 +1,60 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20211118"
+            author: aas
+            changes:
+                -   addColumn:
+                        schemaName: corporate
+                        tableName: employee
+                        columns:
+                            -   column:
+                                    name: org_structure_type
+                                    type: varchar(20)
+                            -   column:
+                                    name: easup_forming_date
+                                    type: timestamp
+                            -   column:
+                                    name: easup_update_time
+                                    type: timestamp
+                -   addColumn:
+                        schemaName: corporate
+                        tableName: department
+                        columns:
+                            -   column:
+                                    name: org_structure_type
+                                    type: varchar(20)
+                            -   column:
+                                    name: easup_id
+                                    type: varchar(20)
+                            -   column:
+                                    name: easup_forming_date
+                                    type: timestamp
+                            -   column:
+                                    name: easup_update_time
+                                    type: timestamp
+                -   addColumn:
+                        schemaName: corporate
+                        tableName: position
+                        columns:
+                            -   column:
+                                    name: org_structure_type
+                                    type: varchar(20)
+                            -   column:
+                                    name: easup_id
+                                    type: varchar(20)
+                            -   column:
+                                    name: easup_forming_date
+                                    type: timestamp
+                            -   column:
+                                    name: easup_update_time
+                                    type: timestamp
+                -   addColumn:
+                        schemaName: corporate
+                        tableName: organization
+                        columns:
+                            -   column:
+                                    name: easup_id
+                                    type: varchar(20)
+
+    
+                                    

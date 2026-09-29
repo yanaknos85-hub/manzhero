@@ -1,0 +1,113 @@
+spring.cloud:
+    stream:
+        bindings:
+            organizationsInput-in-0:
+                group: ${spring.application.name}
+                destination: service.organization
+                binder: integration
+            organizationsInputDlq-in-0:
+                group: ${spring.application.name}
+                destination: error.${spring.cloud.stream.bindings.organizationsInput-in-0.destination}.${spring.application.name}
+                consumer:
+                    maxAttempts: 10
+                    backOffInitialInterval: 30000
+                    backOffMultiplier: 2
+                    backOffMaxInterval: 3000000
+                binder: integration
+            positionsInput-in-0:
+                group: ${spring.application.name}
+                destination: service.organization.position
+                binder: integration
+            positionsInputDlq-in-0:
+                group: ${spring.application.name}
+                destination: error.${spring.cloud.stream.bindings.positionsInput-in-0.destination}.${spring.application.name}
+                consumer:
+                    maxAttempts: 10
+                    backOffInitialInterval: 30000
+                    backOffMultiplier: 2
+                    backOffMaxInterval: 3000000
+                binder: integration
+            departmentsInput-in-0:
+                group: ${spring.application.name}
+                destination: service.organization.department
+                binder: integration
+            departmentsInputDlq-in-0:
+                group: ${spring.application.name}
+                destination: error.${spring.cloud.stream.bindings.departmentsInput-in-0.destination}.${spring.application.name}
+                consumer:
+                    maxAttempts: 10
+                    backOffInitialInterval: 30000
+                    backOffMultiplier: 2
+                    backOffMaxInterval: 3000000
+                binder: integration
+            employeesInput-in-0:
+                group: ${spring.application.name}
+                destination: service.organization.employee
+                binder: integration
+            employeesInputDlq-in-0:
+                group: ${spring.application.name}
+                destination: error.${spring.cloud.stream.bindings.employeesInput-in-0.destination}.${spring.application.name}
+                consumer:
+                    maxAttempts: 10
+                    backOffInitialInterval: 30000
+                    backOffMultiplier: 2
+                    backOffMaxInterval: 3000000
+                binder: integration
+            requestInput-in-0:
+                group: ${spring.application.name}
+                destination: service.request
+                binder: integration
+            limitInput-in-0:
+                group: ${spring.application.name}
+                destination: service.limits
+                binder: integration
+            limitReservationResponse-in-0:
+                group: ${spring.application.name}
+                destination: service.limits.action.result
+                binder: integration
+            delegateInput-in-0:
+                group: ${spring.application.name}
+                destination: service.organization.employee.delegate
+                binder: integration
+            updateTripRequestInput-in-0:
+                group: ${spring.application.name}
+                destination: service.trip.request.update
+                binder: integration
+            viewDocumentInput-in-0:
+                group: ${spring.application.name}
+                destination: service.trip.request.view.document
+                binder: integration
+            requestDocumentInput-in-0:
+                group: ${spring.application.name}
+                destination: service.trip.request.document
+                binder: integration
+            tripPurposeInput-in-0:
+                group: ${spring.application.name}
+                destination: service.organization.trip.purpose
+                binder: integration
+            tariffInput-in-0:
+                group: ${spring.application.name}
+                destination: service.tariff
+                binder: integration
+            taxiTariffInput-in-0:
+                group: ${spring.application.name}
+                destination: service.tariff.taxi
+                binder: integration
+            tripRequestApproveOutput-out-0:
+                destination: service.trip.request.approve
+                binder: integration
+            finalTripApproveOutput-out-0:
+                destination: service.final.trip.approve
+                binder: integration
+            updateTripApproveOutput-out-0:
+                destination: service.update.trip.approve
+                binder: integration
+            departmentTripRequestApproversOutput-out-0:
+                destination: service.department.trip.approvers
+                binder: integration
+            sharedRideApproveOutput-out-0:
+                destination: service.shared.ride.approve
+                binder: integration
+            approvalsSettingsOutput-out-0:
+                destination: service.organization.approvalsSettings
+                binder: integration

@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250306-1224"
+      author: medvedev-ad
+      context: "TRANSPORT-30202"
+      changes:
+        - tagDatabase:
+            tag: "D-04.005.000"
+        - addColumn:
+            schemaName: limits
+            tableName: limit
+            columns:
+              - column:
+                  name: noticed_at
+                  type: timestamp with timezone
+                  remarks: Время, когда пользователь был уведомлен
+        - addColumn:
+            schemaName: limits
+            tableName: employee
+            columns:
+              - column:
+                  name: email
+                  type: text
+                  remarks: Адрес электронной почты

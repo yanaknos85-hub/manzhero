@@ -1,0 +1,12 @@
+databaseChangeLog:
+    -   changeSet:
+            id: integrations/20210616
+            author: palekseev
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: create_schema.sql
+                        relativeToChangelogFile: true
+                -   sqlFile:
+                        path: add_roles.sql
+                        relativeToChangelogFile: true

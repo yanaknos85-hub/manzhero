@@ -1,0 +1,35 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20210905"
+            author: medvedev-ad
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/add_compacted_migration.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: "20210905-1"
+            author: medvedev-ad
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/init_table.sql
+                        relativeToChangelogFile: true
+    -   changeSet:
+            id: "20210905-2"
+            author: medvedev-ad
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/correct_types.sql
+                        relativeToChangelogFile: true
+    -   changeSet:
+            id: "20210905-3"
+            author: medvedev-ad
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/drop_old_migrations.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false

@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20200610-remastered
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - not:
+            - columnExists:
+                schemaName: corporate
+                tableName: address
+                columnName: latitude
+          onFail: MARK_RAN
+      changes:
+        - addColumn:
+            schemaName: corporate
+            tableName: address
+            columns:
+              - column:
+                  name: latitude
+                  type: double precision
+                  remarks: Широта
+              - column:
+                  name: longitude
+                  type: double precision
+                  remarks: Долгота

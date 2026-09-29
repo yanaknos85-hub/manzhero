@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20210127-remastered-1
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - not:
+            - columnExists:
+                schemaName: corporate
+                tableName: position
+                columnName: humanreadableid
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - addColumn:
+            schemaName: corporate
+            tableName: position
+            columns:
+              - column:
+                  name: humanreadableid
+                  type: varchar(100)
+        - sqlFile:
+            dbms: postgresql
+            path: change/fill_human_readable.sql
+            relativeToChangelogFile: true
+            splitStatements: false
+            endDelimiter: ;
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: position
+            columnName: humanreadableid
+            constraintName: corporate_position_humanreadableid_nn

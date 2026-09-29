@@ -1,0 +1,12 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20230726-1141"
+            author: medvedev-ad
+            changes:
+                -   tagDatabase:
+                        tag: release/D-02.024.001
+                -   addUniqueConstraint:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columnNames: limit_sharing_id,period
+                        constraintName: limits_limit_sharing_per_period_limit_sharing_id_period_uk

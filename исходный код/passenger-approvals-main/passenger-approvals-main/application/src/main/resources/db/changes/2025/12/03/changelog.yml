@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20251203-1630"
+      author: farkhutdinov.ed
+      changes:
+        - renameColumn:
+            tableName: fraud
+            oldColumnName: request_approval_id
+            newColumnName: approval_id
+            columnDataType: uuid
+            schemaName: approvals
+        - createIndex:
+            tableName: fraud
+            schemaName: approvals
+            columns:
+              - column:
+                  name: approval_id
+            indexName: idx_fraud_approval_id

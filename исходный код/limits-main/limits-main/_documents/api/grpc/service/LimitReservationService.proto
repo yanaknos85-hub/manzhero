@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package ru.sber.transport.limits.grpc.service;
+
+import "google/protobuf/timestamp.proto";
+import "dto/LimitReservationModel.proto";
+
+service LimitReservationService {
+
+    rpc limitReservation(ru.sber.transport.limits.grpc.dto.LimitReservationRequestList)
+            returns(ru.sber.transport.limits.grpc.dto.LimitReservationResponseList) {}
+}

@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250721-1044"
+      author: chizhov-nd
+      context: "TRANSPORT-34040"
+      changes:
+        - tagDatabase:
+            tag: "D-04.014.000"
+        - createIndex:
+            schemaName: corporate
+            tableName: trip_purpose_statistic
+            column:
+              - name: trip_purpose
+            indexName: corporate_trip_purpose_statistic_trip_purpose_idx
+      rollback:
+        - dropIndex:
+            schemaName: corporate
+            tableName: trip_purpose_statistic
+            indexName: corporate_trip_purpose_statistic_trip_purpose_idx

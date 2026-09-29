@@ -1,0 +1,9 @@
+CODEOWNERS.toplevel.auto_unapprove_on_change enable
+CODEOWNERS.toplevel.create_pull_request_comment disable
+
+@@@Developers medvedev.a.dmit@sberbank.ru ADmBlandin@sberbank.ru AAlLadeyshchikov@sberbank.ru
+** @@Developers
+
+CODEOWNERS medvedev.a.dmit@sberbank.ru ADmBlandin@sberbank.ru
+
+AllGroupsCheck(1)

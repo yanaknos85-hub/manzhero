@@ -1,0 +1,194 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20241209-0910"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - modifyDataType:
+            schemaName: corporate
+            tableName: employee
+            columnName: easup_update_time
+            newDataType: timestamp with timezone
+        - modifyDataType:
+            schemaName: corporate
+            tableName: department
+            columnName: easup_update_time
+            newDataType: timestamp with timezone
+        - modifyDataType:
+            schemaName: corporate
+            tableName: position
+            columnName: easup_update_time
+            newDataType: timestamp with timezone
+      rollback:
+        - modifyDataType:
+            schemaName: corporate
+            tableName: employee
+            columnName: easup_update_time
+            newDataType: timestamp
+        - modifyDataType:
+            schemaName: corporate
+            tableName: department
+            columnName: easup_update_time
+            newDataType: timestamp
+        - modifyDataType:
+            schemaName: corporate
+            tableName: position
+            columnName: easup_update_time
+            newDataType: timestamp
+  - changeSet:
+      id: "20241209-1418"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - createTable:
+            schemaName: corporate
+            tableName: easup_organization
+            remarks: "Таблица соответствия организаций и данных ЕАСУП"
+            columns:
+              - column:
+                  name: easup_id
+                  type: varchar(20)
+                  remarks: "Идентификатор организации из ЕАСУП"
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: corporate_easup_organization_pk
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: "Внутренний идентификатор организации"
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: corporate_easup_organization_organization_id_uk
+        - createTable:
+            schemaName: corporate
+            tableName: easup_position
+            remarks: "Таблица соответствия должностей и данных ЕАСУП"
+            columns:
+              - column:
+                  name: easup_id
+                  type: varchar(20)
+                  remarks: "Идентификатор должности из ЕАСУП"
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: corporate_easup_position_pk
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: "Внутренний идентификатор должности"
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: corporate_easup_position_position_id_uk
+              - column:
+                  name: organization_id
+                  type: varchar(20)
+                  remarks: "Ссылка на организацию"
+        - createTable:
+            schemaName: corporate
+            tableName: easup_department
+            remarks: "Таблица соответствия подразделений и данных ЕАСУП"
+            columns:
+              - column:
+                  name: easup_id
+                  type: varchar(20)
+                  remarks: "Идентификатор подразделения из ЕАСУП"
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: corporate_easup_department_pk
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: "Внутренний идентификатор подразделения"
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: corporate_easup_department_department_id_uk
+              - column:
+                  name: head_number
+                  type: varchar(20)
+                  remarks: "Ссылка на руководителя подразделения"
+              - column:
+                  name: organization_id
+                  type: varchar(20)
+                  remarks: "Ссылка на организацию"
+        - createTable:
+            schemaName: corporate
+            tableName: easup_employee
+            remarks: "Таблица соответствия сотрудников и данных ЕАСУП"
+            columns:
+              - column:
+                  name: personnel_number
+                  type: varchar(20)
+                  remarks: "Идентификатор сотрудника из ЕАСУП"
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: corporate_easup_employee_pk
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: "Внутренний идентификатор сотрудника"
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: corporate_easup_employee_employee_id_uk
+              - column:
+                  name: department_id
+                  type: varchar(20)
+                  remarks: "Ссылка на подразделение"
+              - column:
+                  name: position_id
+                  type: varchar(20)
+                  remarks: "Ссылка на должность"
+              - column:
+                  name: organization_id
+                  type: varchar(20)
+                  remarks: "Ссылка на организацию"
+  - changeSet:
+      id: "20241209-1438"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      dbms: postgresql
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - sql:
+            dbms: postgresql
+            sql: insert into corporate.easup_organization (easup_id, id) (select easup_id, id from corporate.organization where easup_id is not null) on conflict do nothing
+        - sql:
+            dbms: postgresql
+            sql: insert into corporate.easup_department (easup_id, id, head_number, organization_id) (select easup_id, id, (select emp.personnel_number::varchar(20) from corporate.employee emp where emp.id = dep.head), (select org.easup_id from corporate.organization org where org.id = dep.organization_id) from corporate.department dep where easup_id is not null) on conflict do nothing
+        - sql:
+            dbms: postgresql
+            sql: insert into corporate.easup_position (easup_id, id, organization_id) (select easup_id, id, (select org.easup_id from corporate.organization org where org.id = pos.organization_id) from corporate.position pos where pos.easup_id is not null) on conflict do nothing
+        - sql:
+            dbms: postgresql
+            sql: insert into corporate.easup_employee (personnel_number, id, department_id, position_id, organization_id) (select emp.personnel_number, emp.id, (select dep.easup_id from corporate.department dep where dep.id = emp.department_id), (select pos.easup_id from corporate.position pos where pos.id = emp.position_id), org.easup_id from corporate.employee emp inner join corporate.organization org on org.id = emp.organization_id where org.easup_id is not null) on conflict do nothing
+  - changeSet:
+      id: "20241209-1555"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: easup_employee
+            columnName: organization_id
+            constraintName: corporate_easup_employee_organization_id_nn
+  - changeSet:
+      id: "20241209-1556"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - dropPrimaryKey:
+            schemaName: corporate
+            tableName: easup_employee
+            constraintName: corporate_easup_employee_pk
+        - addPrimaryKey:
+            schemaName: corporate
+            tableName: easup_employee
+            columnNames: personnel_number,organization_id
+            constraintName: corporate_easup_employee_pk

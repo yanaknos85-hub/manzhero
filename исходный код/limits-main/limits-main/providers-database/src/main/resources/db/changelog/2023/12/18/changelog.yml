@@ -1,0 +1,52 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20231218-1322"
+      author: medvedev-ad
+      context: "TRANSPORT-19227"
+      changes:
+        - tagDatabase:
+            tag: "D-02.044.000"
+        - createIndex:
+            schemaName: limits
+            tableName: limit
+            columns:
+              - column:
+                  name: department_id
+              - column:
+                  name: year
+              - column:
+                  name: department_id
+              - column:
+                  name: limit_service_type
+              - column:
+                  name: limit_type
+              - column:
+                  name: limit_status
+            indexName: limits_limit_department_yar_service_type_status_idx
+        - createIndex:
+            schemaName: limits
+            tableName: limit_sharing
+            columns:
+              - column:
+                  name: limit_id
+              - column:
+                  name: transport_type
+            indexName: limits_limit_sharing_limit_transport_type_idx
+        - createIndex:
+            schemaName: limits
+            tableName: limit_sharing
+            columns:
+              - column:
+                  name: limit_id
+            indexName: limits_limit_sharing_limit_idx
+        - createIndex:
+            schemaName: limits
+            tableName: department
+            columns:
+              - column:
+                  name: organization_id
+              - column:
+                  name: parent_id
+              - column:
+                  name: active
+            indexName: limits_department_organization_parent_active_idx

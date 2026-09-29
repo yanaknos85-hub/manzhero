@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package ru.sber.transport.grpc.test;
+import "google/protobuf/empty.proto";
+
+service FileService {
+
+    rpc Test(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+}
+
+service FileSecondService {
+    rpc Test(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+}

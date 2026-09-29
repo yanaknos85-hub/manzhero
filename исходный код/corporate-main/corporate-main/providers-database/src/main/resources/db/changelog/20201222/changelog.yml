@@ -1,0 +1,25 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20201222
+            author: medvedev-ad
+            changes:
+                -   sqlFile:
+                        path: change/change_favorite_address_type.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sqlFile:
+                        path: rollback/restore_favorite_adress_type.sql
+                        relativeToChangelogFile: true
+    -   changeSet:
+            id: corporate/20201222_add_status
+            author: chuprin
+            changes:
+                -   sqlFile:
+                        path: add_attribute_status.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+            rollback:
+                -   sqlFile:
+                        path: rollback_attribute_status.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;

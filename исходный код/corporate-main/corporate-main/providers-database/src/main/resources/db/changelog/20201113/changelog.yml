@@ -1,0 +1,22 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20201113
+            author: chuprin
+            changes:
+                -   sqlFile:
+                        path: add_trip_purpose_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+                -   sqlFile:
+                      path: add_trip_purpose_link_table.sql
+                      relativeToChangelogFile: true
+                      endDelimiter: ;
+            rollback:
+                -   sqlFile:
+                        path: rollback_trip_purpose_link_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+                -   sqlFile:
+                        path: rollback_trip_purpose_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;

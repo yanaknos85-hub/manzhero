@@ -1,0 +1,432 @@
+{
+    "namespace": "ru.sber.transport.messages.easup.avro",
+    "name": "OrganizationData",
+    "type": "record",
+    "doc": "Информация об организации из ЕАСУП",
+    "fields": [
+        {
+            "name": "id",
+            "doc": "Идентификатор",
+            "type": "string",
+            "aliases": [
+                "headerId"
+            ]
+        },
+        {
+            "name": "data",
+            "doc": "Данные",
+            "type": [
+                {
+                    "namespace": "ru.sber.transport.messages.easup.avro",
+                    "name": "DepartmentData",
+                    "type": "record",
+                    "doc": "Информация о подразделении из ЕАСУП",
+                    "fields": [
+                        {
+                            "name": "id",
+                            "doc": "Идентификатор",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Идентификатор организации",
+                            "name": "organizationId",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Время обновления записи",
+                            "name": "updateDate",
+                            "type": {
+                                "type": "long",
+                                "logicalType": "timestamp-millis"
+                            }
+                        },
+                        {
+                            "doc": "Код подразделения",
+                            "name": "code",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Наименование подразделения",
+                            "name": "name",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Название уровня",
+                            "name": "levelName",
+                            "type": [ "null", "string" ],
+                            "default": null
+                        },
+                        {
+                            "doc": "Код уровня",
+                            "name": "levelCode",
+                            "type": [ "null", "string" ],
+                            "default": null
+                        },
+                        {
+                            "doc": "Функциональный тип",
+                            "name": "fosType",
+                            "type": [ "null", "string" ],
+                            "default": null
+                        },
+                        {
+                            "doc": "Дата формирования подразделения",
+                            "name": "startDate",
+                            "type": {
+                                "type": "int",
+                                "logicalType": "date"
+                            }
+                        },
+                        {
+                            "doc": "Дата расформирования подразделения",
+                            "name": "endDate",
+                            "type": [ "null", {
+                                "type": "int",
+                                "logicalType": "date"
+                            } ],
+                            "default": null
+                        },
+                        {
+                            "doc": "Флаг активности",
+                            "name": "active",
+                            "type": "boolean"
+                        },
+                        {
+                            "doc": "Порядковый номер",
+                            "name": "number",
+                            "type": [ "null" ,"int"],
+                            "default": null
+                        },
+                        {
+                            "doc": "Количество",
+                            "name": "count",
+                            "type": [ "null" ,"int"],
+                            "default": null
+                        }
+                    ]
+                },
+                {
+                    "namespace": "ru.sber.transport.messages.easup.avro",
+                    "name": "PositionData",
+                    "type": "record",
+                    "doc": "Информация о должности из ЕАСУП",
+                    "fields": [
+                        {
+                            "name": "id",
+                            "doc": "Идентификатор",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Идентификатор организации",
+                            "name": "organizationId",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Время обновления записи",
+                            "name": "updateDate",
+                            "type": {
+                                "type": "long",
+                                "logicalType": "timestamp-millis"
+                            }
+                        },
+                        {
+                            "doc": "Код должности",
+                            "name": "code",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Наименование должности",
+                            "name": "name",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Характер работы",
+                            "name": "itinerantType",
+                            "type": [ "null", {
+                                "name": "ItinerantType",
+                                "type": "enum",
+                                "symbols": [ "NONE", "PARTIAL", "FULL" ]
+                            } ],
+                            "default": null
+                        },
+                        {
+                            "doc": "Дата внедрения должности",
+                            "name": "startDate",
+                            "type": {
+                                "type": "int",
+                                "logicalType": "date"
+                            }
+                        },
+                        {
+                            "doc": "Дата завершения ведения должности",
+                            "name": "endDate",
+                            "type": [ "null", {
+                                "type": "int",
+                                "logicalType": "date"
+                            }],
+                            "default": null
+                        },
+                        {
+                            "doc": "Флаг активности",
+                            "name": "active",
+                            "type": "boolean"
+                        },
+                        {
+                            "doc": "Признак руководителя",
+                            "name": "chief",
+                            "type": "boolean"
+                        },
+                        {
+                            "doc": "Порядковый номер",
+                            "name": "number",
+                            "type": [ "null" ,"int"],
+                            "default": null
+                        },
+                        {
+                            "doc": "Количество",
+                            "name": "count",
+                            "type": [ "null" ,"int"],
+                            "default": null
+                        }
+                    ]
+                },
+                {
+                    "namespace": "ru.sber.transport.messages.easup.avro",
+                    "name": "EmployeeData",
+                    "type": "record",
+                    "doc": "Информация о сотруднике из ЕАСУП",
+                    "fields": [
+                        {
+                            "name": "personnelNumber",
+                            "doc": "ТН",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Идентификатор организации",
+                            "name": "organizationId",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Подразделение",
+                            "name": "departmentId",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Должность",
+                            "name": "positionId",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Время обновления записи",
+                            "name": "updateDate",
+                            "type": {
+                                "type": "long",
+                                "logicalType": "timestamp-millis"
+                            }
+                        },
+                        {
+                            "doc": "Имя",
+                            "name": "firstName",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Фамилия",
+                            "name": "lastName",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Отчество",
+                            "name": "patronymic",
+                            "type": [ "null", "string" ],
+                            "default": null
+                        },
+                        {
+                            "doc": "Пол",
+                            "name": "gender",
+                            "type": {
+                                "type": "enum",
+                                "name": "Gender",
+                                "symbols": [ "MALE", "FEMALE" ]
+                            }
+                        },
+                        {
+                            "doc": "E-Mail",
+                            "name": "email",
+                            "type": [ "null", "string" ],
+                            "default": null
+                        },
+                        {
+                            "doc": "Внешний e-mail",
+                            "name": "externalEmail",
+                            "type": [ "null", "string" ],
+                            "default": null
+                        },
+                        {
+                            "doc": "Адрес",
+                            "name": "address",
+                            "type": [ "null", "string" ],
+                            "default": null
+                        },
+                        {
+                            "doc": "Комната",
+                            "name": "room",
+                            "type": [ "null", "string" ],
+                            "default": null
+                        },
+                        {
+                            "doc": "Подписание ПДн",
+                            "name": "consent",
+                            "type": "boolean"
+                        },
+                        {
+                            "doc": "МВЗ",
+                            "name": "costCenter",
+                            "type": [ "null", "string" ],
+                            "default": null
+                        },
+                        {
+                            "doc": "Характер работы",
+                            "name": "itinerantType",
+                            "type": {
+                                "name": "ItinerantType",
+                                "type": "enum",
+                                "symbols": [ "NONE", "PARTIAL", "FULL" ]
+                            }
+                        },
+                        {
+                            "doc": "Номер свидетельства о регистрации брака",
+                            "name": "marriageCertificateId",
+                            "type": [ "null", "string" ],
+                            "default": null
+                        },
+                        {
+                            "doc": "Дата найма",
+                            "name": "hireDate",
+                            "type": {
+                                "type": "int",
+                                "logicalType": "date"
+                            }
+                        },
+                        {
+                            "doc": "Дата увольнения",
+                            "name": "fireDate",
+                            "type": [ "null", {
+                                "type": "int",
+                                "logicalType": "date"
+                            } ],
+                            "default": null
+                        },
+                        {
+                            "doc": "Флаг активности",
+                            "name": "active",
+                            "type": "boolean"
+                        },
+                        {
+                            "doc": "Порядковый номер",
+                            "name": "number",
+                            "type": [ "null" ,"int"],
+                            "default": null
+                        },
+                        {
+                            "doc": "Количество",
+                            "name": "count",
+                            "type": [ "null" ,"int"],
+                            "default": null
+                        }
+                    ]
+                },
+                {
+                    "namespace": "ru.sber.transport.messages.easup.avro",
+                    "name": "DepartmentHeadData",
+                    "type": "record",
+                    "doc": "Информация о руководителях подразделении из ЕАСУП",
+                    "fields": [
+                        {
+                            "name": "id",
+                            "doc": "Идентификатор",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Идентификатор организации",
+                            "name": "organizationId",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Идентификатор сотрудника",
+                            "name": "employeeId",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Порядковый номер",
+                            "name": "number",
+                            "type": [ "null" ,"int"],
+                            "default": null
+                        },
+                        {
+                            "doc": "Количество",
+                            "name": "count",
+                            "type": [ "null" ,"int"],
+                            "default": null
+                        }
+                    ]
+                },
+                {
+                    "namespace": "ru.sber.transport.messages.easup.avro",
+                    "name": "DepartmentParentData",
+                    "type": "record",
+                    "doc": "Информация о родителях подразделении из ЕАСУП",
+                    "fields": [
+                        {
+                            "name": "id",
+                            "doc": "Идентификатор",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Идентификатор организации",
+                            "name": "organizationId",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Идентификатор родительского подразделения",
+                            "name": "parentId",
+                            "type": "string"
+                        },
+                        {
+                            "doc": "Порядковый номер",
+                            "name": "number",
+                            "type": [ "null" ,"int"],
+                            "default": null
+                        },
+                        {
+                            "doc": "Количество",
+                            "name": "count",
+                            "type": [ "null" ,"int"],
+                            "default": null
+                        }
+                    ]
+                },
+                {
+                    "namespace": "ru.sber.transport.messages.easup.avro",
+                    "name": "EndData",
+                    "type": "record",
+                    "doc": "Заключительный пакет",
+                    "fields": [
+                        {
+                            "name": "end",
+                            "doc": "Флаг завершения",
+                            "type": "boolean"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "doc": "Доступные типы транспорта",
+            "name": "available_classes",
+            "type": {
+                "type": "array",
+                "items": "string"
+            },
+            "default": []
+        }
+    ]
+}

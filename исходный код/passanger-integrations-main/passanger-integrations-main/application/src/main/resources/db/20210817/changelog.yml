@@ -1,0 +1,23 @@
+databaseChangeLog:
+    -   changeSet:
+            id: integrations/20210817
+            author: medvedev-ad
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: change/change_changelog_table.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: integrations/20210817-1
+            author: medvedev-ad
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: change/drop_old_changelog_records.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+            rollback:
+                -   sqlFile:
+                        path: rollback/drop_old_changelog_records.sql
+                        relativeToChangelogFile: true

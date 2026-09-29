@@ -1,0 +1,1 @@
+alter table corporate.cargo_type drop active;

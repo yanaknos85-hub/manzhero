@@ -1,0 +1,528 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250209-1328"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.003"
+        - sql:
+            sql: create schema corporate_sync
+        - sql:
+            sql: comment on schema corporate_sync is 'Промежуточные данные синхронизации'
+  - changeSet:
+      id: "20250209-1329"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.003"
+        - createTable:
+            schemaName: corporate_sync
+            tableName: sync_organization
+            remarks: 'Данные организаций для синхронизации'
+            columns:
+              - column:
+                  name: sync_id
+                  type: varchar(20)
+                  remarks: 'Идентификатор синхронизации'
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: corporate_sync_organization_pk
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: 'Внутренний идентификатор'
+                  constraints:
+                    unique: true
+                    uniqueName: corporate_sync_organization_id_uk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate_sync
+            baseTableName: sync_organization
+            baseColumnNames: id
+            referencedTableSchemaName: corporate
+            referencedTableName: organization
+            referencedColumnNames: id
+            constraintName: corporate_sync_organization_fk
+  - changeSet:
+      id: "20250209-1340"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.003"
+        - sql:
+            sql: insert into corporate_sync.sync_organization (sync_id, id) (select easup_id, id from corporate.easup_organization)
+  - changeSet:
+      id: "20250209-1341"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.003"
+        - dropForeignKeyConstraint:
+            baseTableSchemaName: corporate
+            baseTableName: sync_tasks
+            baseColumnNames: organization_id
+            referencedTableSchemaName: corporate
+            referencedTableName: easup_organization
+            referencedColumnNames: easup_id
+            constraintName: corporate_sync_tasks_organization_fk
+  - changeSet:
+      id: "20250209-1342"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.003"
+        - dropTable:
+            schemaName: corporate
+            tableName: easup_organization
+  - changeSet:
+      id: "20250209-1344"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.003"
+        - sql:
+            sql: create type corporate_sync.sync_state as enum ('NOT_READY', 'READY', 'SYNCHRONIZED')
+        - sql:
+            sql: create type corporate_sync.sync_itinerant as enum ('NONE', 'PARTIAL', 'FULL')
+        - sql:
+            sql: create type corporate_sync.sync_gender as enum ('MALE', 'FEMALE')
+  - changeSet:
+      id: "20250209-1345"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      dbms: postgresql
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.003"
+        - sql:
+            sql: comment on type corporate_sync.sync_state is 'Состояние синхронизации (NOT_READY - не готов, READY - готов, SYNCHRONIZED - синхронизирован)'
+        - sql:
+            sql: comment on type corporate_sync.sync_itinerant is 'Тип разъездного характера (NONE - нет, PARTIAL - частичный, FULL - полный)'
+        - sql:
+            sql: comment on type corporate_sync.sync_gender is 'Пол (MALE - мужской, FEMALE - женский)'
+  - changeSet:
+      id: "20250209-1346"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.003"
+        - createTable:
+            schemaName: corporate_sync
+            tableName: sync_position
+            remarks: Данные должности, полученные при синхронизации
+            columns:
+              - column:
+                  name: sync_id
+                  type: varchar(20)
+                  remarks: Идентификатор синхронизации
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: corporate_sync_position_pk
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор
+                  constraints:
+                    uniqueKey: true
+                    uniqueKeyName: corporate_sync_position_id_uk
+              - column:
+                  name: organization_sync_id
+                  type: varchar(20)
+                  remarks: Идентификатор синхронизации организации
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_position_organization_id_nn
+              - column:
+                  name: organization_id
+                  type: uuid
+                  remarks: Идентификатор организации
+              - column:
+                  name: update_date
+                  type: timestamp with timezone
+                  remarks: Дата обновления
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_position_update_date_nn
+              - column:
+                  name: code
+                  type: text
+                  remarks: Код
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_position_code_nn
+              - column:
+                  name: name
+                  type: text
+                  remarks: Наименование
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_position_name_nn
+              - column:
+                  name: itinerant
+                  type: corporate_sync.sync_itinerant
+                  remarks: Тип характера работы
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_position_itinerant_nn
+              - column:
+                  name: start_date
+                  type: date
+                  remarks: Время введения должности
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_position_start_date_nn
+              - column:
+                  name: end_date
+                  type: date
+                  remarks: Время выведения должности
+              - column:
+                  name: active
+                  type: boolean
+                  remarks: Флаг активности
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_position_active_nn
+              - column:
+                  name: chief
+                  type: boolean
+                  remarks: Флаг руководителя
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_position_chief_nn
+              - column:
+                  name: state
+                  type: corporate_sync.sync_state
+                  remarks: Статус синхронизации
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_position_state_nn
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate_sync
+            baseTableName: sync_position
+            baseColumnNames: id
+            referencedTableSchemaName: corporate
+            referencedTableName: position
+            referencedColumnNames: id
+            constraintName: corporate_sync_position_fk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate_sync
+            baseTableName: sync_position
+            baseColumnNames: organization_sync_id
+            referencedTableSchemaName: corporate_sync
+            referencedTableName: sync_organization
+            referencedColumnNames: sync_id
+            constraintName: corporate_sync_position_organization_fk
+        - createTable:
+            schemaName: corporate_sync
+            tableName: sync_department
+            remarks: Данные подразделения, полученные при синхронизации
+            columns:
+              - column:
+                  name: sync_id
+                  type: varchar(20)
+                  remarks: Идентификатор синхронизации
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: corporate_sync_department_pk
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор
+                  constraints:
+                    uniqueKey: true
+                    uniqueKeyName: corporate_sync_department_id_uk
+              - column:
+                  name: organization_sync_id
+                  type: varchar(20)
+                  remarks: Идентификатор синхронизации организации
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_department_organization_id_nn
+              - column:
+                  name: organization_id
+                  type: uuid
+                  remarks: Идентификатор организации
+              - column:
+                  name: parent_sync_id
+                  type: varchar(20)
+                  remarks: Идентификатор синхронизации родительского подразделения
+              - column:
+                  name: parent_id
+                  type: uuid
+                  remarks: Идентификатор родительского подразделения
+              - column:
+                  name: update_date
+                  type: timestamp with timezone
+                  remarks: Дата обновления
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_department_update_date_nn
+              - column:
+                  name: code
+                  type: text
+                  remarks: Код
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_department_code_nn
+              - column:
+                  name: name
+                  type: text
+                  remarks: Наименование
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_department_name_nn
+              - column:
+                  name: head_number
+                  type: varchar(20)
+                  remarks: Идентификатор синхронизации руководителя
+              - column:
+                  name: head_id
+                  type: uuid
+                  remarks: Идентификатор руководителя
+              - column:
+                  name: level_name
+                  type: text
+                  remarks: Название уровня
+              - column:
+                  name: level_code
+                  type: text
+                  remarks: Код уровня
+              - column:
+                  name: fos_type
+                  type: text
+                  remarks: Функциональный тип
+              - column:
+                  name: start_date
+                  type: date
+                  remarks: Время введения должности
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_position_start_date_nn
+              - column:
+                  name: end_date
+                  type: date
+                  remarks: Время выведения должности
+              - column:
+                  name: active
+                  type: boolean
+                  remarks: Флаг активности
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_department_active_nn
+              - column:
+                  name: state
+                  type: corporate_sync.sync_state
+                  remarks: Статус синхронизации
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_department_state_nn
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate_sync
+            baseTableName: sync_department
+            baseColumnNames: id
+            referencedTableSchemaName: corporate
+            referencedTableName: department
+            referencedColumnNames: id
+            constraintName: corporate_sync_department_fk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate_sync
+            baseTableName: sync_department
+            baseColumnNames: organization_sync_id
+            referencedTableSchemaName: corporate_sync
+            referencedTableName: sync_organization
+            referencedColumnNames: sync_id
+            constraintName: corporate_sync_department_organization_fk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate_sync
+            baseTableName: sync_department
+            baseColumnNames: head_id
+            referencedTableSchemaName: corporate
+            referencedTableName: employee
+            referencedColumnNames: id
+            constraintName: corporate_sync_department_head_fk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate_sync
+            baseTableName: sync_department
+            baseColumnNames: parent_id
+            referencedTableSchemaName: corporate
+            referencedTableName: department
+            referencedColumnNames: id
+            constraintName: corporate_sync_department_parent_id_fk
+        - createTable:
+            schemaName: corporate_sync
+            tableName: sync_employee
+            remarks: Данные сотрудников, полученные при синхронизации
+            columns:
+              - column:
+                  name: sync_id
+                  type: varchar(20)
+                  remarks: Идентификатор синхронизации
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: corporate_sync_employee_pk
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор
+                  constraints:
+                    uniqueKey: true
+                    uniqueKeyName: corporate_sync_employee_id_uk
+              - column:
+                  name: organization_sync_id
+                  type: varchar(20)
+                  remarks: Идентификатор синхронизации организации
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_employee_organization_id_nn
+              - column:
+                  name: organization_id
+                  type: uuid
+                  remarks: Идентификатор организации
+              - column:
+                  name: department_sync_id
+                  type: varchar(20)
+                  remarks: Идентификатор синхронизации подразделения
+              - column:
+                  name: department_id
+                  type: uuid
+                  remarks: Идентификатор подразделения
+              - column:
+                  name: position_sync_id
+                  type: varchar(20)
+                  remarks: Идентификатор синхронизации должности
+              - column:
+                  name: position_id
+                  type: uuid
+                  remarks: Идентификатор должности
+              - column:
+                  name: update_date
+                  type: timestamp with timezone
+                  remarks: Дата обновления
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_employee_update_date_nn
+              - column:
+                  name: first_name
+                  type: text
+                  remarks: Имя
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_employee_first_name_nn
+              - column:
+                  name: last_name
+                  type: text
+                  remarks: Фамилия
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_employee_lasr_name_nn
+              - column:
+                  name: patronymic
+                  type: text
+                  remarks: Отчество
+              - column:
+                  name: gender
+                  type: corporate_sync.sync_gender
+                  remarks: Пол
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_employee_gender_nn
+              - column:
+                  name: email
+                  type: text
+                  remarks: Адрес электронной почты
+              - column:
+                  name: external_email
+                  type: text
+                  remarks: Адрес внешней электронной почты
+              - column:
+                  name: address
+                  type: text
+                  remarks: Адрес
+              - column:
+                  name: room
+                  type: text
+                  remarks: Комната
+              - column:
+                  name: consent
+                  type: boolean
+                  remarks: Согласие ПДн
+              - column:
+                  name: cost_center
+                  type: text
+                  remarks: Место возникновения затрат
+              - column:
+                  name: itinerant
+                  type: corporate_sync.sync_itinerant
+                  remarks: Характер работы
+              - column:
+                  name: marriage_certificate_id
+                  type: text
+                  remarks: Идентификатор свидетельства о браке
+              - column:
+                  name: hire_date
+                  type: date
+                  remarks: Дата приема на работу
+              - column:
+                  name: fire_date
+                  type: date
+                  remarks: Дата увольнения
+              - column:
+                  name: active
+                  type: boolean
+                  remarks: Флаг активности
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_department_active_nn
+              - column:
+                  name: state
+                  type: corporate_sync.sync_state
+                  remarks: Статус синхронизации
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_sync_department_state_nn
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate_sync
+            baseTableName: sync_employee
+            baseColumnNames: id
+            referencedTableSchemaName: corporate
+            referencedTableName: employee
+            referencedColumnNames: id
+            constraintName: corporate_sync_employee_fk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate_sync
+            baseTableName: sync_employee
+            baseColumnNames: organization_sync_id
+            referencedTableSchemaName: corporate_sync
+            referencedTableName: sync_organization
+            referencedColumnNames: sync_id
+            constraintName: corporate_sync_employee_organization_sync_fk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate_sync
+            baseTableName: sync_employee
+            baseColumnNames: organization_id
+            referencedTableSchemaName: corporate
+            referencedTableName: organization
+            referencedColumnNames: id
+            constraintName: corporate_sync_employee_organization_fk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate_sync
+            baseTableName: sync_employee
+            baseColumnNames: department_id
+            referencedTableSchemaName: corporate
+            referencedTableName: department
+            referencedColumnNames: id
+            constraintName: corporate_sync_employee_department_fk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: corporate_sync
+            baseTableName: sync_employee
+            baseColumnNames: position_id
+            referencedTableSchemaName: corporate
+            referencedTableName: position
+            referencedColumnNames: id
+            constraintName: corporate_sync_employee_position_id_fk

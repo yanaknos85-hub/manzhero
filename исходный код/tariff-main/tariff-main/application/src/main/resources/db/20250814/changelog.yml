@@ -1,0 +1,22 @@
+databaseChangeLog:
+    -   changeSet:
+            id: tariff_fleet/20250814-1
+            author: tanini-v
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/alter_repair_contract_table.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+                -   sqlFile:
+                        path: changes/alter_service_station_table.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+                -   sqlFile:
+                        path: changes/create_fuel_contract_table.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+                -   sqlFile:
+                        path: changes/add_roles.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false

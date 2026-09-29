@@ -1,0 +1,12 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20220523"
+            author: sigalovaa
+            changes:
+                -   sqlFile:
+                        path: changes/change_employee_data.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sqlFile:
+                        path: rollback/change_employee_data.sql
+                        relativeToChangelogFile: true

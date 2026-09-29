@@ -1,0 +1,10 @@
+databaseChangeLog:
+    -   changeSet:
+            id: tariff_fleet/20250918-1
+            author: tanini-v
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/add_offline_to_contractor_type_enum.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false

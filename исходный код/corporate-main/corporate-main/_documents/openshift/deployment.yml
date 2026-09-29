@@ -1,0 +1,140 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  annotations:
+    sidecar.istio.io/inject: 'true'
+    traffic.sidecar.istio.io/excludeOutboundPorts: '6565'
+  name: corp-client
+  namespace: ci02351878-edevgen-sbertransport-ift
+  labels:
+    app: corp-client
+    app.kubernetes.io/name: corp-client
+    app.kubernetes.io/part-of: transport
+    date_build: 07_28_2023_112434
+    distrib: D-02.024.000-PLATFORM-280723111247201
+    repo: as-sbertransport-platform
+    template: corp-client
+    version: D-02.024.000
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: corp-client
+  template:
+    metadata:
+      namespace: ci02351878-edevgen-sbertransport-ift
+      labels:
+        app: corp-client
+        app.kubernetes.io/name: corp-client
+        app.kubernetes.io/part-of: transport
+        secman-injector: enabled
+        version: D-02.024.000
+      annotations:
+        sidecar.istio.io/inject: 'true'
+        traffic.sidecar.istio.io/excludeOutboundPorts: '6565'
+    spec:
+      serviceAccountName: springboot-servicediscovery
+      containers:
+        - resources:
+            limits:
+              cpu: '1'
+              memory: 4G
+            requests:
+              cpu: 500m
+              memory: 2G
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8007
+              scheme: HTTP
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          name: corp-client
+          livenessProbe:
+            tcpSocket:
+              port: 8007
+            initialDelaySeconds: 3
+            timeoutSeconds: 1
+            periodSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          env:
+            - name: KAFKA_BROKERS
+              valueFrom:
+                configMapKeyRef:
+                  name: kafka
+                  key: brokers
+            - name: ORGANIZATION_LOGO_ALLOWED_TYPES
+              valueFrom:
+                configMapKeyRef:
+                  name: files
+                  key: image.allowed
+            - name: MAX_POLL_INTERVAL_MS
+              value: '900000'
+            - name: spring.jpa.properties.hibernate.jdbc.batch_size
+              value: '25'
+            - name: spring.datasource.hikari.minimum-idle
+              value: '1'
+            - name: spring.datasource.hikari.idle-timeout
+              value: '1000'
+            - name: INDEX_ROOT
+              value: /tmp/index
+            - name: SPRING_PROFILES_INCLUDE
+              value: logging,secman
+          securityContext:
+            readOnlyRootFilesystem: true
+          ports:
+            - containerPort: 8007
+              protocol: TCP
+          imagePullPolicy: Always
+          startupProbe:
+            exec:
+              command:
+                - cat
+                - /proc/1/status
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          volumeMounts:
+            - name: data
+              mountPath: /mnt
+            - name: logs
+              mountPath: /log
+            - name: tmp
+              mountPath: /tmp
+            - name: secman
+              mountPath: /app/resources/application-secman.yml
+              subPath: application-secman.yml
+            - name: kubernetes
+              mountPath: /app/resources/application-kubernetes.yml
+              subPath: application-kubernetes.yml
+            - name: logging
+              mountPath: /app/resources/application-logging.yml
+              subPath: application-logging.yml
+          terminationMessagePolicy: FallbackToLogsOnError
+          image: >-
+            registry.sigma.sbrf.ru/dev/ci02351878/ci02353146_transport_dev/transport/corporate:230821-3-17898164
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: logs
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: secman
+          configMap:
+            name: secman
+            defaultMode: 420
+            optional: true
+        - name: kubernetes
+          configMap:
+            name: kubernetes
+            defaultMode: 420
+        - name: logging
+          configMap:
+            name: logging
+            defaultMode: 420

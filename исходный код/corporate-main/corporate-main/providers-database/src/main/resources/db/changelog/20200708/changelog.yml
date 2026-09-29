@@ -1,0 +1,127 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2020701-remastered
+      author: medvedev-ad
+      context: "TRANSPORT-27855"
+      preConditions:
+        - not:
+            - columnExists:
+                schemaName: corporate
+                tableName: employee
+                columnName: humanreadableid
+          onFail: MARK_RAN
+      changes:
+          - tagDatabase:
+              tag: D-03.020.001
+          - addColumn:
+              schemaName: corporate
+              tableName: employee
+              columns:
+                - column:
+                    name: humanreadableid
+                    type: varchar(100)
+                    remarks: Уникальный идентификатор (человекочитаемый ID)
+                    constraints:
+                      unique: true
+                      uniqueConstraintName: ux_employee_1
+          - addColumn:
+              schemaName: corporate
+              tableName: organization
+              columns:
+                  - column:
+                      name: digit_id
+                      type: serial
+                      autoIncrement: true
+                      remarks: 'Уникальный идентификатор (числовой ID)'
+                      constraints:
+                        unique: true
+                        uniqueConstraintName: corporate_organization_digit_id_uk
+                        nullable: false
+                        notNullConstraintName: corporate_organization_digit_id_nn
+  - changeSet:
+      id: 2020701-remastered-1
+      author: medvedev-ad
+      context: "TRANSPORT-27855"
+      preConditions:
+        - not:
+            - tableExists:
+                schemaName: corporate
+                tableName: company_sq
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - createTable:
+            schemaName: corporate
+            tableName: company_sq
+            remarks: 'Таблица для формирования последовательностей для компаний'
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: 'Уникальный идентификатор (первичный ключ)'
+                  constraints:
+                    primaryKey: true
+                    primaryKeyConstraintName: corporate_company_sq_pk
+              - column:
+                  name: prefix
+                  type: varchar(2)
+                  remarks: 'Кодовое обозначение типа сущности'
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_company_sq_prefix_nn
+              - column:
+                  name: orgdigitid
+                  type: bigint
+                  autoIncrement: true
+                  remarks: 'ID организации (числовой)'
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_company_sq_orgDigitId_nn
+              - column:
+                  name: sq
+                  type: numeric
+                  remarks: 'Порядковый номер (в рамках клиента)'
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_company_sq_sq_nn
+              - column:
+                  name: dt_insert
+                  type: timestamp with time zone
+                  remarks: 'Дата время вставки записи'
+                  defaultOnNull: true
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_company_sq_dt_insert_nn
+              - column:
+                  name: dt_modify
+                  type: timestamp with time zone
+                  remarks: 'Дата время модификации записи'
+                  defaultOnNull: true
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_company_sq_dt_modify_nn
+        - createIndex:
+            schemaName: corporate
+            tableName: company_sq
+            columns:
+              - column:
+                  name: prefix
+              - column:
+                  name: orgdigitid
+              - column:
+                  name: sq
+            unique: true
+            indexName: ux_company_sq_1
+        - createIndex:
+            schemaName: corporate
+            tableName: company_sq
+            columns:
+              - column:
+                  name: prefix
+              - column:
+                  name: orgdigitid
+            unique: true
+            indexName: ux_company_sq_2

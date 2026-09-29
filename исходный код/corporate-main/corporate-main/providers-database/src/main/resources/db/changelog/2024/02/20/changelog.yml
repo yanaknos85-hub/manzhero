@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20240220-1123"
+      author: "khristyuk_vv"
+      context: "TRANSPORT-15898"
+      changes:
+        - addColumn:
+            schemaName: corporate
+            tableName: employee
+            columns:
+              - column:
+                  name: need_update
+                  type: boolean
+                  remarks: признак того, что необходимо проверять, появился ли сотрудник в ЕАСУП
+                  defaultValueBoolean: false
+                  defaultOnNull: true
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropColumn:
+            schemaName: corporate
+            tableName: employee
+            columnName: need_update

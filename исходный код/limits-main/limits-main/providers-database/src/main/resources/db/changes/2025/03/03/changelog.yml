@@ -1,0 +1,250 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250303-1159"
+      author: medvedev-ad
+      context: "TRANSPORT-30202"
+      changes:
+        - tagDatabase:
+            tag: "D-04.005.000"
+        - sql:
+            dbms: postgresql
+            sql: drop materialized view limits.limit_stats_spending;
+        - sql:
+            dbms: postgresql
+            sql: drop materialized view limits.limit_stats;
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit
+            columnName: sum
+            newDataType: DECIMAL(20,2)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit
+            columnName: reserve
+            newDataType: DECIMAL(20,2)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit
+            columnName: economy
+            newDataType: DECIMAL(20,2)
+        - update:
+            schemaName: limits
+            tableName: limit
+            columns:
+              - column:
+                  name: sum
+                  valueComputed: sum / 100
+              - column:
+                  name: reserve
+                  valueComputed: reserve / 100
+              - column:
+                  name: economy
+                  valueComputed: economy / 100
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_sharing
+            columnName: sum
+            newDataType: DECIMAL(20,2)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_sharing
+            columnName: balance
+            newDataType: DECIMAL(20,2)
+        - update:
+            schemaName: limits
+            tableName: limit_sharing
+            columns:
+              - column:
+                  name: sum
+                  valueComputed: sum / 100
+              - column:
+                  name: balance
+                  valueComputed: balance / 100
+        - modifyDataType:
+            schemaName: limits
+            tableName: approver
+            columnName: sum
+            newDataType: DECIMAL(20,2)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_sharing_per_period
+            columnName: sum
+            newDataType: DECIMAL(20,2)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_sharing_per_period
+            columnName: balance
+            newDataType: DECIMAL(20,2)
+        - update:
+            schemaName: limits
+            tableName: approver
+            columns:
+              - column:
+                  name: sum
+                  valueComputed: sum / 100
+        - update:
+            schemaName: limits
+            tableName: limit_sharing_per_period
+            columns:
+              - column:
+                  name: sum
+                  valueComputed: sum / 100
+              - column:
+                  name: balance
+                  valueComputed: balance / 100
+        - modifyDataType:
+            schemaName: limits
+            tableName: bonus
+            columnName: balance
+            newDataType: DECIMAL(20,2)
+        - modifyDataType:
+            schemaName: limits
+            tableName: bonus
+            columnName: sum
+            newDataType: DECIMAL(20,2)
+        - modifyDataType:
+            schemaName: limits
+            tableName: bonus_request
+            columnName: sum
+            newDataType: DECIMAL(20,2)
+        - update:
+            schemaName: limits
+            tableName: bonus
+            columns:
+              - column:
+                  name: balance
+                  valueComputed: balance / 100
+              - column:
+                  name: sum
+                  valueComputed: sum / 100
+        - update:
+            schemaName: limits
+            tableName: bonus_request
+            columns:
+              - column:
+                  name: sum
+                  valueComputed: sum / 100
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_history
+            columnName: sum
+            newDataType: DECIMAL(20,2)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_history
+            columnName: limit_sum
+            newDataType: DECIMAL(20,2)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_history
+            columnName: limit_sharing_sum
+            newDataType: DECIMAL(20,2)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_history
+            columnName: limit_sharing_balance
+            newDataType: DECIMAL(20,2)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_history
+            columnName: limit_sharing_per_period_sum
+            newDataType: DECIMAL(20,2)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_history
+            columnName: limit_sharing_per_period_balance
+            newDataType: DECIMAL(20,2)
+        - update:
+            schemaName: limits
+            tableName: limit_history
+            columns:
+              - column:
+                  name: sum
+                  valueComputed: sum / 100
+              - column:
+                  name: limit_sum
+                  valueComputed: limit_sum / 100
+              - column:
+                  name: limit_sharing_sum
+                  valueComputed: limit_sharing_sum / 100
+              - column:
+                  name: limit_sharing_balance
+                  valueComputed: limit_sharing_balance / 100
+              - column:
+                  name: limit_sharing_per_period_balance
+                  valueComputed: limit_sharing_per_period_balance / 100
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_request
+            columnName: sum
+            newDataType: DECIMAL(20,2)
+        - update:
+            schemaName: limits
+            tableName: limit_request
+            columns:
+              - column:
+                  name: sum
+                  valueComputed: sum / 100
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_spending
+            columnName: sum_reserved
+            newDataType: DECIMAL(20,2)
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_spending
+            columnName: sum_spent
+            newDataType: DECIMAL(20,2)
+        - update:
+            schemaName: limits
+            tableName: limit_spending
+            columns:
+              - column:
+                  name: sum_reserved
+                  valueComputed: sum_reserved / 100
+              - column:
+                  name: sum_spent
+                  valueComputed: sum_spent / 100
+        - modifyDataType:
+            schemaName: limits
+            tableName: limit_transfer_history
+            columnName: sum
+            newDataType: DECIMAL(20,2)
+        - update:
+            schemaName: limits
+            tableName: limit_transfer_history
+            columns:
+              - column:
+                  name: sum
+                  valueComputed: sum / 100
+        - sql:
+            dbms: postgresql
+            sql: >-
+              create materialized view limits.limit_stats as
+                            SELECT lspp.id AS period_sharing_id,
+                                l.organization_id as organization_id,
+                                lspp.period,
+                                l.year,
+                                ls.id AS sharing_id,
+                                ls.transport_type,
+                                lspp.sum
+                               FROM limits.limit_sharing_per_period lspp
+                                 JOIN limits.limit_sharing ls ON ls.id = lspp.limit_sharing_id
+                                 JOIN limits."limit" l ON l.id = ls.limit_id
+                              WHERE l.limit_status::text = 'SHARED'::text AND lspp.sum > 0;
+        - sql:
+            dbms: postgresql
+            sql: >-
+              create materialized view limits.limit_stats_spending as
+              SELECT limit_stats.sharing_id,
+                  limit_stats.period_sharing_id,
+                  limit_stats.organization_id,
+                  limit_stats.year,
+                  limit_stats.transport_type,
+                  limit_stats.period,
+                  limit_spending.sum_spent,
+                  limit_spending.request_id
+                 FROM limits.limit_stats
+                   JOIN limits.limit_spending ON limit_stats.period_sharing_id = limit_spending.limit_sharing_per_period_id
+                WHERE limit_spending.limit_spending_status::text = 'SPENT'::text AND limit_spending.sum_spent > 0
+                ORDER BY limit_stats.sharing_id, limit_stats.period_sharing_id;

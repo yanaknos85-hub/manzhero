@@ -1,0 +1,15 @@
+package ru.sberbank.ditsib.transport.limits.constants;
+
+public enum LimitHistoryType {
+    OPEN,
+    CLOSE,
+    DELETE,
+    TRANSFER_TO_LIMIT,
+    TRANSFER_FROM_LIMIT,
+    TRANSFER_INSIDE_LIMIT_BETWEEN_TRANSPORT_TYPES,
+    TRANSFER_INSIDE_LIMIT_BETWEEN_PERIODS,
+    TRANSFER_FROM_ECONOMY,
+    TRANSFER_TO_ECONOMY,
+    RESERVE,
+    CANCEL_RESERVE
+}

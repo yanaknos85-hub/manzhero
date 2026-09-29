@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250414-1717"
+      author: medvedev-ad
+      context: "TRANSPORT-31750"
+      changes:
+        - tagDatabase:
+            tag: "D-04.006.000"
+        - dropColumn:
+            schemaName: limits
+            tableName: limit
+            columns:
+              - column:
+                  name: noticed_at
+        - addColumn:
+            schemaName: limits
+            tableName: limit_sharing_per_period
+            columns:
+              - column:
+                  name: noticed_at
+                  type: timestamp with timezone
+                  remarks: Время, когда пользователь был уведомлен

@@ -1,0 +1,9 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20211112"
+            author: medvedev-ad
+            changes:
+                -   addNotNullConstraint:
+                        schemaName: corporate
+                        tableName: employee
+                        columnName: consent

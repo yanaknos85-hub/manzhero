@@ -1,0 +1,3012 @@
+openapi: 3.0.3
+info:
+  title: Лимиты
+  description: Сервис по управлению лимитами
+  version: "2"
+servers:
+  - url: '{scheme}://{host}:{port}/api/limits'
+    description: Адрес для вызова
+    variables:
+      scheme:
+        default: http
+        enum:
+          - http
+          - https
+      host:
+        default: localhost
+      port:
+        default: "80"
+        enum:
+          - "80"
+          - "8080"
+          - "443"
+          - "8443"
+paths:
+  /organization/{organizationId}/department:
+    summary: Лимиты подразделений
+    post:
+      security:
+        - BearerToken: []
+      tags:
+        - Лимиты подразделений
+      description: Добавление нового лимита подразделения
+      summary: Добавление нового лимита подразделения
+      parameters:
+        - in: path
+          name: organizationId
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepLimitPrimaryV2DTO'
+      responses:
+        200:
+          description: Ок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLimitV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /:
+    summary: Лимиты
+    get:
+      security:
+        - BearerToken: []
+      tags:
+        - Лимиты
+      description: Получение лимитов
+      summary: Получение лимитов
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: number
+            default: 20
+        - in: query
+          name: direction
+          schema:
+            type: string
+            format: enum
+            default: 'ASC'
+            enum:
+              - ASC
+              - DESC
+        - name: limitType
+          schema:
+            $ref: '#/components/schemas/LimitType'
+          in: query
+        - name: departmentId
+          schema:
+            $ref: '#/components/schemas/UUID'
+          in: query
+        - name: parentLimitId
+          schema:
+            $ref: '#/components/schemas/UUID'
+          in: query
+        - name: organizationId
+          schema:
+            $ref: '#/components/schemas/UUID'
+          in: query
+        - name: employeeId
+          schema:
+            $ref: '#/components/schemas/UUID'
+          in: query
+        - name: requestId
+          schema:
+            $ref: '#/components/schemas/UUID'
+          in: query
+        - name: year
+          schema:
+            type: number
+          in: query
+        - name: limitServiceType
+          schema:
+            $ref: '#/components/schemas/LimitServiceType'
+          in: query
+        - name: parentDepartment
+          description: Распределяющее подразделение
+          schema:
+            type: string
+          in: query
+        - name: limitOwner
+          description: Владелец лимита
+          schema:
+            type: string
+          in: query
+        - name: humanReadableLimitId
+          description: Человекочитаемый идентификатор лимита
+          schema:
+            $ref: '#/components/schemas/HumanReadableId'
+          in: query
+        - name: limitStatus
+          description: Статус лимита
+          schema:
+            $ref: '#/components/schemas/LimitStatus'
+          in: query
+        - name: myAuthored
+          description: Авторства вошедшего
+          schema:
+            type: boolean
+          in: query
+        - name: myApproved
+          description: Согласования вошедшего
+          schema:
+            type: boolean
+          in: query
+      responses:
+        200:
+          description: Ок
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Лимиты
+                properties:
+                  number:
+                    title: Номер страницы
+                    type: number
+                  totalPages:
+                    title: Всего страниц
+                    type: number
+                  totalElements:
+                    title: Всего элементов
+                    type: number
+                  size:
+                    title: Размер страницы
+                    type: number
+                  numberOfElements:
+                    title: Количество элементов
+                    type: number
+                  hasContent:
+                    title: Флаг наличия контента
+                    type: boolean
+                  isFirst:
+                    title: Флаг первой страницы
+                    type: boolean
+                  isLast:
+                    title: Флаг последней страницы
+                    type: boolean
+                  hasNext:
+                    title: Флаг наличия следующей страницы
+                    type: boolean
+                  hasPrevious:
+                    title: Флаг наличия предыдущей страницы
+                    type: boolean
+                  content:
+                    $ref: '#/components/schemas/GetLimitV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /transport-type/reshare:
+    summary: Перераспределение лимитов типов транспорта
+    put:
+      security:
+        - BearerToken: []
+      tags:
+        - Лимиты
+      description: Перераспределение лимита
+      summary: Перераспределение лимита
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LimitReSharingByTransportTypeV2DTO'
+      responses:
+        200:
+          description: Ок
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /departments/reshare:
+    summary: Перераспределение лимитов подразделений
+    put:
+      security:
+        - BearerToken: []
+      tags:
+        - Лимиты
+      description: Перераспределение лимита
+      summary: Перераспределение лимита
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LimitReSharingByDepartmentV2DTO'
+      responses:
+        200:
+          description: Ок
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /reshare:
+    summary: Перераспределение лимитов
+    put:
+      security:
+        - BearerToken: []
+      tags:
+        - Лимиты
+      description: Перераспределение лимита
+      summary: Перераспределение лимита
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LimitResharingV2DTO'
+      responses:
+        200:
+          description: Ок
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /{limitId}:
+    summary: Лимиты
+    get:
+      security:
+        - BearerToken: []
+      tags:
+        - Лимиты
+      description: Получение лимита
+      summary: Получение лимита
+      parameters:
+        - in: path
+          name: limitId
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+      responses:
+        200:
+          description: Ок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLimitV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+    put:
+      security:
+        - BearerToken: []
+      tags:
+        - Лимиты
+      description: Изменение лимита
+      summary: Изменение лимита
+      parameters:
+        - in: path
+          name: limitId
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepLimitPrimaryV2DTO'
+      responses:
+        200:
+          description: Ок
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+    patch:
+      security:
+        - BearerToken: []
+      tags:
+        - Лимиты
+      description: Частичное изменение лимита
+      summary: Частичное изменение лимита
+      parameters:
+        - in: path
+          name: limitId
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: Новые данные лимита
+              type: array
+              items:
+                properties:
+                  field:
+                    type: string
+                    format: enum
+                    title: Наименование поля для изменения
+                    enum:
+                      - finalSharing
+                      - useThisLimit
+                      - limitStatus
+                  value:
+                    title: Новое значение поля
+                    oneOf:
+                      - type: boolean
+                        title: Логическое значение. Применимо для useThisLimit и finalSharing
+                      - title: Новое значение статуса. Применимо для limitStatus
+                        type: string
+                        allOf:
+                          - $ref: '#/components/schemas/LimitStatus'
+      responses:
+        200:
+          description: Ок
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /requests/department:
+    summary: Заявки на пополнение лимита подразделения
+    post:
+      security:
+        - BearerToken: []
+      tags:
+        - Заявки на лимит
+      description: Добавление заявки на лимит
+      summary: Добавление заявки на лимит
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepLimitRequestV2DTO'
+      responses:
+        200:
+          description: Ок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLimitRequestV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /requests/department/{requestId}:
+    summary: Заявки на пополнение лимита подразделения
+    post:
+      security:
+        - BearerToken: []
+      tags:
+        - Заявки на лимит
+      description: Изменение заявки на лимит
+      summary: Изменение заявки на лимит
+      parameters:
+        - in: path
+          name: requestId
+          schema:
+            $ref: '#/components/schemas/UUID'
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepLimitRequestV2DTO'
+      responses:
+        200:
+          description: Ок
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /requests/employee:
+    summary: Заявки на пополнение личного лимита
+    post:
+      security:
+        - BearerToken: []
+      tags:
+        - Заявки на лимит
+      description: Добавление заявки на лимит
+      summary: Добавление заявки на лимит
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmpLimitRequestV2DTO'
+      responses:
+        200:
+          description: Ок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLimitRequestV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /requests/employee/{requestId}:
+    summary: Заявки на пополнение лимита подразделения
+    post:
+      security:
+        - BearerToken: []
+      tags:
+        - Заявки на лимит
+      description: Изменение заявки на лимит
+      summary: Изменение заявки на лимит
+      parameters:
+        - in: path
+          name: requestId
+          schema:
+            $ref: '#/components/schemas/UUID'
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmpLimitRequestV2DTO'
+      responses:
+        200:
+          description: Ок
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /requests:
+    summary: Заявки на лимиты
+    get:
+      security:
+        - BearerToken: []
+      tags:
+        - Заявки на лимит
+      description: Получение заявок на лимит
+      summary: Получение заявок на лимит
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: number
+            default: 20
+        - in: query
+          name: direction
+          schema:
+            type: string
+            format: enum
+            default: 'ASC'
+            enum:
+              - ASC
+              - DESC
+        - in: query
+          name: status
+          schema:
+            $ref: '#/components/schemas/LimitRequestStatus'
+        - in: query
+          name: myState
+          schema:
+            type: string
+            description: Статус сотрудника. Включает выборку только своих заявок
+            format: enum
+            enum:
+              - AUTHOR
+              - APPROVER
+        - in: query
+          name: active
+          schema:
+            type: boolean
+            description: Признак активности для выборки заявок
+        - in: query
+          name: approvalState
+          schema:
+            $ref: '#/components/schemas/ApprovalState'
+      responses:
+        200:
+          description: Ок
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Заявки на лимиты
+                properties:
+                  number:
+                    title: Номер страницы
+                    type: number
+                  totalPages:
+                    title: Всего страниц
+                    type: number
+                  totalElements:
+                    title: Всего элементов
+                    type: number
+                  size:
+                    title: Размер страницы
+                    type: number
+                  numberOfElements:
+                    title: Количество элементов
+                    type: number
+                  hasContent:
+                    title: Флаг наличия контента
+                    type: boolean
+                  isFirst:
+                    title: Флаг первой страницы
+                    type: boolean
+                  isLast:
+                    title: Флаг последней страницы
+                    type: boolean
+                  hasNext:
+                    title: Флаг наличия следующей страницы
+                    type: boolean
+                  hasPrevious:
+                    title: Флаг наличия предыдущей страницы
+                    type: boolean
+                  content:
+                    $ref: '#/components/schemas/GetLimitRequestV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /requests/{requestId}/cancel:
+    summary: Отмена заявки на лимиты
+    post:
+      security:
+        - BearerToken: []
+      tags:
+        - Отмена заявки на лимит
+      description: Отмена заявки на лимит
+      summary: Отмена заявки на лимит
+      parameters:
+        - in: path
+          name: requestId
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+        - in: header
+          name: X-Version
+          required: true
+          schema:
+            type: string
+            description: Установите значение "2" для вызова энд-поинта в этой редакции
+      responses:
+        200:
+          description: Ок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLimitRequestV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /requests/{requestId}/approve:
+    summary: Согласование заявки на лимиты
+    post:
+      security:
+        - BearerToken: []
+      tags:
+        - Согласование заявки на лимит
+      description: Согласование заявки на лимит
+      summary: Согласование заявки на лимит
+      parameters:
+        - in: path
+          name: requestId
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+        - in: header
+          name: X-Version
+          required: true
+          schema:
+            type: string
+            description: Установите значение "2" для вызова энд-поинта в этой редакции
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              title: Объект для согласования заявки
+              required:
+                - sum
+              properties:
+                sum:
+                  type: number
+                  description: Сумма
+                approvalState:
+                  $ref: '#/components/schemas/ApprovalState'
+      responses:
+        200:
+          description: Ок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLimitRequestV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /requests/{requestId}:
+    summary: Заявки на лимиты
+    get:
+      security:
+        - BearerToken: []
+      tags:
+        - Заявки на лимит
+      description: Получение заявки на лимит
+      summary: Получение заявки на лимит
+      parameters:
+        - in: path
+          name: requestId
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+        - in: header
+          name: X-Version
+          required: true
+          schema:
+            type: string
+            description: Установите значение "2" для вызова энд-поинта в этой редакции
+      responses:
+        200:
+          description: Ок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLimitRequestV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /statistic/{organizationId}/department/{departmentId}:
+    summary: Статистика
+    get:
+      security:
+        - BearerToken: []
+      tags:
+        - Статистика лимитов
+      description: Получение статистики лимитов
+      summary: Получение статистики лимитов
+      parameters:
+        - in: query
+          name: year
+          description: Год
+          schema:
+            type: number
+        - in: query
+          name: month
+          description: Месяц
+          schema:
+            $ref: '#/components/schemas/Month'
+        - in: query
+          name: month[]
+          description: Месяцы
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Month'
+        - in: query
+          name: transportType[]
+          description: Типы транспорта
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/TransportType'
+        - in: query
+          name: day
+          description: День
+          schema:
+            type: number
+        - in: path
+          name: departmentId
+          description: Идентификатор подразделения
+          schema:
+            $ref: '#/components/schemas/UUID'
+        - in: path
+          name: organizationId
+          required: true
+          description: Идентификатор организации
+          schema:
+            $ref: '#/components/schemas/UUID'
+      responses:
+        200:
+          description: Ок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LimitStatsV2DTO'
+            application/octet-stream:
+              schema:
+                type: string
+                format: byte
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /statistic:
+    get:
+      security:
+        - BearerToken: []
+      tags:
+        - Общая статистика лимитов
+      description: Получение общей статистики лимитов
+      summary: Получение общей статистики лимитов
+      parameters:
+        - in: query
+          name: organizationId[]
+          description: Идентификаторы организаций для фильтрации
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/UUID'
+        - in: query
+          name: year
+          description: Год для фильтрации
+          schema:
+            type: integer
+        - in: query
+          name: month[]
+          description: Месяцы для фильтрации
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Month'
+        - in: query
+          name: transportType[]
+          description: Виды транспорта для фильтрации
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/TransportType'
+      responses:
+        200:
+          description: Ок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralAnalyticalReportResponseDTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /history:
+    summary: История
+    get:
+      security:
+        - BearerToken: []
+      tags:
+        - История лимитов
+      description: Получение истории лимитов
+      summary: Получение истории лимитов
+      parameters:
+        - in: query
+          name: organizationId
+          schema:
+            $ref: '#/components/schemas/UUID'
+        - in: query
+          name: limitId
+          schema:
+            $ref: '#/components/schemas/UUID'
+        - in: query
+          name: year
+          schema:
+            type: number
+        - in: query
+          name: page
+          schema:
+            type: number
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: number
+            default: 20
+        - in: query
+          name: direction
+          schema:
+            type: string
+            format: enum
+            default: 'ASC'
+            enum:
+              - ASC
+              - DESC
+      responses:
+        200:
+          description: Ок
+          content:
+            application/json:
+              schema:
+                type: object
+                title: История
+                properties:
+                  number:
+                    title: Номер страницы
+                    type: number
+                  totalPages:
+                    title: Всего страниц
+                    type: number
+                  totalElements:
+                    title: Всего элементов
+                    type: number
+                  size:
+                    title: Размер страницы
+                    type: number
+                  numberOfElements:
+                    title: Количество элементов
+                    type: number
+                  hasContent:
+                    title: Флаг наличия контента
+                    type: boolean
+                  isFirst:
+                    title: Флаг первой страницы
+                    type: boolean
+                  isLast:
+                    title: Флаг последней страницы
+                    type: boolean
+                  hasNext:
+                    title: Флаг наличия следующей страницы
+                    type: boolean
+                  hasPrevious:
+                    title: Флаг наличия предыдущей страницы
+                    type: boolean
+                  content:
+                    $ref: '#/components/schemas/GetLimitHistoryV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /history/transfer:
+    summary: История движений лимитов
+    post:
+      security:
+        - BearerToken: []
+      tags:
+        - История движений лимитов
+      description: Добавление истории движения лимитов
+      summary: Добавление истории движения лимитов
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LimitTransferHistoryV2DTO'
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLimitTransferHistoryV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+    get:
+      security:
+        - BearerToken: []
+      tags:
+        - История движений лимитов
+      description: Получение историй движения лимитов
+      summary: Получение историй движения лимитов
+      parameters:
+        - in: query
+          name: limitId
+          schema:
+            $ref: '#/components/schemas/UUID'
+        - in: query
+          name: year
+          schema:
+            type: number
+            default: 0
+        - in: query
+          name: page
+          schema:
+            type: number
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: number
+            default: 20
+        - in: query
+          name: direction
+          schema:
+            type: string
+            format: enum
+            default: 'ASC'
+            enum:
+              - ASC
+              - DESC
+      responses:
+        200:
+          description: Ок
+          content:
+            application/json:
+              schema:
+                type: object
+                title: История
+                properties:
+                  number:
+                    title: Номер страницы
+                    type: number
+                  totalPages:
+                    title: Всего страниц
+                    type: number
+                  totalElements:
+                    title: Всего элементов
+                    type: number
+                  size:
+                    title: Размер страницы
+                    type: number
+                  numberOfElements:
+                    title: Количество элементов
+                    type: number
+                  hasContent:
+                    title: Флаг наличия контента
+                    type: boolean
+                  isFirst:
+                    title: Флаг первой страницы
+                    type: boolean
+                  isLast:
+                    title: Флаг последней страницы
+                    type: boolean
+                  hasNext:
+                    title: Флаг наличия следующей страницы
+                    type: boolean
+                  hasPrevious:
+                    title: Флаг наличия предыдущей страницы
+                    type: boolean
+                  content:
+                    $ref: '#/components/schemas/GetLimitTransferHistoryV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /history/transfer/{historyId}:
+    summary: История движений лимитов
+    delete:
+      security:
+        - BearerToken: []
+      tags:
+        - История движений лимитов
+      description: Удаление истории движения лимитов
+      summary: Удаление истории движения лимитов
+      parameters:
+        - in: path
+          required: true
+          name: historyId
+          schema:
+            $ref: '#/components/schemas/UUID'
+      responses:
+        200:
+          description: Ok
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+    get:
+      security:
+        - BearerToken: []
+      tags:
+        - История движений лимитов
+      description: Получение истории движения лимитов
+      summary: Получение истории движения лимитов
+      parameters:
+        - in: path
+          required: true
+          name: historyId
+          schema:
+            $ref: '#/components/schemas/UUID'
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLimitTransferHistoryV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /sharings:
+    summary: Распределения
+    get:
+      security:
+        - BearerToken: []
+      tags:
+        - Распределения лимитов
+      description: Получение распределений лимитов
+      summary: Получение распределений лимитов
+      parameters:
+        - in: query
+          name: limitId
+          schema:
+            title: Идентификатор лимита
+            allOf:
+              - $ref: '#/components/schemas/UUID'
+        - in: query
+          name: page
+          schema:
+            type: number
+            description: Страница для отображения
+            default: 20
+        - in: query
+          name: size
+          schema:
+            type: number
+            description: Размер страницы
+            default: 0
+        - in: query
+          name: direction
+          schema:
+            type: string
+            description: Направление сортировки
+            default: ASC
+            enum:
+              - ASC
+              - DESC
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Распределения
+                properties:
+                  number:
+                    title: Номер страницы
+                    type: number
+                  totalPages:
+                    title: Всего страниц
+                    type: number
+                  totalElements:
+                    title: Всего элементов
+                    type: number
+                  size:
+                    title: Размер страницы
+                    type: number
+                  numberOfElements:
+                    title: Количество элементов
+                    type: number
+                  hasContent:
+                    title: Флаг наличия контента
+                    type: boolean
+                  isFirst:
+                    title: Флаг первой страницы
+                    type: boolean
+                  isLast:
+                    title: Флаг последней страницы
+                    type: boolean
+                  hasNext:
+                    title: Флаг наличия следующей страницы
+                    type: boolean
+                  hasPrevious:
+                    title: Флаг наличия предыдущей страницы
+                    type: boolean
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GetLimitSharingV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /sharings/{sharingId}:
+    summary: Распределения
+    get:
+      security:
+        - BearerToken: []
+      tags:
+        - Распределения лимитов
+      description: Получение распределений лимитов
+      summary: Получение распределений лимитов
+      parameters:
+        - in: path
+          name: sharingId
+          required: true
+          schema:
+            $ref: '#/components/schemas/UUID'
+      responses:
+        200:
+          description: Ок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLimitSharingV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /economy/{limitId}/future:
+    summary: Экономия
+    get:
+      security:
+        - BearerToken: []
+      tags:
+        - Экономия
+      description: Получение будущей экономии
+      summary: Получение будущей экономии
+      parameters:
+        - in: query
+          name: year
+          schema:
+            type: number
+        - in: path
+          required: true
+          name: limitId
+          schema:
+            $ref: '#/components/schemas/UUID'
+        - in: query
+          name: page
+          schema:
+            type: number
+            description: Страница для отображения
+            default: 20
+        - in: query
+          name: size
+          schema:
+            type: number
+            description: Размер страницы
+            default: 0
+        - in: query
+          name: direction
+          schema:
+            type: string
+            description: Направление сортировки
+            default: ASC
+            enum:
+              - ASC
+              - DESC
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Распределения
+                properties:
+                  number:
+                    title: Номер страницы
+                    type: number
+                  totalPages:
+                    title: Всего страниц
+                    type: number
+                  totalElements:
+                    title: Всего элементов
+                    type: number
+                  size:
+                    title: Размер страницы
+                    type: number
+                  numberOfElements:
+                    title: Количество элементов
+                    type: number
+                  hasContent:
+                    title: Флаг наличия контента
+                    type: boolean
+                  isFirst:
+                    title: Флаг первой страницы
+                    type: boolean
+                  isLast:
+                    title: Флаг последней страницы
+                    type: boolean
+                  hasNext:
+                    title: Флаг наличия следующей страницы
+                    type: boolean
+                  hasPrevious:
+                    title: Флаг наличия предыдущей страницы
+                    type: boolean
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EconomyV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /economy/{limitId}/past:
+    summary: Экономия
+    get:
+      security:
+        - BearerToken: []
+      tags:
+        - Экономия
+      description: Получение прошлой экономии
+      summary: Получение прошлой экономии
+      parameters:
+        - in: query
+          name: year
+          schema:
+            type: number
+        - in: path
+          required: true
+          name: limitId
+          schema:
+            $ref: '#/components/schemas/UUID'
+        - in: query
+          name: page
+          schema:
+            type: number
+            description: Страница для отображения
+            default: 20
+        - in: query
+          name: size
+          schema:
+            type: number
+            description: Размер страницы
+            default: 0
+        - in: query
+          name: direction
+          schema:
+            type: string
+            description: Направление сортировки
+            default: ASC
+            enum:
+              - ASC
+              - DESC
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Распределения
+                properties:
+                  number:
+                    title: Номер страницы
+                    type: number
+                  totalPages:
+                    title: Всего страниц
+                    type: number
+                  totalElements:
+                    title: Всего элементов
+                    type: number
+                  size:
+                    title: Размер страницы
+                    type: number
+                  numberOfElements:
+                    title: Количество элементов
+                    type: number
+                  hasContent:
+                    title: Флаг наличия контента
+                    type: boolean
+                  isFirst:
+                    title: Флаг первой страницы
+                    type: boolean
+                  isLast:
+                    title: Флаг последней страницы
+                    type: boolean
+                  hasNext:
+                    title: Флаг наличия следующей страницы
+                    type: boolean
+                  hasPrevious:
+                    title: Флаг наличия предыдущей страницы
+                    type: boolean
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GetLimitTransferHistoryV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /sharings/percents:
+    summary: Процентное распределение лимита
+    post:
+      security:
+        - BearerToken: []
+      tags:
+        - Лимиты
+      summary: Добавление нового процентного распределения
+      parameters:
+        - in: query
+          name: year
+          schema:
+            type: number
+        - in: query
+          name: page
+          schema:
+            type: number
+            description: Страница для отображения
+            default: 20
+        - in: query
+          name: size
+          schema:
+            type: number
+            description: Размер страницы
+            default: 0
+        - in: query
+          name: direction
+          schema:
+            type: string
+            description: Направление сортировки
+            default: ASC
+            enum:
+              - ASC
+              - DESC
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LimitSharingPercentsV2DTO'
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLimitSharingPercentsV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+    get:
+      security:
+        - BearerToken: []
+      tags:
+        - Лимиты
+      summary: Получение всех распределений
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Распределения
+                properties:
+                  number:
+                    title: Номер страницы
+                    type: number
+                  totalPages:
+                    title: Всего страниц
+                    type: number
+                  totalElements:
+                    title: Всего элементов
+                    type: number
+                  size:
+                    title: Размер страницы
+                    type: number
+                  numberOfElements:
+                    title: Количество элементов
+                    type: number
+                  hasContent:
+                    title: Флаг наличия контента
+                    type: boolean
+                  isFirst:
+                    title: Флаг первой страницы
+                    type: boolean
+                  isLast:
+                    title: Флаг последней страницы
+                    type: boolean
+                  hasNext:
+                    title: Флаг наличия следующей страницы
+                    type: boolean
+                  hasPrevious:
+                    title: Флаг наличия предыдущей страницы
+                    type: boolean
+                  content:
+                    type: array
+                    title: Содержимое
+                    items:
+                      $ref: '#/components/schemas/GetLimitSharingPercentsV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+  /sharings/percents/{limitSharingPercentsId}:
+    summary: Процентное распределение лимита
+    put:
+      security:
+        - BearerToken: []
+      tags:
+        - Лимиты
+      parameters:
+        - in: path
+          required: true
+          name: limitSharingPercentsId
+          schema:
+            description: Идентификатор распределения
+            allOf:
+              - $ref: '#/components/schemas/UUID'
+      summary: Изменение процентного распределения
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LimitSharingPercentsV2DTO'
+      responses:
+        200:
+          description: Ok
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+    get:
+      security:
+        - BearerToken: []
+      tags:
+        - Лимиты
+      parameters:
+        - in: path
+          name: limitSharingPercentsId
+          required: true
+          schema:
+            description: Идентификатор распределения
+            allOf:
+              - $ref: '#/components/schemas/UUID'
+      summary: Получение процентного распределения
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLimitSharingPercentsV2DTO'
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+    delete:
+      security:
+        - BearerToken: []
+      tags:
+        - Лимиты
+      parameters:
+        - in: path
+          required: true
+          name: limitSharingPercentsId
+          schema:
+            description: Идентификатор распределения
+            allOf:
+              - $ref: '#/components/schemas/UUID'
+      summary: Удаление процентного распределения
+      responses:
+        200:
+          description: Ok
+        400:
+          description: Один из параметров запроса некорректен
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+        404:
+          description: Один или несколько ресурсов не найдено
+components:
+  schemas:
+    DepLimitPrimaryV2DTO:
+      type: object
+      title: Лимит
+      description: Входные данные для создания лимита лимита
+      required:
+        - year
+        - limitServiceType
+        - limitSharingType
+        - sum
+      properties:
+        year:
+          type: number
+          title: Год
+          minimum: 1970
+        limitSharingType:
+          $ref: '#/components/schemas/LimitSharingType'
+        limitServiceType:
+          $ref: '#/components/schemas/LimitServiceType'
+        sum:
+          type: number
+          title: Сумма в копейках
+          minimum: 0
+        parentId:
+          title: Родительский лимит
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        finalSharing:
+          title: Конечное распределение
+          default: false
+          type: boolean
+        useThisLimit:
+          title: Использовать лимит моего подразделения
+          default: false
+          type: boolean
+    ChildLimitShardingPerPeriodV2DTO:
+      type: object
+      title: Дочернее распределение
+      description: Дочернее распределение
+      properties:
+        id:
+          title: Идентификатор распределения
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        authorId:
+          title: Идентификатор автора
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        creationTime:
+          title: Время создания
+          type: string
+          format: datetime
+          pattern: yyyy-MM-ddTHH:mm:ss.sss
+        sum:
+          title: Выделенная сумма
+          type: number
+          format: long
+        balance:
+          title: Израсходовано
+          type: number
+          format: long
+        period:
+          title: Период распределения
+          oneOf:
+            - $ref: '#/components/schemas/Month'
+            - $ref: '#/components/schemas/Quarter'
+        limitSharingId:
+          title: Идентификатор распределения
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        organizationId:
+          title: Идентификатор организации
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+    DepLimitRequestV2DTO:
+      type: object
+      title: Заявка на лимит подразделения
+      description: Заявка на лимит подразделения
+      required:
+        - year
+        - period
+        - transportType
+        - sum
+      properties:
+        year:
+          title: Год распределения
+          type: number
+          format: int4
+        period:
+          title: Период распределения
+          oneOf:
+            - $ref: '#/components/schemas/Month'
+            - $ref: '#/components/schemas/Quarter'
+        transportType:
+          $ref: '#/components/schemas/TransportType'
+        sum:
+          title: Сумма
+          type: number
+          format: int8
+        description:
+          title: Описание
+          type: string
+        askTargets:
+          $ref: '#/components/schemas/LimitRequestAskTargets'
+        departments:
+          type: array
+          title: Подразделения
+          items:
+            title: Идентификатор подразделения
+            type: string
+            format: uuid
+            pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+    GetDepLimitRequestV2DTO:
+      type: object
+      title: Заявка на лимит подразделения (Чтение)
+      description: Заявка на лимит подразделения
+      required:
+        - id
+        - humanReadableId
+        - year
+        - period
+        - transportType
+        - sum
+      properties:
+        id:
+          title: Идентификатор
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        authorId:
+          title: Идентификатор автора
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        humanReadableId:
+          title: Человекочитаемый идентификатор
+          type: string
+          format: string
+          pattern: "\\w{2}-\\d{4}-\\d{8}"
+        year:
+          title: Год распределения
+          type: number
+          format: int4
+        period:
+          title: Период распределения
+          oneOf:
+            - $ref: '#/components/schemas/Month'
+            - $ref: '#/components/schemas/Quarter'
+        transportType:
+          $ref: '#/components/schemas/TransportType'
+        sum:
+          title: Сумма
+          type: number
+          format: int8
+        description:
+          title: Описание
+          type: string
+        declineReason:
+          title: Причина отказа
+          type: string
+        approvalState:
+          $ref: '#/components/schemas/ApprovalState'
+        status:
+          $ref: '#/components/schemas/LimitRequestStatus'
+        creationTime:
+          title: Дата создания
+          type: string
+          format: datetime
+          pattern: yyyy-MM-ddTHH:mm:ss.sss
+        askTargets:
+          $ref: '#/components/schemas/LimitRequestAskTargets'
+        departments:
+          type: array
+          title: Подразделения
+          items:
+            title: Идентификатор подразделения
+            type: string
+            format: uuid
+            pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+    GetLimitHistoryV2DTO:
+      type: object
+      title: Движение денежных средств по лимитам
+      description: Движение денежных средств по лимитам
+      properties:
+        author:
+          title: Идентификатор автора
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        creationTime:
+          title: Дата создания
+          type: string
+          format: datetime
+          pattern: yyyy-MM-ddTHH:mm:ss.sss
+        sum:
+          title: Сумма
+          type: number
+          format: int8
+        limitId:
+          title: Исходный лимит
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        transportType:
+          $ref: '#/components/schemas/TransportType'
+        year:
+          title: Год
+          type: number
+          format: int4
+        period:
+          title: Период распределения
+          oneOf:
+            - $ref: '#/components/schemas/Month'
+            - $ref: '#/components/schemas/Quarter'
+        historyType:
+          $ref: '#/components/schemas/LimitHistoryType'
+    GetEmpLimitRequestV2DTO:
+      type: object
+      title: Заявка на личный лимит (Чтение)
+      description: Заявка на личный лимит
+      required:
+        - id
+        - humanReadableId
+        - year
+        - period
+        - transportType
+        - sum
+      properties:
+        id:
+          title: Идентификатор
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        authorId:
+          title: Идентификатор автора
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        humanReadableId:
+          title: Человекочитаемый идентификатор
+          type: string
+          format: string
+          pattern: "\\w{2}-\\d{4}-\\d{8}"
+        year:
+          title: Год распределения
+          type: number
+          format: int4
+        period:
+          title: Период распределения
+          oneOf:
+            - $ref: '#/components/schemas/Month'
+            - $ref: '#/components/schemas/Quarter'
+        transportType:
+          $ref: '#/components/schemas/TransportType'
+        sum:
+          title: Сумма
+          type: number
+          format: int8
+        description:
+          title: Описание
+          type: string
+        declineReason:
+          title: Причина отказа
+          type: string
+        approvalState:
+          $ref: '#/components/schemas/ApprovalState'
+        status:
+          $ref: '#/components/schemas/LimitRequestStatus'
+        creationTime:
+          title: Дата создания
+          type: string
+          format: datetime
+          pattern: yyyy-MM-ddTHH:mm:ss.sss
+        askTargets:
+          $ref: '#/components/schemas/LimitRequestAskTargets'
+    GetLimitRequestV2DTO:
+      title: Заявка (Чтение)
+      description: Данные заявки на лимит
+      properties:
+        id:
+          title: Идентификатор
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        humanReadableId:
+          title: Человекочитаемый идентификатор
+          type: string
+          format: string
+          pattern: "\\w{2}-\\d{4}-\\d{8}"
+        author:
+          title: Автор
+          allOf:
+            - $ref: '#/components/schemas/GetEmployeeDTO'
+        year:
+          title: Год распределения
+          type: number
+          format: int4
+        period:
+          title: Период распределения
+          oneOf:
+            - $ref: '#/components/schemas/Month'
+            - $ref: '#/components/schemas/Quarter'
+        transportType:
+          $ref: '#/components/schemas/TransportType'
+        sum:
+          title: Сумма
+          type: number
+          format: int8
+        description:
+          title: Описание
+          type: string
+        declineReason:
+          title: Причина отказа
+          type: string
+        status:
+          $ref: '#/components/schemas/LimitRequestStatus'
+        statusCode:
+          title: Код статуса
+          type: number
+        creationTime:
+          title: Дата создания
+          type: string
+          format: datetime
+          pattern: yyyy-MM-ddTHH:mm:ss.sss
+        limitType:
+          $ref: '#/components/schemas/LimitType'
+        askTargets:
+          $ref: '#/components/schemas/LimitRequestAskTargets'
+        approverDtoList:
+          type: array
+          title: Согласующие
+        limitId:
+          title: Идентификатор лимита
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        limitHumanreadableid:
+          title: Человекочитаемый идентификатор лимита
+          type: string
+          format: string
+          pattern: "\\w{2}-\\d{4}-\\d{8}"
+        limitSharingType:
+          $ref: '#/components/schemas/LimitSharingType'
+        plannedSum:
+          title: Запланированная сумма
+          type: number
+          format: int8
+        limitSum:
+          title: Сумма лимита
+          type: number
+          format: int8
+        limitBalance:
+          title: Остаток лимита
+          type: number
+          format: int8
+        parentLimitId:
+          title: Идентификатор родительского лимита
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        parentLimitHumanreadableid:
+          title: Человекочитаемый идентификатор родительского лимита
+          type: string
+          format: string
+          pattern: "\\w{2}-\\d{4}-\\d{8}"
+        parentLimitSum:
+          title: Сумма родительского лимита
+          type: number
+          format: int8
+        parentLimitBalance:
+          title: Остаток родительского лимита
+          type: number
+          format: int8
+    GetLimitTransferHistoryV2DTO:
+      type: object
+      title: Движение денежных средств по лимитам
+      description: Движение денежных средств по лимита
+      properties:
+        id:
+          title: Идентификатор
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        author:
+          title: Идентификатор автора
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        creationTime:
+          title: Дата создания
+          type: string
+          format: datetime
+          pattern: yyyy-MM-ddTHH:mm:ss.sss
+        sum:
+          title: Сумма
+          type: number
+          format: int8
+        source:
+          title: Данные исходного лимита
+          allOf:
+            - $ref: '#/components/schemas/LimitData'
+        target:
+          title: Данные целевого лимита
+          allOf:
+            - $ref: '#/components/schemas/LimitData'
+        year:
+          title: Год распределения
+          type: number
+          format: int4
+        historyType:
+          $ref: '#/components/schemas/LimitHistoryType'
+    LimitData:
+      type: object
+      title: Данные лимита
+      description: Данные лимита
+      properties:
+        limit:
+          title: Лимит
+          description: Идентификатор лимита
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        transportType:
+          $ref: '#/components/schemas/TransportType'
+        period:
+          $ref: '#/components/schemas/Period'
+    LimitReSharingByDepartmentV2DTO:
+      type: object
+      title: Перераспределение между подразделениями
+      description: Перераспределение между подразделениями
+      required:
+        - sum
+        - year
+        - sourceDepartmentId
+        - sourceTransportType
+        - targetDepartmentId
+        - targetTransportType
+      properties:
+        sum:
+          type: number
+          title: Сумма
+          minimum: 0
+        year:
+          type: number
+          title: Год
+        sourceDepartmentId:
+          title: Исходное подразделение
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        sourceTransportType:
+          title: Исходный тип транспорта
+          allOf:
+            - $ref: '#/components/schemas/TransportType'
+        targetDepartmentId:
+          title: Целевое подразделение
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        targetTransportType:
+          title: Целевой тип транспорта
+          allOf:
+            - $ref: '#/components/schemas/TransportType'
+        fromPeriod:
+          title: Исходный период
+          oneOf:
+            - $ref: '#/components/schemas/Quarter'
+            - $ref: '#/components/schemas/Month'
+        toPeriod:
+          title: Целевой период
+          oneOf:
+            - $ref: '#/components/schemas/Quarter'
+            - $ref: '#/components/schemas/Month'
+    LimitReSharingByTransportTypeV2DTO:
+      type: object
+      title: Перераспределение между видами транспорта
+      description: Перераспределение между видами транспорта
+      required:
+        - sum
+        - year
+        - limitId
+        - sourceTransportType
+        - targetTransportType
+      properties:
+        sum:
+          type: number
+          title: Сумма
+          minimum: 0
+        limitId:
+          title: Идентификатор лимита
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        sourceTransportType:
+          title: Исходный тип транспорта
+          allOf:
+            - $ref: '#/components/schemas/TransportType'
+        targetTransportType:
+          title: Целевой тип транспорта
+          allOf:
+            - $ref: '#/components/schemas/TransportType'
+        fromPeriod:
+          title: Исходный период
+          oneOf:
+            - $ref: '#/components/schemas/Quarter'
+            - $ref: '#/components/schemas/Month'
+        toPeriod:
+          title: Целевой период
+          oneOf:
+            - $ref: '#/components/schemas/Quarter'
+            - $ref: '#/components/schemas/Month'
+    LimitResharingV2DTO:
+      type: object
+      title: Отбор дочернего лимита в пользу родительского
+      description: Отбор дочернего лимита в пользу родительского
+      required:
+        - sum
+        - year
+        - sourceLimitId
+        - sourceTransportType
+        - targetLimitId
+        - targetTransportType
+      properties:
+        sum:
+          type: number
+          title: Сумма
+          minimum: 0
+        sourceLimitId:
+          title: Идентификатор лимита
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        sourceTransportType:
+          title: Исходный тип транспорта
+          allOf:
+            - $ref: '#/components/schemas/TransportType'
+        targetLimitId:
+          title: Идентификатор лимита
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        targetTransportType:
+          title: Целевой тип транспорта
+          allOf:
+            - $ref: '#/components/schemas/TransportType'
+        fromPeriod:
+          title: Исходный период
+          oneOf:
+            - $ref: '#/components/schemas/Quarter'
+            - $ref: '#/components/schemas/Month'
+        toPeriod:
+          title: Целевой период
+          oneOf:
+            - $ref: '#/components/schemas/Quarter'
+            - $ref: '#/components/schemas/Month'
+    LimitStatsV2DTO:
+      type: object
+      title: Статистика по лимитам
+      properties:
+        departmentId:
+          title: Идентификатор подразделения
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        departmentName:
+          title: Наименование подразделения
+          type: string
+          format: string
+        departmentLevel:
+          title: Уровень подразделения
+          type: number
+          default: 0
+        year:
+          title: Год
+          type: number
+          default: 0
+        period:
+          title: Период
+          oneOf:
+            - $ref: '#/components/schemas/Quarter'
+            - $ref: '#/components/schemas/Month'
+        employeesNumber:
+          title: Численность подразделения
+          type: number
+          default: 0
+        budgetPeriod:
+          title: Бюджет за период
+          type: number
+          default: 0
+        budgetYear:
+          title: Бюджет за год
+          type: number
+          default: 0
+        sumSpentYear:
+          title: Сумма потраченная за год
+          type: number
+          default: 0
+        sumSpentPeriod:
+          title: Сумма потраченная за период
+          type: number
+          default: 0
+        sumReservedYear:
+          title: Сумма зарезервированная за год
+          type: number
+          default: 0
+        sumBalanceYear:
+          title: Баланс за год
+          type: number
+          default: 0
+        perEmployeeSpent:
+          title: Потрачено на сотрудника
+          type: number
+          default: 0
+        currentDateEconomy:
+          title: Экономия на дату
+          type: number
+          default: 0
+        percentUsedPeriod:
+          title: '% Использования лимитов за период'
+          type: number
+          default: 0
+        limitSharingStatsDTOList:
+          title: Данные по видам транспорта
+          type: array
+          items:
+            $ref: '#/components/schemas/LimitSharingStatsV2DTO'
+    LimitTransferHistoryV2DTO:
+      type: object
+      title: Движение денежных средств по лимитам
+      properties:
+        year:
+          type: number
+          title: Год
+        sum:
+          type: number
+          title: Сумма
+        sourceLimit:
+          title: Идентификатор источника лимита
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        targetLimit:
+          title: Идентификатор целевого лимита
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        sourceTransportType:
+          title: Исходный тип транспорта
+          allOf:
+            - $ref: '#/components/schemas/TransportType'
+        targetTransportType:
+          title: Целевой тип транспорта
+          allOf:
+            - $ref: '#/components/schemas/TransportType'
+        sourcePeriod:
+          title: Исходный период
+          oneOf:
+            - $ref: '#/components/schemas/Month'
+            - $ref: '#/components/schemas/Quarter'
+        targetPeriod:
+          title: Целевой период
+          oneOf:
+            - $ref: '#/components/schemas/Month'
+            - $ref: '#/components/schemas/Quarter'
+        historyType:
+          $ref: '#/components/schemas/LimitHistoryType'
+    GetLimitV2DTO:
+      type: object
+      title: Лимит (Чтение)
+      default: Данные лимита для чтения
+      properties:
+        id:
+          title: Идентификатор
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        humanReadableId:
+          title: Человекочитаемый идентификатор
+          allOf:
+            - $ref: '#/components/schemas/HumanReadableId'
+        limitOwner:
+          title: Идентификатор владельца
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        limitStatus:
+          $ref: '#/components/schemas/LimitStatus'
+        year:
+          type: number
+          title: Год лимита
+        limitSharingType:
+          $ref: '#/components/schemas/LimitSharingType'
+        limitServiceType:
+          $ref: '#/components/schemas/LimitServiceType'
+        sum:
+          title: Сумма в копейках
+          type: number
+          minimum: 0
+        reserve:
+          title: Зарезервировано в копейках
+          type: number
+          minimum: 0
+        economy:
+          title: Экономия в копейках
+          type: number
+          minimum: 0
+        creationTime:
+          title: Время создания
+          allOf:
+            - $ref: '#/components/schemas/LocalDateTime'
+        finalSharing:
+          title: Конечное распределение
+          type: boolean
+        useThisLimit:
+          title: Использовать лимит моего подразделения
+          type: boolean
+        limitType:
+          $ref: '#/components/schemas/LimitType'
+        department:
+          $ref: '#/components/schemas/GetDepartmentV2DTO'
+        employee:
+          $ref: '#/components/schemas/GetEmployeeDTO'
+        parentLimitId:
+          title: Родительский лимит
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        sharings:
+          title: Распределения
+          type: array
+          items:
+            $ref: '#/components/schemas/GetLimitSharingV2DTO'
+        owner:
+          title: Владелец лимита
+          allOf:
+            - $ref: '#/components/schemas/GetEmployeeDTO'
+    GetDepartmentV2DTO:
+      title: Краткая информация о подразделении
+      description: Данные подразделения
+      properties:
+        id:
+          title: Идентификатор
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        code:
+          title: Код
+          type: string
+        name:
+          title: Наименование
+          type: string
+        humanReadableId:
+          $ref: '#/components/schemas/HumanReadableId'
+        departmentHead:
+          title: Руководитель подразделения
+          allOf:
+            - $ref: '#/components/schemas/GetEmployeeDTO'
+    GetLimitSharingV2DTO:
+      type: object
+      title: Распределение по видам транспорта (чтение)
+      default: Распределение по видам транспорта для чтения
+      properties:
+        id:
+          title: Идентификатор
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        author:
+          title: Идентификатор автора
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        creationTime:
+          title: Время создания
+          allOf:
+            - $ref: '#/components/schemas/LocalDateTime'
+        transportType:
+          $ref: '#/components/schemas/TransportType'
+        sum:
+          title: Сумма в копейках
+          type: number
+          minimum: 0
+        balance:
+          title: Баланс в копейках
+          type: number
+          minimum: 0
+        limitId:
+          title: Идентификатор лимита
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        sharings:
+          type: array
+          title: Распределения
+          items:
+            $ref: '#/components/schemas/ChildLimitShardingPerPeriodV2DTO'
+        sumResharingsYear:
+          title: Сумма перераспределеней за год
+          type: number
+          minimum: 0
+    GetLimitSharingPerPeriodV2DTO:
+      type: object
+      title: Распределение по видам транспорта (чтение)
+      default: Распределение по видам транспорта для чтения
+      properties:
+        id:
+          title: Идентификатор
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        author:
+          title: Идентификатор автора
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        creationTime:
+          title: Время создания
+          allOf:
+            - $ref: '#/components/schemas/LocalDateTime'
+        sum:
+          title: Сумма в копейках
+          type: number
+          minimum: 0
+        balance:
+          title: Баланс в копейках
+          type: number
+          minimum: 0
+        period:
+          $ref: '#/components/schemas/Period'
+        limitSharing:
+          title: Идентификатор распределения
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        sumReservedForCurrentPeriod:
+          title: Сумма зарезервированная за период
+          type: number
+          format: int8
+          minimum: 0
+        sumResharingsPeriod:
+          title: Сумма перераспределений за период
+          type: number
+          format: int8
+          minimum: 0
+    RemainsPerPeriodV2DTO:
+      type: object
+      title: Остатки за период
+      default: Остатки за период
+      properties:
+        requestId:
+          title: Идентификатор заявки
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        limitId:
+          title: Идентификатор лимита
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        limitType:
+          $ref: '#/components/schemas/LimitType'
+        limitHumanId:
+          title: Человекочитаемый идентификатор лимита
+          type: string
+          format: string
+          pattern: "\\w{2}-\\d{4}-\\d{8}"
+        departmentId:
+          title: Идентификатор подразделения
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        period:
+          title: Период
+          type: string
+          oneOf:
+            - $ref: '#/components/schemas/Month'
+            - $ref: '#/components/schemas/Quarter'
+        balancePerPeriod:
+          title: Остатки за период
+          type: number
+    LimitSharingStatsV2DTO:
+      type: object
+      title: Статистика распределений
+      properties:
+        transportType:
+          $ref: "#/components/schemas/TransportType"
+        budgetPerYear:
+          default: 0
+          title: Выделенный лимит на год
+          type: number
+          format: int8
+        sumReserved:
+          default: 0
+          title: Зарезервированный лимит
+          type: number
+          format: int8
+        sumSpent:
+          default: 0
+          title: Израсходовано
+          type: number
+          format: int8
+        balance:
+          default: 0
+          title: Остаток
+          type: number
+          format: int8
+        perEmployeeBudget:
+          default: 0
+          title: Бюджет на сотрудника
+          type: number
+          format: int8
+        perEmployeeSpent:
+          default: 0
+          title: Расход на сотрудника
+          type: number
+          format: int8
+        currentDateEconomy:
+          default: 0
+          title: Возможная экономия
+          type: number
+          format: int8
+        percentSpent:
+          default: 0
+          title: '% расходов на данный вид транспорта ко всем расходам'
+          type: number
+          format: int8
+        percentUsed:
+          default: 0
+          title: '% использования лимита'
+          type: number
+          format: int8
+        sumSpentPeriod:
+          default: 0
+          title: Фактические расходы на дату
+          type: number
+          format: int8
+        balancePeriod:
+          default: 0
+          title: Фактический остаток на дату
+          type: number
+          format: int8
+        perEmployeeSpentPeriod:
+          default: 0
+          title: Удельный расход на чел
+          type: number
+          format: int8
+        currentDateEconomyPeriod:
+          default: 0
+          title: Возможная экономия
+          type: number
+          format: int8
+        percentSpentPeriod:
+          default: 0
+          title: '% расходов на данный вид транспорта ко всем расходам'
+          type: number
+          format: int8
+        percentUsedPeriod:
+          default: 0
+          title: '% использования лимита'
+          type: number
+          format: int8
+    EmpLimitRequestV2DTO:
+      type: object
+      title: Заявка на личный лимит
+      description: Заявка на личный лимит
+      required:
+        - year
+        - period
+        - transportType
+        - sum
+      properties:
+        year:
+          title: Год распределения
+          type: number
+          format: int4
+        period:
+          title: Период распределения
+          oneOf:
+            - $ref: '#/components/schemas/Month'
+            - $ref: '#/components/schemas/Quarter'
+        transportType:
+          $ref: '#/components/schemas/TransportType'
+        sum:
+          title: Сумма
+          type: number
+          format: int8
+        description:
+          title: Описание
+          type: string
+    EconomyV2DTO:
+      title: Экономия
+      description: Выходные данные по экономии
+      properties:
+        department:
+          title: Подразделение
+          type: string
+        period:
+          title: Период
+          type: string
+          format: enum
+          oneOf:
+            - $ref: '#/components/schemas/Month'
+            - $ref: '#/components/schemas/Quarter'
+        sumEconomy:
+          type: number
+          title: Сумма экономии
+        sumPerPeriod:
+          type: number
+          title: Сумма за период
+        transportType:
+          $ref: '#/components/schemas/TransportType'
+        percent:
+          type: number
+          title: Процент
+    GetEmployeeDTO:
+      title: Краткая информация о сотруднике
+      description: Данные сотрудника
+      type: object
+      properties:
+        id:
+          title: Идентификатор
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        humanReadableId:
+          title: Человекочитаемый идентификатор
+          type: string
+          format: string
+          pattern: "\\w{2}-\\d{4}-\\d{8}"
+        firstName:
+          title: Имя
+          type: string
+          format: string
+        patronymic:
+          title: Отчество
+          type: string
+          format: string
+        lastName:
+          title: Фамилия
+          type: string
+          format: string
+        personnelNumber:
+          title: Табельный номер
+          type: string
+          format: string
+        positionId:
+          title: Идентификатор должности
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        organizationId:
+          title: Идентификатор организации
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+    ApproverDTO:
+      title: Согласующий
+      type: object
+      properties:
+        id:
+          title: Идентификатор
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        departmentId:
+          title: Идентификатор подразделения
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        employeeId:
+          title: Идентификатор пользователя
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        employeeFio:
+          title: ФИО пользователя
+          type: string
+          format: string
+        limitRequestId:
+          title: Идентификатор лимита
+          type: string
+          format: uuid
+          pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+        sum:
+          title: Сумма в копейках
+          type: number
+          format: int8
+        approvalState:
+          $ref: '#/components/schemas/ApprovalState'
+    LimitSharingPercentsV2DTO:
+      title: Распределения процентов
+      description: Распределения процентов
+      type: object
+      required:
+        - january
+        - february
+        - march
+        - april
+        - may
+        - june
+        - july
+        - august
+        - september
+        - october
+        - november
+        - december
+      properties:
+        january:
+          type: string
+          title: Январь
+        february:
+          type: string
+          title: Февраль
+        march:
+          type: string
+          title: Март
+        april:
+          type: string
+          title: Апрель
+        may:
+          type: string
+          title: Май
+        june:
+          type: string
+          title: Июнь
+        july:
+          type: string
+          title: Июль
+        august:
+          type: string
+          title: Август
+        september:
+          type: string
+          title: Сентябрь
+        october:
+          type: string
+          title: Октябрь
+        november:
+          type: string
+          title: Ноябрь
+        december:
+          type: string
+          title: Декабрь
+        limitId:
+          title: Идентификатор лимита
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+    GetLimitSharingPercentsV2DTO:
+      title: Распределения процентов (получение(
+      description: Распределения процентов
+      type: object
+      required:
+        - january
+        - february
+        - march
+        - april
+        - may
+        - june
+        - july
+        - august
+        - september
+        - october
+        - november
+        - december
+      properties:
+        id:
+          title: Идентификатор
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        author:
+          title: Идентификатор автора
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+        creationTime:
+          title: Дата создания
+          allOf:
+            - $ref: '#/components/schemas/LocalDateTime'
+        january:
+          type: string
+          title: Январь
+        february:
+          type: string
+          title: Февраль
+        march:
+          type: string
+          title: Март
+        april:
+          type: string
+          title: Апрель
+        may:
+          type: string
+          title: Май
+        june:
+          type: string
+          title: Июнь
+        july:
+          type: string
+          title: Июль
+        august:
+          type: string
+          title: Август
+        september:
+          type: string
+          title: Сентябрь
+        october:
+          type: string
+          title: Октябрь
+        november:
+          type: string
+          title: Ноябрь
+        december:
+          type: string
+          title: Декабрь
+        limitId:
+          title: Идентификатор лимита
+          allOf:
+            - $ref: '#/components/schemas/UUID'
+    LimitRequestStatus:
+      title: Статус заявки
+      type: string
+      format: enum
+      enum:
+        - INIT
+        - DONE_FULLY
+        - DONE_PARTLY
+        - CANCELLED
+    ApprovalState:
+      title: Статус согласования
+      type: string
+      format: enum
+      enum:
+        - AWAITING_APPROVAL
+        - APPROVED
+        - DECLINED
+    LimitRequestAskTargets:
+      title: Цели запроса
+      type: string
+      format: enum
+      enum:
+        - PARENT
+        - SIBLINGS
+    TransportType:
+      title: Тип транспорта
+      type: string
+      format: enum
+      enum:
+        - TAXI
+        - PERSONAL
+        - PUBLIC
+        - CARSHARING
+        - BICYCLE
+        - WALK
+        - SCOOTER
+        - DEDICATED
+        - COURIER
+        - DOMESTIC_COURIER
+        - INTERREGIONAL
+        - OFFICIAL
+        - PRIVATE
+        - SPECIAL
+    Month:
+      title: Месяц
+      type: string
+      format: enum
+      enum:
+        - JANUARY
+        - FEBRUARY
+        - MARCH
+        - APRIL
+        - MAY
+        - JUNE
+        - JULY
+        - AUGUST
+        - SEPTEMBER
+        - OCTOBER
+        - NOVEMBER
+        - DECEMBER
+    Quarter:
+      title: Квартал
+      type: string
+      format: enum
+      enum:
+        - Q1
+        - Q2
+        - Q3
+        - Q4
+    LimitHistoryType:
+      title: Тип исторической записи
+      type: string
+      format: enum
+      enum:
+        - INCOME
+        - OUTCOME
+        - SPENDING
+    LimitType:
+      title: Типы лимитов
+      type: string
+      format: enum
+      enum:
+        - DEPARTMENT
+        - EMPLOYEE
+    LimitSharingType:
+      title: Типы распределения лимитов
+      type: string
+      format: enum
+      enum:
+        - MONTHLY
+        - QUARTER
+        - PERCENTS
+    LimitServiceType:
+      title: Типы услуги лимита
+      type: string
+      format: enum
+      enum:
+        - PASSENGER
+        - CARGO
+        - REPAIR
+    LimitStatus:
+      title: Статус лимита
+      type: string
+      format: enum
+      enum:
+        - PLANNING
+        - SHARED
+        - CLOSED
+    UUID:
+      title: Идентификатор
+      type: string
+      format: uuid
+      pattern: "[\\da-f]{8}(-[\\da-f]{4}){3}-[\\da-f]{12}"
+    LocalDateTime:
+      title: Дата-время
+      type: string
+      format: datetime
+      pattern: yyyy-MM-ddTHH:mm:ss.sss
+    Period:
+      title: Период
+      oneOf:
+        - $ref: '#/components/schemas/Quarter'
+        - $ref: '#/components/schemas/Month'
+    HumanReadableId:
+      title: Человекочитаемый идентификатор лимита
+      type: string
+      format: string
+      pattern: "\\w{2}-\\d{4}-\\d{8}"
+    GeneralAnalyticalReportResponseDTO:
+      title: Общая аналитика
+      description: Общие аналитические данные
+      type: object
+      properties:
+        charts:
+          title: Данные диаграм
+          description: Данные для отображения диаграмм
+          type: array
+          items:
+            $ref: '#/components/schemas/ChartDTO'
+    ChartDTO:
+      title: Диаграмма
+      description: Данные для построения диаграммы
+      type: object
+      properties:
+        type:
+          type: string
+          title: Тип
+          description: Тип диаграммы
+        data:
+          title: Общие данные
+          description: Общие данные аналитики по лимитам
+          type: array
+          items:
+            $ref: '#/components/schemas/MetricDTO'
+        dataPerTransportType:
+          title: Данные по типам транспорта
+          description: Данные аналитики по лимита распределенные по типам транспорта
+          type: array
+          items:
+            $ref: '#/components/schemas/MetricDTO'
+    MetricDTO:
+      title: Метрика
+      description: Данные метрики для построения диаграммы
+      properties:
+        code:
+          title: Код метрики
+          description: Код метрики
+          type: string
+        name:
+          title: Наименование метрики
+          description: Наименование метрики
+          type: string
+        typeValue:
+          title: Тип значения
+          description: Описание типа значения
+          type: string
+        transportType:
+          $ref: '#/components/schemas/TransportType'
+        totalBudget:
+          title: Бюджет - всего
+          description: Общая сумма бюджета
+          type: integer
+        spentBudget:
+          title: Бюджет - потрачено
+          description: Использованная сумма бюджета
+          type: integer
+        totalBudgetPerEmployee:
+          title: Бюджет сотрудника - всего
+          description: Общая сумма бюджета с рассчетом на одного сотрудника
+          type: integer
+        spentBudgetPerEmployee:
+          title: Бюджет сотрудника - потрачено
+          description: Использованная сумма бюджета с рассчетом на одного сотрудника
+          type: integer
+        numOfEmployees:
+          title: Сотрудники
+          description: Количество сотрудников
+          type: integer
+  securitySchemes:
+    BearerToken:
+      description: Токен доступа
+      scheme: bearer
+      type: http
+      bearerFormat: JWT

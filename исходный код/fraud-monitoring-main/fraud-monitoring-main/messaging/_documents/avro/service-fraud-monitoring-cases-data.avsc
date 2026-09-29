@@ -1,0 +1,71 @@
+{
+  "namespace": "ru.sber.transport.messages.cases_data.avro",
+  "name": "FraudCaseDataMessage",
+  "type": "record",
+  "doc": "Сообщение о кейсе фрода с email-перепиской",
+  "fields": [
+    {
+      "name": "id",
+      "doc": "Идентификатор кейса фрода",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      }
+    },
+    {
+      "name": "messaging",
+      "doc": "Список email-сообщений",
+      "type": {
+        "type": "array",
+        "items": {
+          "type": "record",
+          "name": "MessageItem",
+          "doc": "Email-сообщение",
+          "fields": [
+            {
+              "name": "messageDate",
+              "doc": "Дата/время отправки письма",
+              "type": {
+                "type": "long",
+                "logicalType": "timestamp-millis"
+              }
+            },
+            {
+              "name": "fromEmail",
+              "doc": "Отправитель",
+              "type": "string"
+            },
+            {
+              "name": "toEmail",
+              "doc": "Получатель",
+              "type": "string"
+            },
+            {
+              "name": "body",
+              "doc": "Тело письма",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "dateTime",
+      "doc": "Дата/время создания кейса",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "aiVerdict",
+      "doc": "Вердикт ИИ",
+      "type": "string"
+    },
+    {
+      "name": "needValidation",
+      "doc": "Флаг необходимости валидации человека",
+      "type": "boolean"
+    }
+  ]
+}

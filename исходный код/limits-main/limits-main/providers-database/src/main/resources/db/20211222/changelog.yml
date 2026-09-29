@@ -1,0 +1,1148 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20211222"
+            author: medvedev-ad
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/add_compacted_migration.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+            rollback:
+                -   sql:
+                        sql: select 1 # no need to rollback
+    -   changeSet:
+            id: "20211222-1-remastered-2"
+            author: medvedev-ad
+            context: TRANSPORT-25492
+            preConditions:
+              - not:
+                  - tableExists:
+                      schemaName: limits
+                      tableName: limit
+                onFail: MARK_RAN
+            changes:
+                -   sql:
+                      sql: create schema limits;
+                - createTable:
+                    schemaName: limits
+                    tableName: organization
+                    remarks: Организации
+                    columns:
+                      - column:
+                          name: id
+                          type: uuid
+                          remarks: Идентификатор
+                          constraints:
+                            primaryKey: true
+                            primaryKeyName: organization_pkey
+                      - column:
+                          name: digit_id
+                          type: numeric
+                          remarks: Уникальный идентификатор (числовой ID)
+                      - column:
+                          name: active
+                          type: boolean
+                          remarks: Флаг активности(неудаленности)
+                - createTable:
+                    schemaName: limits
+                    tableName: department
+                    remarks: Подразделения
+                    columns:
+                      - column:
+                          name: id
+                          type: uuid
+                          remarks: Идентификатор
+                          constraints:
+                            primaryKey: true
+                            primaryKeyName: department_pkey
+                      - column:
+                          name: organization_id
+                          type: uuid
+                          remarks: Идентификатор организации
+                      - column:
+                          name: parent_id
+                          type: uuid
+                          remarks: Идентификатор родительского подразделения
+                      - column:
+                          name: humanreadableid
+                          type: varchar(100)
+                          remarks: Человекочитаемый идентификатор
+                      - column:
+                          name: department_head_id
+                          type: uuid
+                          remarks: Идентификатор главного сотрудника
+                      - column:
+                          name: active
+                          type: boolean
+                          remarks: Флаг активности(неудаленности)
+                          defaultOnNull: true
+                          defaultValueBoolean: true
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_department_active_nn
+                      - column:
+                          name: code
+                          type: varchar(255)
+                          defaultOnNull: true
+                          defaultValue: ''
+                          remarks: Код подразделения
+                      - column:
+                          name: department_name
+                          type: varchar(255)
+                          defaultOnNull: true
+                          defaultValue: ''
+                          remarks: Название подразделения
+                - createTable:
+                    schemaName: limits
+                    tableName: employee
+                    remarks: Сотрудники
+                    columns:
+                      - column:
+                          name: id
+                          type: uuid
+                          remarks: Идентификатор
+                          constraints:
+                            primaryKey: true
+                            primaryKeyName: employee_pkey
+                      - column:
+                          name: organization_id
+                          type: uuid
+                          remarks: Идентификатор организации
+                      - column:
+                          name: humanreadableid
+                          type: varchar(100)
+                          remarks: Человекочитаемый идентификатор
+                      - column:
+                          name: active
+                          type: boolean
+                          remarks: Флаг активности(неудаленности)
+                          defaultOnNull: true
+                          defaultValueBoolean: true
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_employee_active_nn
+                      - column:
+                          name: department_id
+                          type: uuid
+                          remarks: Идентификатор подразделения
+                      - column:
+                          name: supervisor_id
+                          type: uuid
+                          remarks: Идентификатор главного сотрудника
+                      - column:
+                          name: user_id
+                          type: uuid
+                          remarks: Идентификатор пользователя
+                      - column:
+                          name: first_name
+                          type: varchar(255)
+                          remarks: Имя
+                          defaultOnNull: true
+                          defaultValue: ''
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_employee_first_name_nn
+                      - column:
+                          name: last_name
+                          type: varchar(255)
+                          remarks: Фамилия
+                          defaultOnNull: true
+                          defaultValue: ''
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_employee_last_name_nn
+                      - column:
+                          name: patronymic
+                          type: varchar(255)
+                          remarks: Отчество
+                      - column:
+                          name: position_id
+                          type: uuid
+                          remarks: Идентификатор должности
+                      - column:
+                          name: personnel_number
+                          type: varchar(255)
+                          remarks: Табельный номер
+                - createTable:
+                    schemaName: limits
+                    tableName: transport_type
+                    remarks: Типы транспорта
+                    columns:
+                      - column:
+                          name: id
+                          type: uuid
+                          remarks: Идентификатор
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: transport_type_pkey
+                      - column:
+                          name: name
+                          type: varchar(255)
+                          remarks: Название
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_transport_type_name_nn
+                            uniqueConstraintName: transport_type_name_key
+                - createTable:
+                    schemaName: limits
+                    tableName: company_sq
+                    remarks: Таблица последовательностей
+                    columns:
+                      - column:
+                          name: id
+                          type: uuid
+                          remarks: Идентификатор
+                          constraints:
+                            primaryKey: true
+                            primaryKeyName: company_sq_pkey
+                      - column:
+                          name: prefix
+                          type: varchar(2)
+                          remarks: Префикс
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_company_sq_prefix_nn
+                      - column:
+                          name: orgdigitid
+                          type: numeric
+                          remarks: Организационный номер
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_company_sq_orgdigitid_nn
+                      - column:
+                          name: sq
+                          type: numeric
+                          remarks: Последовательность
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_company_sq_sq_nn
+                      - column:
+                          name: dt_insert
+                          type: timestamp with time zone
+                          remarks: Дата создания
+                          defaultOnNull: true
+                          defaultValueComputed: now()
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_company_sq_dt_insert_nn
+                      - column:
+                          name: dt_modify
+                          type: timestamp with time zone
+                          remarks: Дата изменения
+                          defaultOnNull: true
+                          defaultValueComputed: now()
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_company_sq_dt_modify_nn
+                - createIndex:
+                    schemaName: limits
+                    tableName: company_sq
+                    columns:
+                      - column:
+                          name: prefix
+                      - column:
+                          name: orgdigitid
+                      - column:
+                          name: sq
+                    unique: true
+                    indexName: ux_company_sq_1
+                - createIndex:
+                    schemaName: limits
+                    tableName: company_sq
+                    columns:
+                      - column:
+                          name: prefix
+                      - column:
+                          name: orgdigitid
+                    unique: true
+                    indexName: ux_company_sq_2
+                - createTable:
+                    schemaName: limits
+                    tableName: limit
+                    remarks: Таблица лимитов
+                    columns:
+                      - column:
+                          name: id
+                          type: uuid
+                          remarks: Идентификатор
+                          constraints:
+                            primaryKey: true
+                            primaryKeyName: limit_pkey
+                      - column:
+                          name: human_readable_id
+                          type: varchar(100)
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_human_readable_id_nn
+                      - column:
+                          name: author_id
+                          type: uuid
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_author_id_nn
+                      - column:
+                          name: limit_owner_id
+                          type: uuid
+                          remarks: Владелец лимита
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_limit_owner_id_nn
+                      - column:
+                          name: limit_status
+                          type: varchar(100)
+                          remarks: Статус
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_limit_status_nn
+                      - column:
+                          name: year
+                          type: integer
+                          remarks: Год
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_year_nn
+                      - column:
+                          name: limit_type
+                          type: varchar(100)
+                          remarks: Тип лимита
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_limit_type_nn
+                      - column:
+                          name: limit_sharing_type
+                          type: varchar(100)
+                          remarks: Тип распределений
+                      - column:
+                          name: limit_service_type
+                          type: varchar(100)
+                          remarks: Тип услуг
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_limit_service_type_nn
+                      - column:
+                          name: sum
+                          type: bigint
+                          remarks: Остаток суммы
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sum_nn
+                      - column:
+                          name: reserve
+                          type: bigint
+                          remarks: Общий резерв
+                      - column:
+                          name: final_sharing
+                          type: boolean
+                          remarks: Конечное распределение
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_final_sharing_nn
+                      - column:
+                          name: use_my_limit
+                          type: boolean
+                          remarks: Использовать лимит моего подразделения
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_use_my_limit_nn
+                      - column:
+                          name: creation_time
+                          type: timestamp
+                          remarks: Время создания
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_creation_time_nn
+                      - column:
+                          name: parent_id
+                          type: uuid
+                          remarks: Родительский лимит
+                      - column:
+                          name: department_id
+                          type: uuid
+                          remarks: Подразделение
+                      - column:
+                          name: organization_id
+                          type: uuid
+                          remarks: Организация
+                      - column:
+                          name: employee_id
+                          type: uuid
+                          remarks: Пользователь
+                      - column:
+                          name: parent_department_id
+                          type: uuid
+                          remarks: Родительское подразделение
+                      - column:
+                          name: economy
+                          type: bigint
+                          remarks: Экономия
+                - addForeignKeyConstraint:
+                    baseTableSchemaName: limits
+                    baseTableName: limit
+                    baseColumnNames: parent_id
+                    referencedTableSchemaName: limits
+                    referencedTableName: limit
+                    referencedColumnNames: id
+                    constraintName: limit_parent_fk
+                - createTable:
+                    schemaName: limits
+                    tableName: limit_sharing
+                    remarks: Распределение средств
+                    columns:
+                      - column:
+                          name: id
+                          type: uuid
+                          remarks: Идентификатор
+                          constraints:
+                            primaryKey: true
+                            primaryKeyName: limit_sharing_pkey
+                      - column:
+                          name: author_id
+                          type: uuid
+                          remarks: Идентификатор автора
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_author_id_nn
+                      - column:
+                          name: creation_time
+                          type: timestamp
+                          remarks: Время создания
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_creation_time_nn
+                      - column:
+                          name: sum
+                          type: bigint
+                          remarks: Остаток
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_sum_nn
+                      - column:
+                          name: balance
+                          type: bigint
+                          remarks: Баланс
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_balance_nn
+                      - column:
+                          name: transport_type
+                          type: varchar(100)
+                          remarks: Тип транспорта
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_transport_type_nn
+                      - column:
+                          name: limit_id
+                          type: uuid
+                          remarks: Идентификатор лимита
+                      - column:
+                          name: distributed
+                          type: boolean
+                          remarks: Распределено
+                          defaultOnNull: true
+                          defaultValueBoolean: true
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_distributed_nn
+                - addForeignKeyConstraint:
+                    baseTableSchemaName: limits
+                    baseTableName: limit_sharing
+                    baseColumnNames: limit_id
+                    referencedTableSchemaName: limits
+                    referencedTableName: limit
+                    referencedColumnNames: id
+                    constraintName: limitsharing_limit_fk
+                - addForeignKeyConstraint:
+                    baseTableSchemaName: limits
+                    baseTableName: limit_sharing
+                    baseColumnNames: author_id
+                    referencedTableSchemaName: limits
+                    referencedTableName: employee
+                    referencedColumnNames: id
+                    constraintName: limitsharing_author_fk
+                - createTable:
+                    schemaName: limits
+                    tableName: limit_sharing_per_period
+                    remarks: Распределение средств за период
+                    columns:
+                      - column:
+                          name: id
+                          type: uuid
+                          remarks: Идентификатор
+                          constraints:
+                            primaryKey: true
+                            primaryKeyName: limit_sharing_per_period_pkey
+                      - column:
+                          name: author_id
+                          type: uuid
+                          remarks: Идентификатор автора
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_per_period_author_id_nn
+                      - column:
+                          name: creation_time
+                          type: timestamp
+                          remarks: Время создания
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_per_period_creation_time_nn
+                      - column:
+                          name: sum
+                          type: bigint
+                          remarks: Остаток
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_per_period_sum_nn
+                      - column:
+                          name: balance
+                          type: bigint
+                          remarks: Баланс
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_per_period_balance_nn
+                      - column:
+                          name: period_number
+                          type: integer
+                          remarks: Номер периода
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_per_period_period_number_nn
+                      - column:
+                          name: limit_sharing_id
+                          type: uuid
+                          remarks: Идентификатор распределения
+                - addForeignKeyConstraint:
+                    baseTableSchemaName: limits
+                    baseTableName: limit_sharing_per_period
+                    baseColumnNames: author_id
+                    referencedTableSchemaName: limits
+                    referencedTableName: employee
+                    referencedColumnNames: id
+                    constraintName: limit_sharing_limit_owner_fk
+                - addForeignKeyConstraint:
+                    baseTableSchemaName: limits
+                    baseTableName: limit_sharing_per_period
+                    baseColumnNames: limit_sharing_id
+                    referencedTableSchemaName: limits
+                    referencedTableName: limit_sharing
+                    referencedColumnNames: id
+                    constraintName: limitsharingperperiod_limitsharing_fk
+                - createIndex:
+                    schemaName: limits
+                    tableName: limit_sharing_per_period
+                    columns:
+                      - column:
+                          name: limit_sharing_id
+                      - column:
+                          name: period_number
+                    unique: true
+                    indexName: ux_limitsharingperperiod_1
+            rollback:
+              -   sql:
+                    sql: drop schema limits cascade;
+    -   changeSet:
+          id: "20211222-1-remastered-1"
+          author: medvedev-ad
+          context: TRANSPORT-25492
+          preConditions:
+            - and:
+              - not:
+                  - tableExists:
+                      schemaName: limits
+                      tableName: limit_sharing_procents
+              - not:
+                  - tableExists:
+                      schemaName: limits
+                      tableName: limit_sharing_percents
+              onFail: MARK_RAN
+          changes:
+                - createTable:
+                    schemaName: limits
+                    tableName: limit_sharing_procents
+                    remarks: Распределение средств за период в процентах
+                    columns:
+                      - column:
+                          name: id
+                          type: uuid
+                          remarks: Идентификатор
+                          constraints:
+                            primaryKey: true
+                            primaryKeyName: limit_sharing_procents_pkey
+                      - column:
+                          name: author_id
+                          type: uuid
+                          remarks: Идентификатор автора
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_procents_author_id_nn
+                            referencedTableSchemaName: limits
+                            referencedTableName: employee
+                            referencedColumnName: id
+                            foreignKeyName: limitsharing_author_fk
+                      - column:
+                          name: creation_time
+                          type: timestamp
+                          remarks: Время создания
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_procents_creation_time_nn
+                      - column:
+                          name: month0
+                          type: integer
+                          remarks: Январь
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_procents_month0_nn
+                      - column:
+                          name: month1
+                          type: integer
+                          remarks: Февраль
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_procents_month1_nn
+                      - column:
+                          name: month2
+                          type: integer
+                          remarks: Март
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_procents_month2_nn
+                      - column:
+                          name: month3
+                          type: integer
+                          remarks: Апрель
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_procents_month3_nn
+                      - column:
+                          name: month4
+                          type: integer
+                          remarks: Май
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_procents_month4_nn
+                      - column:
+                          name: month5
+                          type: integer
+                          remarks: Июнь
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_procents_month5_nn
+                      - column:
+                          name: month6
+                          type: integer
+                          remarks: Июль
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_procents_month6_nn
+                      - column:
+                          name: month7
+                          type: integer
+                          remarks: Август
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_procents_month7_nn
+                      - column:
+                          name: month8
+                          type: integer
+                          remarks: Сентябрь
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_procents_month8_nn
+                      - column:
+                          name: month9
+                          type: integer
+                          remarks: Октябрь
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_procents_month9_nn
+                      - column:
+                          name: month10
+                          type: integer
+                          remarks: Ноябрь
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_procents_month10_nn
+                      - column:
+                          name: month11
+                          type: integer
+                          remarks: Декабрь
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_sharing_procents_month11_nn
+                      - column:
+                          name: limit_id
+                          type: uuid
+                          remarks: Идентификатор лимита
+                          constraints:
+                            referencedTableSchemaName: limits
+                            referencedTableName: limit
+                            referencedColumnName: id
+                            foreignKeyName: limitsharing_limit_fk
+                - createTable:
+                    schemaName: limits
+                    tableName: limit_spending
+                    remarks: Траты
+                    columns:
+                      - column:
+                          name: id
+                          type: uuid
+                          remarks: Идентификатор
+                          constraints:
+                            primaryKey: true
+                            primaryKeyName: limit_spending_pkey
+                      - column:
+                          name: author_id
+                          type: uuid
+                          remarks: Идентификатор автора
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_spending_author_id_nn
+                            referencedTableSchemaName: limits
+                            referencedTableName: employee
+                            referencedColumnName: id
+                            foreignKeyName: limitspending_employee_fk
+                      - column:
+                          name: reservation_time
+                          type: timestamp
+                          remarks: Время заявки
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_spending_reservation_time_nn
+                      - column:
+                          name: spending_time
+                          type: timestamp
+                          remarks: Время расходов
+                      - column:
+                          name: cancel_time
+                          type: timestamp
+                          remarks: Время отмены
+                      - column:
+                          name: sum_reserved
+                          type: bigint
+                          remarks: Зарезервированная сумма
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_spending_sum_reserved_nn
+                      - column:
+                          name: sum_spent
+                          type: bigint
+                          remarks: Сумма расходов
+                      - column:
+                          name: limit_spending_status
+                          type: varchar(100)
+                          remarks: Статус
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_spending_status_nn
+                      - column:
+                          name: limit_sharing_per_period_id
+                          type: uuid
+                          remarks: Идентификатор распределения
+                          constraints:
+                            referencedTableSchemaName: limits
+                            referencedTableName: limit_sharing_per_period
+                            referencedColumnName: id
+                            foreignKeyName: limitspending_limitsharingperperiod_fk
+                      - column:
+                          name: request_id
+                          type: uuid
+                          remarks: Идентификатор заявки
+                          constraints:
+                            unique: true
+                            uniqueConstraintName: limit_spending_request_id_key
+                - createTable:
+                    schemaName: limits
+                    tableName: limit_transfer_history
+                    remarks: История переводов
+                    columns:
+                      - column:
+                          name: id
+                          type: uuid
+                          remarks: Идентификатор
+                          constraints:
+                            primaryKey: true
+                            primaryKeyName: limit_transfer_history_pkey
+                      - column:
+                          name: author_id
+                          type: uuid
+                          remarks: Идентификатор автора
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_transfer_history_author_id_nn
+                      - column:
+                          name: creation_time
+                          type: timestamp
+                          remarks: Время создания
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_transfer_history_creation_time_nn
+                      - column:
+                          name: sum
+                          type: bigint
+                          remarks: Сумма
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_transfer_history_sum_nn
+                      - column:
+                          name: source_limit_id
+                          type: uuid
+                          remarks: Идентификатор исходного лимита
+                      - column:
+                          name: target_limit_id
+                          type: uuid
+                          remarks: Идентификатор целевого лимита
+                      - column:
+                          name: source_transport_type
+                          type: varchar(255)
+                          remarks: Исходный тип транспорта
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_transfer_history_source_transport_type_nn
+                      - column:
+                          name: target_transport_type
+                          type: varchar(255)
+                          remarks: Целевой тип транспорта
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limits_limit_transfer_history_target_transport_type_nn
+                      - column:
+                          name: year
+                          type: integer
+                          remarks: Год
+                      - column:
+                          name: source_period
+                          type: integer
+                          remarks: Период исходного лимита
+                      - column:
+                          name: target_period
+                          type: integer
+                          remarks: Период целевого лимита
+                      - column:
+                          name: history_type
+                          type: varchar(100)
+                          remarks: Тип истории
+                - addForeignKeyConstraint:
+                    baseTableSchemaName: limits
+                    baseTableName: limit_transfer_history
+                    baseColumnNames: source_limit_id
+                    referencedTableSchemaName: limits
+                    referencedTableName: limit
+                    referencedColumnNames: id
+                    constraintName: limithistory_sourcelimit_fk
+                - addForeignKeyConstraint:
+                    baseTableSchemaName: limits
+                    baseTableName: limit_transfer_history
+                    baseColumnNames: target_limit_id
+                    referencedTableSchemaName: limits
+                    referencedTableName: limit
+                    referencedColumnNames: id
+                    constraintName: limithistory_targetlimit_fk
+                - createTable:
+                    schemaName: limits
+                    tableName: methods
+                    remarks: Методы
+                    columns:
+                      - column:
+                          name: id
+                          type: uuid
+                          remarks: Идентификатор
+                          constraints:
+                            primaryKey: true
+                            primaryKeyName: methods_pkey
+                      - column:
+                          name: name
+                          type: varchar
+                          remarks: Название
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: methods_name_nn
+                            uniqueConstraintName: methods_name_uk
+                            unique: true
+                      - column:
+                          name: description
+                          type: varchar
+                          remarks: Описание
+                - createTable:
+                    schemaName: limits
+                    tableName: method_roles
+                    remarks: Роли методов
+                    columns:
+                      - column:
+                          name: id
+                          type: uuid
+                          remarks: Идентификатор
+                          constraints:
+                            primaryKey: true
+                            primaryKeyName: method_roles_pkey
+                      - column:
+                          name: method_id
+                          type: uuid
+                          remarks: Идентификатор метода
+                      - column:
+                          name: role_code
+                          type: varchar
+                          remarks: Код роли
+                - addForeignKeyConstraint:
+                    baseTableSchemaName: limits
+                    baseTableName: method_roles
+                    baseColumnNames: method_id
+                    referencedTableSchemaName: limits
+                    referencedTableName: methods
+                    referencedColumnNames: id
+                    constraintName: method_roles_method_id_fkey
+                - addUniqueConstraint:
+                    schemaName: limits
+                    tableName: method_roles
+                    columnNames: method_id, role_code
+                    constraintName: method_roles_role_method_uk
+                - createTable:
+                    schemaName: limits
+                    tableName: limit_settings
+                    remarks: Настройки лимитов
+                    columns:
+                      - column:
+                          name: name
+                          type: varchar(255)
+                          remarks: Название
+                          constraints:
+                            primaryKey: true
+                            primaryKeyName: limit_settings_pkey
+                      - column:
+                          name: value
+                          type: varchar(255)
+                          remarks: Значение
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limit_settings_value_nn
+                - createTable:
+                    schemaName: limits
+                    tableName: limit_request
+                    remarks: Запросы лимитов
+                    columns:
+                      - column:
+                          name: id
+                          type: uuid
+                          remarks: Идентификатор
+                          constraints:
+                            primaryKey: true
+                            primaryKeyName: limit_request_pkey
+                      - column:
+                          name: humanreadableid
+                          type: varchar(100)
+                          remarks: Человекочитаемый идентификатор
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limit_request_humanreadableid_nn
+                      - column:
+                          name: author_id
+                          type: uuid
+                          remarks: Идентификатор автора
+                      - column:
+                          name: creation_time
+                          type: timestamp
+                          remarks: Время создания
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limit_request_creation_time_nn
+                      - column:
+                          name: transport_type
+                          type: varchar(255)
+                          remarks: Тип транспорта
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limit_request_transport_type_nn
+                      - column:
+                          name: year
+                          type: integer
+                          remarks: Год
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limit_request_year_nn
+                      - column:
+                          name: period
+                          type: integer
+                          remarks: Период
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limit_request_period_nn
+                      - column:
+                          name: request_status
+                          type: varchar(255)
+                          remarks: Статус запроса
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limit_request_request_status_nn
+                      - column:
+                          name: limit_type
+                          type: varchar(255)
+                          remarks: Тип лимита
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limit_request_limit_type_nn
+                      - column:
+                          name: sum
+                          type: bigint
+                          remarks: Сумма
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: limit_request_sum_nn
+                      - column:
+                          name: description
+                          type: varchar(500)
+                          remarks: Описание
+                      - column:
+                          name: decline_reason
+                          type: varchar(500)
+                          remarks: Причина отказа
+                      - column:
+                          name: ask_targets
+                          type: varchar(32)
+                          remarks: Получатели
+                      - column:
+                          name: status_code
+                          type: integer
+                          remarks: Статус-код
+                - createTable:
+                    schemaName: limits
+                    tableName: approver
+                    remarks: Согласующие
+                    columns:
+                      - column:
+                          name: id
+                          type: uuid
+                          remarks: Идентификатор
+                          constraints:
+                            primaryKey: true
+                            primaryKeyName: approver_pkey
+                      - column:
+                          name: department_id
+                          type: uuid
+                          remarks: Идентификатор отдела
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: approver_department_id_nn
+                      - column:
+                          name: employee_id
+                          type: uuid
+                          remarks: Идентификатор сотрудника
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: approver_employee_id_nn
+                      - column:
+                          name: limit_request_id
+                          type: uuid
+                          remarks: Идентификатор запроса
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: approver_limit_request_id_nn
+                      - column:
+                          name: sum
+                          type: bigint
+                          remarks: Сумма
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: approver_sum_nn
+                      - column:
+                          name: approval_state
+                          type: varchar(255)
+                          remarks: Статус
+                          constraints:
+                            nullable: false
+                            notNullConstraintName: approver_approval_state_nn
+                      - column:
+                          name: approval_date
+                          type: timestamp
+                          remarks: Дата согласования
+                - createTable:
+                    schemaName: limits
+                    tableName: deadline_settings
+                    remarks: Настройки дедлайна
+                    columns:
+                      - column:
+                          name: id
+                          type: uuid
+                          remarks: Идентификатор
+                          constraints:
+                            primaryKey: true
+                            primaryKeyName: deadline_settings_message_pkey
+                      - column:
+                          name: organization_id
+                          type: uuid
+                          remarks: Идентификатор организации
+                      - column:
+                          name: employee_limit_chrono_unit
+                          type: varchar
+                          remarks: Тип компоненты времени для личных лимитов
+                      - column:
+                          name: employee_limit_value
+                          type: smallint
+                          remarks: Значение лимита
+                      - column:
+                          name: department_limit_chrono_unit
+                          type: varchar
+                          remarks: Тип компоненты времени для лимитов подразделений
+                      - column:
+                          name: department_limit_value
+                          type: smallint
+                          remarks: Значение лимита
+          rollback:
+            - dropTable:
+                schemaName: limits
+                tableName: limit_sharing_procents
+            - dropTable:
+                schemaName: limits
+                tableName: deadline_settings
+            - dropTable:
+                schemaName: limits
+                tableName: approver
+            - dropTable:
+                schemaName: limits
+                tableName: limit_request
+            - dropTable:
+                schemaName: limits
+                tableName: limit_settings
+            - dropUniqueConstraint:
+                schemaName: limits
+                tableName: method_roles
+                columnNames: method_id, role_code
+                constraintName: method_roles_role_method_uk
+            - dropForeignKeyConstraint:
+                baseTableSchemaName: limits
+                baseTableName: method_roles
+                baseColumnNames: method_id
+                referencedTableSchemaName: limits
+                referencedTableName: methods
+                referencedColumnNames: id
+                constraintName: method_roles_method_id_fkey
+            - dropTable:
+                schemaName: limits
+                tableName: method_roles
+            - dropTable:
+                schemaName: limits
+                tableName: methods
+            - dropForeignKeyConstraint:
+                baseTableSchemaName: limits
+                baseTableName: limit_transfer_history
+                baseColumnNames: source_limit_id
+                referencedTableSchemaName: limits
+                referencedTableName: limit
+                referencedColumnNames: id
+                constraintName: limithistory_sourcelimit_fk
+            - dropForeignKeyConstraint:
+                baseTableSchemaName: limits
+                baseTableName: limit_transfer_history
+                baseColumnNames: target_limit_id
+                referencedTableSchemaName: limits
+                referencedTableName: limit
+                referencedColumnNames: id
+                constraintName: limithistory_targetlimit_fk
+            - dropTable:
+                schemaName: limits
+                tableName: limit_transfer_history
+            - dropTable:
+                schemaName: limits
+                tableName: limit_spending
+            - dropTable:
+                schemaName: limits
+                tableName: limit_sharing_procents

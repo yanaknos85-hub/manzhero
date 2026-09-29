@@ -1,0 +1,287 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20241217-0751"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - sql:
+            sql: create type corporate.structure_type as enum('INTERNAL', 'EXTERNAL')
+        - sql:
+            dbms: postgresql
+            sql: comment on type corporate.structure_type is 'Тип оргструктуры (INTERNAL - внутренняя, EXTERNAL - внешняя)'
+      rollback:
+        - sql:
+            sql: drop type corporate.structure_type
+  - changeSet:
+      id: "20241217-0752"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - sql:
+            dbms: postgresql
+            sql: update corporate.employee set org_structure_type = dep.org_structure_type from corporate.department dep where dep.id = employee.department_id and employee.org_structure_type is null;
+        - sql:
+            dbms: postgresql
+            sql: update corporate.employee set org_structure_type = pos.org_structure_type from corporate.position pos where pos.id = employee.position_id and employee.org_structure_type is null;
+        - sql:
+            dbms: postgresql
+            sql: update corporate.employee set org_structure_type = case when org.easup_id is null then 'INTERNAL' else 'EXTERNAL' end from corporate.organization org where org.id = employee.organization_id and employee.org_structure_type is null;
+        - sql:
+            dbms: postgresql
+            sql: update corporate.employee set org_structure_type = 'EXTERNAL' where org_structure_type is null;
+      rollback:
+        - sql:
+            sql: select 1
+  - changeSet:
+      id: "20241217-0753"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - modifyDataType:
+            schemaName: corporate
+            tableName: position
+            columnName: org_structure_type
+            newDataType: corporate.structure_type
+      rollback:
+        - modifyDataType:
+            schemaName: corporate
+            tableName: position
+            columnName: org_structure_type
+            newDataType: varchar(20)
+  - changeSet:
+      id: "20241217-1056"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: employee
+            columnName: personnel_number
+            constraintName: corporate_employee_personnel_number_nn
+  - changeSet:
+      id: "20241217-1110"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - sql:
+            sql: create type corporate.gender as enum('MALE', 'FEMALE')
+        - sql:
+            dbms: postgresql
+            sql: comment on type corporate.gender is 'Пол сотрудника'
+      rollback:
+        - sql:
+            sql: drop type corporate.gender
+  - changeSet:
+      id: "20241217-1141"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - modifyDataType:
+            schemaName: corporate
+            tableName: employee
+            columnName: gender
+            newDataType: corporate.gender
+      rollback:
+        - modifyDataType:
+            schemaName: corporate
+            tableName: employee
+            columnName: gender
+            newDataType: varchar(10)
+  - changeSet:
+      id: "20241217-1201"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - sql:
+            sql: create type corporate.itinerant as enum('NONE', 'PARTIAL', 'FULL')
+        - sql:
+            dbms: postgresql
+            sql: comment on type corporate.itinerant is 'Разъездной характер работы'
+      rollback:
+        - sql:
+            sql: drop type corporate.itinerant
+  - changeSet:
+      id: "20241217-1202"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - update:
+            schemaName: corporate
+            tableName: employee
+            columns:
+              - column:
+                  name: itinerant_type
+                  value: 'NONE'
+            where: itinerant_type is null
+        - modifyDataType:
+            schemaName: corporate
+            tableName: employee
+            columnName: itinerant_type
+            newDataType: corporate.itinerant
+      rollback:
+        - modifyDataType:
+            schemaName: corporate
+            tableName: employee
+            columnName: itinerant_type
+            newDataType: varchar(10)
+  - changeSet:
+      id: "20241217-1605"
+      author: medvedev-ad
+      context: "TRANSPORT-27047"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - modifyDataType:
+            schemaName: corporate
+            tableName: department
+            columnName: org_structure_type
+            newDataType: corporate.structure_type
+        - modifyDataType:
+            schemaName: corporate
+            tableName: employee
+            columnName: org_structure_type
+            newDataType: corporate.structure_type
+        - addColumn:
+            schemaName: corporate
+            tableName: department
+            columns:
+              - column:
+                  name: update_time
+                  type: timestamp with timezone
+                  remarks: 'Дата обновления записи'
+                  defaultOnNull: true
+                  defaultValueComputed: now()
+        - addColumn:
+            schemaName: corporate
+            tableName: employee
+            columns:
+              - column:
+                  name: update_time
+                  type: timestamp with timezone
+                  remarks: 'Дата обновления записи'
+                  defaultOnNull: true
+                  defaultValueComputed: now()
+        - sql:
+            sql: update corporate.department set update_time = easup_update_time
+        - sql:
+            sql: update corporate.department set update_time = now() where update_time is null
+        - sql:
+            sql: update corporate.employee set update_time = easup_update_time
+        - sql:
+            sql: update corporate.employee set update_time = now() where update_time is null
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: department
+            columnName: update_time
+            constraintName: corporate_department_update_time_nn
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: employee
+            columnName: update_time
+            constraintName: corporate_employee_update_time_nn
+        - dropColumn:
+            schemaName: corporate
+            tableName: department
+            columns:
+              - column:
+                  name: department_head_personnel_number
+              - column:
+                  name: start_recording_date
+              - column:
+                  name: end_recording_date
+              - column:
+                  name: easup_forming_date
+              - column:
+                  name: easup_update_time
+              - column:
+                  name: type_level_code
+        - dropColumn:
+            schemaName: corporate
+            tableName: employee
+            columns:
+              - column:
+                  name: supervisor_personnel_number
+              - column:
+                  name: easup_forming_date
+              - column:
+                  name: easup_update_time
+              - column:
+                  name: changed_by
+        - modifyDataType:
+            schemaName: corporate
+            tableName: employee
+            columnName: creation_time
+            newDataType: timestamp with timezone
+      rollback:
+        - modifyDataType:
+            schemaName: corporate
+            tableName: employee
+            columnName: org_structure_type
+            newDataType: varchar(20)
+        - modifyDataType:
+            schemaName: corporate
+            tableName: department
+            columnName: org_structure_type
+            newDataType: varchar(20)
+        - addColumn:
+            schemaName: corporate
+            tableName: department
+            columns:
+              - column:
+                  name: department_head_personnel_number
+                  type: text
+              - column:
+                  name: type_level_code
+                  type: int4
+              - column:
+                  name: start_recording_date
+                  type: date
+              - column:
+                  name: end_recording_date
+                  type: date
+              - column:
+                  name: easup_forming_date
+                  type: date
+              - column:
+                  name: easup_update_time
+                  type: timestamp with timezone
+        - sql:
+            dbms: postgresql
+            sql: update corporate.department set department_head_personnel_number = emp.personnel_number from corporate.employee emp where emp.id = department.head
+        - addColumn:
+            schemaName: corporate
+            tableName: employee
+            columns:
+              - column:
+                  name: supervisor_personnel_number
+                  type: text
+              - column:
+                  name: easup_forming_date
+                  type: date
+              - column:
+                  name: easup_update_time
+                  type: timestamp with timezone
+              - column:
+                  name: changed_by
+                  type: uuid
+        - modifyDataType:
+            schemaName: corporate
+            tableName: employee
+            columnName: creation_time
+            newDataType: timestamp with timezone

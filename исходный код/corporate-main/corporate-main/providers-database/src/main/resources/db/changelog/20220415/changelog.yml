@@ -1,0 +1,12 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20220415"
+            author: medvedev-ad
+            changes:
+                -   sqlFile:
+                        path: changes/change_date_type.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sqlFile:
+                        path: rollback/change_date_type.sql
+                        relativeToChangelogFile: true

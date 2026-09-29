@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - property:
+      name: schema_name
+      value: fraud_monitoring
+  - includeAll:
+      path: /changes
+      relativeToChangelogFile: true

@@ -1,0 +1,15 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jws-algorithms: RS256
+          jwk-set-uri: http://localhost
+exchange:
+  request:
+    api-key: test-api-key
+    client-id: test-client-id
+    base-url: test-base-url
+grpc:
+  server:
+    port: -1

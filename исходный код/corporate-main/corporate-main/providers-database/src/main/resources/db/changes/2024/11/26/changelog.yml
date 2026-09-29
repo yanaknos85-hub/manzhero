@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20241126-1007"
+      author: medvedev-ad
+      context: "TRANSPORT-27855"
+      changes:
+        - tagDatabase:
+            tag: "D-03.020.001"
+        - renameColumn:
+            schemaName: corporate
+            tableName: department
+            oldColumnName: department_name
+            newColumnName: name
+        - renameColumn:
+            schemaName: corporate
+            tableName: department
+            oldColumnName: department_head
+            newColumnName: head
+      rollback:
+        - renameColumn:
+            schemaName: corporate
+            tableName: department
+            newColumnName: department_name
+            oldColumnName: name
+        - renameColumn:
+            schemaName: corporate
+            tableName: department
+            newColumnName: department_head
+            oldColumnName: head
+  - changeSet:
+      id: "20241126-1521"
+      author: medvedev-ad
+      context: "TRANSPORT-27855"
+      changes:
+        - tagDatabase:
+            tag: "D-03.020.001"
+        - renameColumn:
+            schemaName: corporate
+            tableName: position
+            oldColumnName: position_name
+            newColumnName: name
+      rollback:
+        - renameColumn:
+            schemaName: corporate
+            tableName: position
+            oldColumnName: position_name
+            newColumnName: name

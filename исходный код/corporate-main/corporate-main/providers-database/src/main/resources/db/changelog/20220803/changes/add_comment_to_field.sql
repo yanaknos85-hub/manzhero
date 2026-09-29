@@ -1,0 +1,1 @@
+comment on column  corporate.department.is_handmade is 'Признак ручного изменения руководителя'

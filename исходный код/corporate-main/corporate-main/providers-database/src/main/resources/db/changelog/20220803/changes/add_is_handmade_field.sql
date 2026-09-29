@@ -1,0 +1,1 @@
+alter table corporate.department add column is_handmade boolean default false

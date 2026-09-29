@@ -1,0 +1,26 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20220729"
+            author: medvedev-ad
+            changes:
+                -   createIndex:
+                        schemaName: corporate
+                        tableName: department
+                        columns:
+                            - column:
+                                  name: organization_id
+                        indexName: corporate_department_organization_id_ix
+                -   createIndex:
+                        schemaName: corporate
+                        tableName: position
+                        columns:
+                            - column:
+                                  name: organization_id
+                        indexName: corporate_position_organization_id_ix
+                -   createIndex:
+                        schemaName: corporate
+                        tableName: employee
+                        columns:
+                            - column:
+                                  name: department_id
+                        indexName: corporate_employee_department_id_id_ix

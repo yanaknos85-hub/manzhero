@@ -1,0 +1,18 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20221129"
+            author: medvedev-ad
+            context: "20221129"
+            changes:
+                -   tagDatabase:
+                        tag: "20221129"
+                -   addDefaultValue:
+                        schemaName: corporate
+                        tableName: position
+                        columnName: self_approved
+                        defaultValueBoolean: false
+            rollback:
+                -   dropDefaultValue:
+                        schemaName: corporate
+                        tableName: position
+                        columnName: self_approved

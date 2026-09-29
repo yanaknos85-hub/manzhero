@@ -1,0 +1,76 @@
+server:
+  tomcat:
+    relaxed-query-chars:
+      - "["
+      - "]"
+  port: 8009
+  error:
+    whitelabel:
+      enabled: false
+  compression:
+    enabled: true
+grpc:
+  server:
+    port: 6565
+  client:
+    GLOBAL:
+      negotiationType: plaintext
+    corporate:
+      address: discovery:/${grpc.corporate:grpc-corporate}
+spring:
+  cloud:
+    vault:
+      enabled: false
+  config:
+    import: optional:configserver:${spring.cloud.config.uri}
+  limitManagement:
+    serverId: "grpc-limit-management"
+  application:
+    name: limits
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      idle-timeout: 10000
+      minimum-idle: 1
+  jpa:
+    properties:
+      hibernate:
+        transaction:
+          jta:
+            platform: org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform
+        jdbc:
+          batch_size: 25
+          lob:
+            non_contextual_creation: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: ${SHOW_SQL:false}
+    open-in-view: false
+  liquibase:
+    change-log: db/changelog-master.yml
+    url: ${spring.datasource.url}
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    database-change-log-table: changelog_${spring.application.name}
+    database-change-log-lock-table: changelog_${spring.application.name}_lock
+    liquibase-schema: ${MIGRATIONS_SCHEMA:public}
+  profiles:
+    active: import
+deadline:
+  check-period:
+    cron: ${DEADLINE_CHECK_PERIOD_CRON_LIMITS:0 */1 * * * *}
+limit:
+  stats:
+    cron: ${LIMIT_STATS_CRON:0 0 * ? * *}
+redirect:
+  service: ${REDIRECT_SERVICE:http://http-limit-management:8080/}
+  waitTimeMillis: ${WAIT_TIME_MILLIS:2000}
+javamelody:
+  enabled: false
+openapi:
+  limits:
+    base-path: /
+next_month:
+  cron: 0 0 0 * * *

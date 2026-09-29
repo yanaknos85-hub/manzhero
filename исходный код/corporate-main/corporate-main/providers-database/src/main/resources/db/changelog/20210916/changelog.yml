@@ -1,0 +1,245 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20210916
+            author: klyunkov-va
+            changes:
+                -   addColumn:
+                        schemaName: corporate
+                        tableName: deadline_settings
+                        columns:
+                            -   column:
+                                    name: cargo_dedicated_awaiting_approval_deadline_id
+                                    type: uuid
+                                    remarks: Контрольный срок - грузоперевозки - выделенный транспорт - на согласовании
+                            -   column:
+                                    name: cargo_dedicated_approved_deadline_id
+                                    type: uuid
+                                    remarks: Контрольный срок - грузоперевозки - выделенный транспорт - согласовано
+                            -   column:
+                                    name: cargo_dedicated_in_work_deadline_id
+                                    type: uuid
+                                    remarks: Контрольный срок - грузоперевозки - выделенный транспорт - в работе
+                            -   column:
+                                    name: cargo_dedicated_delivery_confirmation_deadline_id
+                                    type: uuid
+                                    remarks: Контрольный срок - грузоперевозки - выделенный транспорт - подтверждение получения
+                            -   column:
+                                    name: cargo_dedicated_trial_deadline_id
+                                    type: uuid
+                                    remarks: Контрольный срок - грузоперевозки - выделенный транспорт - разбирательство
+
+                            -   column:
+                                    name: cargo_courier_awaiting_approval_deadline_id
+                                    type: uuid
+                                    remarks: Контрольный срок - грузоперевозки - курьерская доставка - на согласовании
+                            -   column:
+                                    name: cargo_courier_approved_deadline_id
+                                    type: uuid
+                                    remarks: Контрольный срок - грузоперевозки - курьерская доставка - согласовано
+                            -   column:
+                                    name: cargo_courier_in_work_deadline_id
+                                    type: uuid
+                                    remarks: Контрольный срок - грузоперевозки - курьерская доставка - в работе
+                            -   column:
+                                    name: cargo_courier_delivery_confirmation_deadline_id
+                                    type: uuid
+                                    remarks: Контрольный срок - грузоперевозки - курьерская доставка - подтверждение получения
+                            -   column:
+                                    name: cargo_courier_trial_deadline_id
+                                    type: uuid
+                                    remarks: Контрольный срок - грузоперевозки - курьерская доставка - разбирательство
+
+                            -   column:
+                                    name: cargo_interregional_awaiting_approval_deadline_id
+                                    type: uuid
+                                    remarks: Контрольный срок - грузоперевозки - межрегиональная доставка - на согласовании
+                            -   column:
+                                    name: cargo_interregional_approved_deadline_id
+                                    type: uuid
+                                    remarks: Контрольный срок - грузоперевозки - межрегиональная доставка - согласовано
+                            -   column:
+                                    name: cargo_interregional_in_work_deadline_id
+                                    type: uuid
+                                    remarks: Контрольный срок - грузоперевозки - межрегиональная доставка - в работе
+                            -   column:
+                                    name: cargo_interregional_delivery_confirmation_deadline_id
+                                    type: uuid
+                                    remarks: Контрольный срок - грузоперевозки - межрегиональная доставка - подтверждение получения
+                            -   column:
+                                    name: cargo_interregional_trial_deadline_id
+                                    type: uuid
+                                    remarks: Контрольный срок - грузоперевозки - межрегиональная доставка - разбирательство
+                -  addForeignKeyConstraint:
+                       baseColumnNames:  cargo_dedicated_awaiting_approval_deadline_id
+                       baseTableName:  deadline_settings
+                       baseTableSchemaName:  corporate
+                       constraintName:  deadline_settings_cargo_dedicated_awaiting_approval_deadline_id_deadline_settings_item_id_fk
+                       onDelete:  CASCADE
+                       referencedColumnNames:  id
+                       referencedTableName:  deadline_settings_item
+                       referencedTableSchemaName:  corporate
+                -  addForeignKeyConstraint:
+                       baseColumnNames:  cargo_dedicated_approved_deadline_id
+                       baseTableName:  deadline_settings
+                       baseTableSchemaName:  corporate
+                       constraintName:  deadline_settings_cargo_dedicated_approved_deadline_id_deadline_settings_item_id_fk
+                       onDelete:  CASCADE
+                       referencedColumnNames:  id
+                       referencedTableName:  deadline_settings_item
+                       referencedTableSchemaName:  corporate
+                -  addForeignKeyConstraint:
+                       baseColumnNames:  cargo_dedicated_in_work_deadline_id
+                       baseTableName:  deadline_settings
+                       baseTableSchemaName:  corporate
+                       constraintName:  deadline_settings_cargo_dedicated_in_work_deadline_id_deadline_settings_item_id_fk
+                       onDelete:  CASCADE
+                       referencedColumnNames:  id
+                       referencedTableName:  deadline_settings_item
+                       referencedTableSchemaName:  corporate
+                -  addForeignKeyConstraint:
+                       baseColumnNames:  cargo_dedicated_delivery_confirmation_deadline_id
+                       baseTableName:  deadline_settings
+                       baseTableSchemaName:  corporate
+                       constraintName:  deadline_settings_cargo_dedicated_delivery_confirmation_deadline_id_deadline_settings_item_id_fk
+                       onDelete:  CASCADE
+                       referencedColumnNames:  id
+                       referencedTableName:  deadline_settings_item
+                       referencedTableSchemaName:  corporate
+                -  addForeignKeyConstraint:
+                       baseColumnNames:  cargo_dedicated_trial_deadline_id
+                       baseTableName:  deadline_settings
+                       baseTableSchemaName:  corporate
+                       constraintName:  deadline_settings_cargo_dedicated_trial_deadline_id_deadline_settings_item_id_fk
+                       onDelete:  CASCADE
+                       referencedColumnNames:  id
+                       referencedTableName:  deadline_settings_item
+                       referencedTableSchemaName:  corporate
+
+                -  addForeignKeyConstraint:
+                       baseColumnNames:  cargo_courier_awaiting_approval_deadline_id
+                       baseTableName:  deadline_settings
+                       baseTableSchemaName:  corporate
+                       constraintName:  deadline_settings_cargo_courier_awaiting_approval_deadline_id_deadline_settings_item_id_fk
+                       onDelete:  CASCADE
+                       referencedColumnNames:  id
+                       referencedTableName:  deadline_settings_item
+                       referencedTableSchemaName:  corporate
+                -  addForeignKeyConstraint:
+                       baseColumnNames:  cargo_courier_approved_deadline_id
+                       baseTableName:  deadline_settings
+                       baseTableSchemaName:  corporate
+                       constraintName:  deadline_settings_cargo_courier_approved_deadline_id_deadline_settings_item_id_fk
+                       onDelete:  CASCADE
+                       referencedColumnNames:  id
+                       referencedTableName:  deadline_settings_item
+                       referencedTableSchemaName:  corporate
+                -  addForeignKeyConstraint:
+                       baseColumnNames:  cargo_courier_in_work_deadline_id
+                       baseTableName:  deadline_settings
+                       baseTableSchemaName:  corporate
+                       constraintName:  deadline_settings_cargo_courier_in_work_deadline_id_deadline_settings_item_id_fk
+                       onDelete:  CASCADE
+                       referencedColumnNames:  id
+                       referencedTableName:  deadline_settings_item
+                       referencedTableSchemaName:  corporate
+                -  addForeignKeyConstraint:
+                       baseColumnNames:  cargo_courier_delivery_confirmation_deadline_id
+                       baseTableName:  deadline_settings
+                       baseTableSchemaName:  corporate
+                       constraintName:  deadline_settings_cargo_courier_delivery_confirmation_deadline_id_deadline_settings_item_id_fk
+                       onDelete:  CASCADE
+                       referencedColumnNames:  id
+                       referencedTableName:  deadline_settings_item
+                       referencedTableSchemaName:  corporate
+                -  addForeignKeyConstraint:
+                       baseColumnNames:  cargo_courier_trial_deadline_id
+                       baseTableName:  deadline_settings
+                       baseTableSchemaName:  corporate
+                       constraintName:  deadline_settings_cargo_courier_trial_deadline_id_deadline_settings_item_id_fk
+                       onDelete:  CASCADE
+                       referencedColumnNames:  id
+                       referencedTableName:  deadline_settings_item
+                       referencedTableSchemaName:  corporate
+
+                -  addForeignKeyConstraint:
+                       baseColumnNames:  cargo_interregional_awaiting_approval_deadline_id
+                       baseTableName:  deadline_settings
+                       baseTableSchemaName:  corporate
+                       constraintName:  deadline_settings_cargo_interregional_awaiting_approval_deadline_id_deadline_settings_item_id_fk
+                       onDelete:  CASCADE
+                       referencedColumnNames:  id
+                       referencedTableName:  deadline_settings_item
+                       referencedTableSchemaName:  corporate
+                -  addForeignKeyConstraint:
+                       baseColumnNames:  cargo_interregional_approved_deadline_id
+                       baseTableName:  deadline_settings
+                       baseTableSchemaName:  corporate
+                       constraintName:  deadline_settings_cargo_interregional_approved_deadline_id_deadline_settings_item_id_fk
+                       onDelete:  CASCADE
+                       referencedColumnNames:  id
+                       referencedTableName:  deadline_settings_item
+                       referencedTableSchemaName:  corporate
+                -  addForeignKeyConstraint:
+                       baseColumnNames:  cargo_interregional_in_work_deadline_id
+                       baseTableName:  deadline_settings
+                       baseTableSchemaName:  corporate
+                       constraintName:  deadline_settings_cargo_interregional_in_work_deadline_id_deadline_settings_item_id_fk
+                       onDelete:  CASCADE
+                       referencedColumnNames:  id
+                       referencedTableName:  deadline_settings_item
+                       referencedTableSchemaName:  corporate
+                -  addForeignKeyConstraint:
+                       baseColumnNames:  cargo_interregional_delivery_confirmation_deadline_id
+                       baseTableName:  deadline_settings
+                       baseTableSchemaName:  corporate
+                       constraintName:  deadline_settings_cargo_interregional_delivery_confirmation_deadline_id_deadline_settings_item_id_fk
+                       onDelete:  CASCADE
+                       referencedColumnNames:  id
+                       referencedTableName:  deadline_settings_item
+                       referencedTableSchemaName:  corporate
+                -  addForeignKeyConstraint:
+                       baseColumnNames:  cargo_interregional_trial_deadline_id
+                       baseTableName:  deadline_settings
+                       baseTableSchemaName:  corporate
+                       constraintName:  deadline_settings_cargo_interregional_trial_deadline_id_deadline_settings_item_id_fk
+                       onDelete:  CASCADE
+                       referencedColumnNames:  id
+                       referencedTableName:  deadline_settings_item
+                       referencedTableSchemaName:  corporate
+            rollback:
+                -   dropColumn:
+                        schemaName: corporate
+                        tableName: deadline_settings
+                        columns:
+                            -   column:
+                                    name: cargo_dedicated_awaiting_approval_deadline_id
+                            -   column:
+                                    name: cargo_dedicated_approved_deadline_id
+                            -   column:
+                                    name: cargo_dedicated_in_work_deadline_id
+                            -   column:
+                                    name: cargo_dedicated_delivery_confirmation_deadline_id
+                            -   column:
+                                    name: cargo_dedicated_trial_deadline_id
+
+                            -   column:
+                                    name: cargo_courier_awaiting_approval_deadline_id
+                            -   column:
+                                    name: cargo_courier_approved_deadline_id
+                            -   column:
+                                    name: cargo_courier_in_work_deadline_id
+                            -   column:
+                                    name: cargo_courier_delivery_confirmation_deadline_id
+                            -   column:
+                                    name: cargo_courier_trial_deadline_id
+
+                            -   column:
+                                    name: cargo_interregional_awaiting_approval_deadline_id
+                            -   column:
+                                    name: cargo_interregional_approved_deadline_id
+                            -   column:
+                                    name: cargo_interregional_in_work_deadline_id
+                            -   column:
+                                    name: cargo_interregional_delivery_confirmation_deadline_id
+                            -   column:
+                                    name: cargo_interregional_trial_deadline_id

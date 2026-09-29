@@ -1,0 +1,29 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20200602
+            author: mad
+            changes:
+                -   sqlFile:
+                        endDelimiter: ;
+                        path: add_transport_type_table.sql
+                        relativeToChangelogFile: true
+                -   sqlFile:
+                        endDelimiter: ;
+                        path: full_fill_transport_types.sql
+                        relativeToChangelogFile: true
+                -   sqlFile:
+                        endDelimiter: ;
+                        path: add_column_to_employee.sql
+                        relativeToChangelogFile: true
+                -   sqlFile:
+                        endDelimiter: ;
+                        path: determine_new_transport_type.sql
+                        relativeToChangelogFile: true
+                -   sqlFile:
+                        endDelimiter: ;
+                        path: drop_unnecessary_table.sql
+                        relativeToChangelogFile: true
+            rollback:
+                -   sqlFile:
+                        path: rollback_all.sql
+                        relativeToChangelogFile: true

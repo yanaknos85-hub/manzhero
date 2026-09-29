@@ -1,0 +1,69 @@
+databaseChangeLog:
+    -   changeSet:
+            id: tariff_fleet/20231127-1
+            author: klyunkov-va
+            dbms: postgresql
+            changes:
+                -   sql:
+                        endDelimiter: ;
+                        sql: create schema tariff_fleet
+            rollback:
+                -   sql:
+                        endDelimiter: ;
+                        sql: drop schema tariff_fleet
+    -   changeSet:
+            id: tariff_fleet/20231127-2
+            author: klyunkov-va
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: change/create_structure.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: tariff_fleet/20231127-3
+            author: klyunkov-va
+            dbms: postgresql
+            context: "!test"
+            changes:
+                -   sqlFile:
+                        path: change/fill_structure.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: tariff_fleet/20231128-4
+            author: klyunkov-va
+            validCheckSum: 9:eb54a38c1f730515057dcf43be070f4f
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: change/fill_roles.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: tariff_fleet/20231128-5
+            author: klyunkov-va
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: change/add_ddl_roles_urls.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: tariff_fleet/20231128-6
+            author: klyunkov-va
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: change/add_ddl_contract.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false
+    -   changeSet:
+            id: tariff_fleet/20231128-7
+            author: klyunkov-va
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: change/add_role_contract.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false

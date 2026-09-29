@@ -1,0 +1,25 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20220628"
+            author: medvedev-ad
+            changes:
+                -   dropNotNullConstraint:
+                        schemaName: approvals
+                        tableName: limit
+                        columnName: owner_id
+                -   dropNotNullConstraint:
+                        schemaName: approvals
+                        tableName: limit
+                        columnName: limit_type
+                -   dropNotNullConstraint:
+                        schemaName: approvals
+                        tableName: limit
+                        columnName: reserve
+                -   dropNotNullConstraint:
+                        schemaName: approvals
+                        tableName: limit
+                        columnName: sum
+                -   dropNotNullConstraint:
+                        schemaName: approvals
+                        tableName: limit
+                        columnName: year

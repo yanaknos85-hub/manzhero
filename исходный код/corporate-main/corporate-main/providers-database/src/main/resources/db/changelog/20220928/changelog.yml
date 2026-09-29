@@ -1,0 +1,65 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20220928-remastered
+      author: medvedev-ad
+      context: TRANSPORT-27047
+      preConditions:
+        - not:
+            - columnExists:
+                schemaName: corporate
+                tableName: employee
+                columnName: organization_id
+          onFail: MARK_RAN
+      changes:
+        - addColumn:
+            schemaName: corporate
+            tableName: employee
+            columns:
+              - column:
+                  name: organization_id
+                  type: uuid
+                  remarks: Идентификатор организации
+                  constraints:
+                    foreignKeyName: corporate_employee_organization_fk
+                    referencedTableName: organization
+                    referencedColumnName: id
+        - sql:
+            dbms: postgresql
+            sql: update corporate.employee set organization_id = dep.organization_id from corporate.department dep where dep.id = department_id
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: employee
+            columnName: organization_id
+        - sql:
+            dbms: postgresql
+            sql: create function corporate.check_employee_organization_department(org_id uuid, dep_id uuid) returns boolean language plpgsql as $$ begin return (SELECT organization_id FROM corporate.department WHERE id = dep_id) = org_id; end; $$
+            splitStatements: false
+        - sql:
+            dbms: postgresql
+            sql: create function corporate.check_employee_organization_position(org_id uuid, pos_id uuid) returns boolean language plpgsql as $$ begin return (SELECT organization_id FROM corporate.position WHERE id = pos_id) = org_id; end; $$
+            splitStatements: false
+        - sql:
+            dbms: postgresql
+            sql: alter table corporate.employee add constraint corporate_employee_organization_id_department_check check (corporate.check_employee_organization_department(organization_id, department_id))
+        - sql:
+            dbms: postgresql
+            sql: alter table corporate.employee add constraint corporate_employee_organization_id_position_check check (corporate.check_employee_organization_position(organization_id, position_id))
+        - addUniqueConstraint:
+            schemaName: corporate
+            tableName: employee
+            constraintName: corporate_employee_organization_personnel_number_uk
+            columnNames: organization_id,personnel_number
+        - createIndex:
+            schemaName: corporate
+            tableName: employee
+            columns:
+              - column:
+                  name: organization_id
+              - column:
+                  name: personnel_number
+            indexName: corporate_employee_organization_personnel_number_idx
+      rollback:
+        - sql:
+            sql: alter table corporate.employee drop constraint corporate_employee_organization_id_department_check
+        - sql:
+            sql: alter table corporate.employee drop constraint corporate_employee_organization_id_position_check

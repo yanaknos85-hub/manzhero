@@ -1,0 +1,14 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20210305
+            author: palekseev
+            changes:
+                -   sqlFile:
+                        path: change/add_purpose_type.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+            rollback:
+                -   sqlFile:
+                        path: rollback/drop_purpose_type.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;

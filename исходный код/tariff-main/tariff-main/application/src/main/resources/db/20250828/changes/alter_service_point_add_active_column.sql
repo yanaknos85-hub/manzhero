@@ -1,0 +1,1 @@
+ALTER TABLE tariff_fleet.service_point ADD COLUMN IF NOT EXISTS active boolean DEFAULT TRUE NOT null;

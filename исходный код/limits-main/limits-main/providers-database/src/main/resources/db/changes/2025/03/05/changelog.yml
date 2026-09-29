@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250305-1724"
+      author: medvedev-ad
+      context: "TRANSPORT-30202"
+      changes:
+        - tagDatabase:
+            tag: "D-04.005.000"
+        - update:
+            schemaName: limits
+            tableName: "limit"
+            columns:
+              - column:
+                  name: hash
+                  valueComputed: id::text
+        - addNotNullConstraint:
+            schemaName: limits
+            tableName: "limit"
+            columnName: hash
+            constraintName: limits_limit_hash_not_null

@@ -1,0 +1,550 @@
+openapi: 3.0.3
+info:
+  title: Платформа - Лимиты
+  description: Сервис по  работе с лимитам
+  version: 4.4.0
+servers:
+  - url: '{scheme}://{host}:{port}{api}'
+    description: Адрес для вызова
+    variables:
+      scheme:
+        default: http
+        enum:
+          - http
+          - https
+      host:
+        default: localhost
+      api:
+        default: /api/v2/limits
+      port:
+        default: '80'
+        enum:
+          - '80'
+          - '8080'
+          - '443'
+          - '8443'
+paths:
+  /{limitId}:
+    summary: Работа с конкретным лимитом
+    description: Работа с конкретным лимитом
+    parameters:
+      - in: path
+        name: limitId
+        required: true
+        schema:
+          title: Идентификатор
+          type: string
+          format: uuid
+        description: Идентификатор лимита
+    get:
+      summary: Получение лимита
+      description: Получение данных конкретного лимита
+      tags:
+        - Managing
+      security:
+        - BearerToken: []
+      operationId: get
+      parameters:
+        - in: header
+          name: If-Modified-Since
+          description: Выполнить запрос если данные поменялись с указанного времени
+          schema:
+            title: Время в формате JS
+            description: Время в формате JS для использования в заголовках
+            type: string
+            format: date-time
+            example: Sat, 01 Mar 2025 09:50:00 GMT
+          required: false
+      responses:
+        '200':
+          $ref: '#/components/responses/Limit'
+        '304':
+          $ref: '#/components/responses/NotModified'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Изменение лимита
+      description: Изменение данных конкретного лимита
+      tags:
+        - Managing
+      security:
+        - BearerToken: []
+      operationId: put
+      requestBody:
+        $ref: '#/components/requestBodies/NewLimit'
+      responses:
+        '202':
+          $ref: '#/components/responses/Accepted'
+        '304':
+          $ref: '#/components/responses/NotModified'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    patch:
+      summary: Частичное изменение
+      description: Частичное изменение объекта
+      tags:
+        - Managing
+      security:
+        - BearerToken: []
+      operationId: patch
+      requestBody:
+        $ref: '#/components/requestBodies/Patch'
+      responses:
+        '202':
+          $ref: '#/components/responses/Accepted'
+        '304':
+          $ref: '#/components/responses/NotModified'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    head:
+      summary: Метаданные
+      description: Получение метаданных объекта
+      tags:
+        - Managing
+      security:
+        - BearerToken: []
+      operationId: head
+      parameters:
+        - in: header
+          name: If-Modified-Since
+          description: Выполнить запрос если данные поменялись с указанного времени
+          schema:
+            title: Время в формате JS
+            description: Время в формате JS для использования в заголовках
+            type: string
+            format: date-time
+            example: Sat, 01 Mar 2025 09:50:00 GMT
+          required: false
+      responses:
+        '204':
+          $ref: '#/components/responses/Accepted'
+        '304':
+          $ref: '#/components/responses/NotModified'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    delete:
+      summary: Удаление лимита
+      description: Удаление конкретного лимита
+      tags:
+        - Managing
+      security:
+        - BearerToken: []
+      operationId: delete
+      responses:
+        '204':
+          $ref: '#/components/responses/Accepted'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+components:
+  requestBodies:
+    NewLimit:
+      required: true
+      description: Новые данные лимита
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NewLimit'
+    Patch:
+      required: true
+      description: Данные для обновления
+      content:
+        application/json:
+          schema:
+            description: Тело запроса для частичного изменения данных
+            type: array
+            items:
+              required:
+                - op
+                - path
+              properties:
+                op:
+                  format: enum
+                  title: Операция
+                  description: Тип операции с полем
+                  enum:
+                    - REPLACE
+                    - ADD
+                    - REMOVE
+                  type: string
+                path:
+                  title: Путь к полю
+                  description: Полный путь к полю, разделенный слэшами
+                  type: string
+                  example: /field/subfield/subsubfield
+                value:
+                  title: Новое значение
+                  description: Новое значение для установки в поле
+                  type: object
+  responses:
+    Accepted:
+      description: Запрос принят, операция выполнена
+      headers:
+        etag:
+          description: Хэш объекта, показывающий, изменился ли объект
+          schema:
+            type: string
+        last-modified:
+          description: Дата изменения объекта
+          schema:
+            allOf:
+              - title: Дата-время с зоной
+                type: string
+                format: date-time
+                pattern: ^[0-2]\d{3}-[0-1]\d-[0-3]\dT[0-1]\d:[0-5]\d:[0-5]\d.\d{3,6}(Z|[+-][0-2]\d{1}(00|15|30|45))$
+                example: 2024-01-01T10:05:10.023+0300
+    Hash:
+      description: Хэш объекта
+      headers:
+        etag:
+          description: Хэш объекта, показывающий, изменился ли объект
+          schema:
+            type: string
+        last-modified:
+          description: Дата изменения объекта
+          schema:
+            allOf:
+              - title: Дата-время с зоной
+                type: string
+                format: date-time
+                pattern: ^[0-2]\d{3}-[0-1]\d-[0-3]\dT[0-1]\d:[0-5]\d:[0-5]\d.\d{3,6}(Z|[+-][0-2]\d{1}(00|15|30|45))$
+                example: 2024-01-01T10:05:10.023+0300
+    Limit:
+      description: Данные лимита
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LimitData'
+      headers:
+        etag:
+          description: Хэш объекта, показывающий, изменился ли объект
+          schema:
+            type: string
+        last-modified:
+          description: Дата изменения объекта
+          schema:
+            allOf:
+              - title: Дата-время с зоной
+                type: string
+                format: date-time
+                pattern: ^[0-2]\d{3}-[0-1]\d-[0-3]\dT[0-1]\d:[0-5]\d:[0-5]\d.\d{3,6}(Z|[+-][0-2]\d{1}(00|15|30|45))$
+                example: 2024-01-01T10:05:10.023+0300
+    Unauthorized:
+      description: Ошибка авторизации
+    NotFound:
+      description: Данные не найдены
+      content:
+        application/json:
+          schema:
+            description: По указанному URL не найден ресурс
+            type: object
+            title: Не найдено
+            properties:
+              message:
+                title: Сообщение об ошибке
+                description: Общее сообщение об ошибке
+                type: string
+              path:
+                title: Путь запроса
+                type: string
+              entity:
+                description: Запрашиваемая сущность
+                properties:
+                  id:
+                    title: Идентификатор
+                    description: Идентификатор запрашиваемой сущности
+                    type: string
+                  name:
+                    title: Название
+                    description: Название запрашиваемой сущности
+                    type: string
+              timestamp:
+                title: Дата-время
+                type: string
+                format: date-time
+    Forbidden:
+      description: Нет доступа
+    Conflict:
+      description: Конфликт данных
+      content:
+        application/json:
+          schema:
+            description: Данные запроса конфликтуют с существующими в системе данными
+            type: object
+            title: Конфликт данных
+            properties:
+              message:
+                title: Сообщение об ошибке
+                description: Общее сообщение об ошибке
+                type: string
+              timestamp:
+                title: Дата-время
+                type: string
+                format: date-time
+              path:
+                title: Путь запроса
+                type: string
+              entity:
+                description: Запрашиваемая сущность
+                properties:
+                  id:
+                    title: Идентификатор
+                    description: Идентификатор запрашиваемой сущности
+                    type: string
+                  name:
+                    title: Название
+                    description: Название запрашиваемой сущности
+                    type: string
+              problems:
+                title: Конфликтующие сущности
+                description: Список конфликтов
+                type: array
+                items:
+                  description: Описание проблемы запроса
+                  type: object
+                  properties:
+                    field:
+                      title: Поле
+                      description: Наименование поля с проблемой
+                      type: string
+                    value:
+                      title: Значение
+                      description: Полученное от клиента значение
+                      type: string
+    NotModified:
+      description: Не изменено
+  securitySchemes:
+    BearerToken:
+      description: Токен доступа
+      scheme: bearer
+      type: http
+      bearerFormat: JWT
+  schemas:
+    NewLimit:
+      title: Новые данные лимита
+      description: Новые данные лимита
+      required:
+        - status
+        - year
+        - sharingType
+        - serviceType
+        - sum
+        - reserve
+        - finalSharing
+        - useThisLimit
+      properties:
+        status:
+          $ref: '#/components/schemas/Status'
+        year:
+          title: Год
+          description: Год лимита
+          type: integer
+          minimum: 1970
+        sharingType:
+          $ref: '#/components/schemas/SharedType'
+        serviceType:
+          $ref: '#/components/schemas/ServiceType'
+        sum:
+          title: Остаток суммы для распределения (в руб)
+          description: Остаток суммы в рублях, доступных для распределения
+          type: number
+          minimum: 0
+        reserve:
+          title: Общая сумма резерва (в руб)
+          description: Общая сумма в рублях
+          type: number
+          minimum: 0
+        finalSharing:
+          title: Конечное распределение
+          description: Признак конечного распределения
+          type: boolean
+        useThisLimit:
+          title: Использовать этот лимит
+          description: Запрет нижестоящим подразделениям создавать собственные лимиты
+          type: boolean
+        responsibles:
+          title: Ответственные
+          description: Список идентификаторов ответственных за лимит
+          type: array
+          items:
+            title: Ответственный
+            description: Идентификатор ответственного за лимит
+            allOf:
+              - title: Идентификатор
+                type: string
+                format: uuid
+        departmentId:
+          title: Подразделение
+          allOf:
+            - title: Идентификатор
+              type: string
+              format: uuid
+        employeeId:
+          title: Сотрудник
+          allOf:
+            - title: Идентификатор
+              type: string
+              format: uuid
+    LimitData:
+      title: Данные лимита
+      description: Данные лимита подразделения
+      properties:
+        id:
+          title: Идентификатор
+          type: string
+          format: uuid
+        humanReadableId:
+          type: string
+          description: Натуральный идентификатор
+          format: AB-XXXX-XXXXXXXX
+          example: OT-1234-56789012
+          pattern: '[A-Z]{2}-\d{4}-\d{8}'
+          title: Человекочитаемый идентификатор
+        owner:
+          title: Владелец лимита
+          allOf:
+            - title: Идентификатор
+              type: string
+              format: uuid
+        status:
+          $ref: '#/components/schemas/Status'
+        year:
+          title: Год
+          description: Год лимита
+          type: integer
+          minimum: 1970
+        sharingType:
+          $ref: '#/components/schemas/SharedType'
+        serviceType:
+          $ref: '#/components/schemas/ServiceType'
+        sum:
+          title: Остаток суммы для распределения (в руб)
+          description: Остаток суммы в рублях, доступных для распределения
+          type: number
+          minimum: 0
+        reserve:
+          title: Общая сумма резерва (в руб)
+          description: Общая сумма в рублях
+          type: number
+          minimum: 0
+        economy:
+          title: Экономия (в руб)
+          description: Сумма экономии в рублях
+          type: number
+          minimum: 0
+        creationTime:
+          title: Дата создания
+          allOf:
+            - title: Дата-время с зоной
+              type: string
+              format: date-time
+              pattern: ^[0-2]\d{3}-[0-1]\d-[0-3]\dT[0-1]\d:[0-5]\d:[0-5]\d.\d{3,6}(Z|[+-][0-2]\d{1}(00|15|30|45))$
+              example: 2024-01-01T10:05:10.023+0300
+        finalSharing:
+          title: Конечное распределение
+          description: Признак конечного распределения
+          type: boolean
+        useThisLimit:
+          title: Использовать этот лимит
+          description: Запрет нижестоящим подразделениям создавать собственные лимиты
+          type: boolean
+        responsibles:
+          title: Ответственные
+          description: Список идентификаторов ответственных за лимит
+          type: array
+          items:
+            title: Ответственный
+            description: Идентификатор ответственного за лимит
+            allOf:
+              - title: Идентификатор
+                type: string
+                format: uuid
+        departmentId:
+          title: Подразделение
+          allOf:
+            - title: Идентификатор
+              type: string
+              format: uuid
+        employeeId:
+          title: Сотрудник
+          allOf:
+            - title: Идентификатор
+              type: string
+              format: uuid
+    ServiceType:
+      title: Тип услуги
+      type: string
+      description: |-
+        Допустимые типы услуг
+
+        |Значение |Описание             |
+        |---------|---------------------|
+        |PASSENGER|Перевозка сотрудников|
+        |CARGO    |Грузоперевозки       |
+        |REPAIR   |Ремонты              |
+      format: enum
+      enum:
+        - PASSENGER
+        - CARGO
+        - REPAIR
+    SharedType:
+      title: Типы распределения
+      description: |-
+        Допустимые типы распределения
+
+        |Значение |Описание                 |
+        |---------|-------------------------|
+        |MONTHLY  |Месячное распределение   |
+        |QUARTER  |Квартальное распределение|
+        |PERCENTS |Процентное распределение |
+      type: string
+      format: enum
+      enum:
+        - MONTHLY
+        - QUARTER
+        - PERCENTS
+    Status:
+      title: Статус
+      description: |-
+        Статус лимита
+
+        |Значение |Описание   |
+        |---------|-----------|
+        |PLANNING |Планируется|
+        |SHARED   |Распределен|
+        |CLOSED   |Закрыт     |
+      type: string
+      format: enum
+      enum:
+        - PLANNING
+        - SHARED
+        - CLOSED
+
+# Powered by APIStudio

@@ -1,0 +1,14 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20201020
+            author: aas
+            changes:
+                -   sqlFile:
+                        path: create_matrix.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+            rollback:
+                -   sqlFile:
+                        path: rollback_create_matrix.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;

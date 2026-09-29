@@ -1,0 +1,13 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20220912"
+            author: "saleev-dv"
+            changes:
+              -   addColumn:
+                    schemaName: corporate
+                    tableName: personal_auto
+                    columns:
+                      -   column:
+                            name: pers_data_accept
+                            type: varchar(200)
+                            remarks: Согласие по личному транспорту (хэш MD5)

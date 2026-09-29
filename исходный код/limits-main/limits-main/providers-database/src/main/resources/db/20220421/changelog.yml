@@ -1,0 +1,98 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20220421"
+            author: sigalov-aa
+            changes:
+                -   addColumn:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columns:
+                            -   column:
+                                    name: organization_id
+                                    type: uuid
+                                    remarks: id организации
+                -   addColumn:
+                        schemaName: limits
+                        tableName: limit_sharing_procents
+                        columns:
+                            -   column:
+                                    name: organization_id
+                                    type: uuid
+                                    remarks: id организации
+                -   addColumn:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columns:
+                            -   column:
+                                    name: organization_id
+                                    type: uuid
+                                    remarks: id организации
+                -   addColumn:
+                        schemaName: limits
+                        tableName: limit_sharing
+                        columns:
+                            -   column:
+                                    name: organization_id
+                                    type: uuid
+                                    remarks: id организации
+                -   addColumn:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columns:
+                            -   column:
+                                    name: organization_id
+                                    type: uuid
+                                    remarks: id организации
+                -   addColumn:
+                        schemaName: limits
+                        tableName: approver
+                        columns:
+                            -   column:
+                                    name: organization_id
+                                    type: uuid
+                                    remarks: id организации
+                -   addColumn:
+                        schemaName: limits
+                        tableName: limit_request
+                        columns:
+                            -   column:
+                                    name: organization_id
+                                    type: uuid
+                                    remarks: id организации
+                -   dropForeignKeyConstraint:
+                        baseTableName: limit_transfer_history
+                        baseTableSchemaName: limits
+                        constraintName: limithistory_sourcelimit_fk
+                -   dropForeignKeyConstraint:
+                        baseTableName: limit_transfer_history
+                        baseTableSchemaName: limits
+                        constraintName: limithistory_targetlimit_fk
+            rollback:
+                -   dropColumn:
+                        schemaName: limits
+                        tableName: limit_spending
+                        columnName: organization_id
+                -   dropColumn:
+                        schemaName: limits
+                        tableName: limit_sharing_procents
+                        columnName: organization_id
+                -   dropColumn:
+                        schemaName: limits
+                        tableName: limit_sharing_per_period
+                        columnName: organization_id
+                -   dropColumn:
+                        schemaName: limits
+                        tableName: limit_sharing
+                        columnName: organization_id
+                -   dropColumn:
+                        schemaName: limits
+                        tableName: limit_transfer_history
+                        columnName: organization_id
+                -   dropColumn:
+                        schemaName: limits
+                        tableName: approver
+                        columnName: organization_id
+                -   dropColumn:
+                        schemaName: limits
+                        tableName: limit_request
+                        columnName: organization_id

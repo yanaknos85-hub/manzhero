@@ -1,0 +1,63 @@
+databaseChangeLog:
+    - changeSet:
+          id: "20210917"
+          author: bisenov-vb
+          dbms: postgresql
+          changes:
+              - addColumn:
+                    schemaName: approvals
+                    tableName: final_trip_approvals
+                    columns:
+                        -    column:
+                                name: is_suburb_trip
+                                type: boolean
+                                remarks: Является лип поездка междугородней
+                                defaultValueBoolean: false
+                                constraints:
+                                    nullable: false
+              -   addColumn:
+                      schemaName: approvals
+                      tableName: trip_request_approvals
+                      columns:
+                          -   column:
+                                  name: is_suburb_trip
+                                  type: boolean
+                                  remarks: Является лип поездка междугородней
+                                  defaultValueBoolean: false
+                                  constraints:
+                                      nullable: false
+          rollback:
+              - dropColumn:
+                    schemaName: approvals
+                    tableName: final_trip_approvals
+                    columnName: is_suburb_trip
+              -   dropColumn:
+                      schemaName: approvals
+                      tableName: trip_request_approvals
+                      columnName: is_suburb_trip
+    - changeSet:
+          id: "20210917-1"
+          author: vbisenov
+          dbms: postgresql
+          changes:
+              - dropColumn:
+                    schemaName: approvals
+                    tableName: approvals_settings
+                    columnName: intermediate_address_check_in
+              - dropColumn:
+                    schemaName: approvals
+                    tableName: approvals_settings
+                    columnName: intermediate_address_check_in_mode
+          rollback:
+              - addColumn:
+                    schemaName: approvals
+                    tableName: approvals_settings
+                    columns:
+                        - column:
+                                name: intermediate_address_check_in
+                                type: boolean
+                                remarks: 'Необходимость чек-ина в промежуточных точках (все виды транспорта кроме такси и общественного)'
+                        - column:
+                              name: intermediate_address_check_in_mode
+                              type: varchar(50)
+                              remarks: 'Режим чек-ина в промежуточных точках (все виды транспорта кроме такси и общественного)'

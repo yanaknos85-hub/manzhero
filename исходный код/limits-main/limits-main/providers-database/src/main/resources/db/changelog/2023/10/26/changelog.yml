@@ -1,0 +1,52 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20231026-1509"
+      author: medvedev-ad
+      context: "TRANSPORT-16955"
+      changes:
+        - tagDatabase:
+            tag: "D-02.036.000"
+        - addNotNullConstraint:
+            schemaName: limits
+            tableName: limit_spending
+            columnName: request_id
+            constraintName: limits_limit_spending_request_id_nn
+        - addNotNullConstraint:
+            schemaName: limits
+            tableName: limit_spending
+            columnName: limit_sharing_per_period_id
+            constraintName: limits_limit_spending_limit_sharing_per_period_id_nn
+  - changeSet:
+      id: "20231026-1512"
+      author: medvedev-ad
+      context: "TRANSPORT-16955"
+      changes:
+        - tagDatabase:
+            tag: "D-02.036.000"
+        - dropColumn:
+            schemaName: limits
+            tableName: limit_spending
+            columns:
+              - column:
+                  name: year
+              - column:
+                  name: period
+              - column:
+                  name: organization_id
+      rollback:
+        - addColumn:
+            schemaName: limits
+            tableName: limit_spending
+            columns:
+              - column:
+                  name: year
+                  type: integer
+                  remarks: год
+              - column:
+                  name: period
+                  type: varchar(9)
+                  remarks: период
+              - column:
+                  name: organization_id
+                  type: uuid
+                  remarks: id организации

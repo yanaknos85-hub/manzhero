@@ -1,0 +1,39 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20221112"
+            author: medvedev-ad
+            context: "20221112"
+            changes:
+                -   tagDatabase:
+                        tag: "20221112"
+                -   createIndex:
+                        schemaName: corporate
+                        tableName: frequently_address
+                        column:
+                            name: employee_id
+                        indexName: corporate_frequently_address_employee_id_idx
+                -   createIndex:
+                        schemaName: corporate
+                        tableName: frequently_address
+                        column:
+                            name: address_id
+                        indexName: corporate_frequently_address_address_id_idx
+                -   createIndex:
+                        schemaName: corporate
+                        tableName: address
+                        columns:
+                            -   column:
+                                    name: country
+                            -   column:
+                                    name: region
+                            -   column:
+                                    name: city
+                            -   column:
+                                    name: street
+                            -   column:
+                                    name: house
+                            -   column:
+                                    name: building
+                            -   column:
+                                    name: structure
+                        indexName: corporate_address_country_region_city_street_house_building_structure_idx

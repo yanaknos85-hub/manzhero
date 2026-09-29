@@ -1,0 +1,1 @@
+ALTER TABLE tariff_fleet.repair_contract RENAME COLUMN contractor_name TO service_points_name;

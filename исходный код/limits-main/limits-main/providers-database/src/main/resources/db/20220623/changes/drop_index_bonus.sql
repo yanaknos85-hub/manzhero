@@ -1,0 +1,1 @@
+drop index limits.bonus_bonus_owner_id_uindex;

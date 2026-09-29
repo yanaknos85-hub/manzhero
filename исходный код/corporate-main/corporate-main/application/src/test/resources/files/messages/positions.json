@@ -1,0 +1,23 @@
+[
+  {
+    "easupId": "000000001800",
+    "organizationEasupId": "13109958",
+    "code": "СЭ2",
+    "name": "Специалист",
+    "updateDate": "2021-01-22"
+  },
+  {
+    "easupId": "000000001600",
+    "organizationEasupId": "13109958",
+    "code": "ВедущСпец",
+    "name": "Ведущий специалист",
+    "updateDate": "2021-01-22"
+  },
+  {
+    "easupId": "000000000900",
+    "organizationEasupId": "13109958",
+    "code": "9113007",
+    "name": "Заместитель руководителя ДО",
+    "updateDate": "2021-01-22"
+  }
+]

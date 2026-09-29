@@ -1,0 +1,14 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20220428"
+            author: sigalov-aa
+            changes:
+                -   dropNotNullConstraint:
+                        schemaName: limits
+                        tableName: limit
+                        columnName: limit_owner_id
+            rollback:
+                -   addNotNullConstraint:
+                        schemaName: limits
+                        tableName: limit
+                        columnName: limit_owner_id

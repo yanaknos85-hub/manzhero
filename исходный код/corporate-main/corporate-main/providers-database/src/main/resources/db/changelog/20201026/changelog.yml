@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20201026-remastered-1
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - not:
+            columnExists:
+              schemaName: corporate
+              tableName: employee
+              columnName: gender
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - addColumn:
+            tableName: employee
+            schemaName: corporate
+            columns:
+              - column:
+                  name: gender
+                  type: varchar(10)
+              - column:
+                  name: fire_date
+                  type: timestamp with time zone
+              - column:
+                  name: external_email
+                  type: varchar(255)

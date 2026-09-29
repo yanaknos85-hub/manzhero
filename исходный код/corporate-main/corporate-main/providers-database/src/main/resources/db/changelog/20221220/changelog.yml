@@ -1,0 +1,80 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20221220-remastered
+      author: medvedev-ad
+      context: "20221220"
+      preConditions:
+        - not:
+            - columnExists:
+                schemaName: corporate
+                tableName: position
+                columnName: active_status
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: "20221220"
+        - addColumn:
+            schemaName: corporate
+            tableName: position
+            columns:
+              - column:
+                  name: active_status
+                  type: text
+                  remarks: Статус активности
+                  defaultValue: ACTIVE
+  - changeSet:
+      id: 20221220-remastered-1
+      author: medvedev-ad
+      context: "20221220"
+      preConditions:
+        - columnExists:
+                schemaName: corporate
+                tableName: position
+                columnName: status
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: "20221220"
+        - update:
+            schemaName: corporate
+            tableName: position
+            columns:
+              - column:
+                  name: active_status
+                  value: INACTIVE
+            where: status is false
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: position
+            columnName: active_status
+        - dropColumn:
+            schemaName: corporate
+            tableName: position
+            columnName: status
+      rollback:
+        - addColumn:
+            schemaName: corporate
+            tableName: position
+            columnName: status
+            columns:
+              - column:
+                  name: status
+                  type: boolean
+                  remarks: Признак активности
+                  defaultValueBoolean: true
+        - update:
+            schemaName: corporate
+            tableName: position
+            columns:
+              - column:
+                  name: status
+                  valueBoolean: false
+            where: active_status = 'INACTIVE'
+        - addNotNullConstraint:
+            schemaName: corporate
+            tableName: position
+            columnName: status
+        - dropColumn:
+            schemaName: corporate
+            tableName: position
+            columnName: active_status

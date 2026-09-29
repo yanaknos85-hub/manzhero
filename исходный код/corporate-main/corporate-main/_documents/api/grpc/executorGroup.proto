@@ -1,0 +1,183 @@
+syntax = "proto3";
+
+package ru.sber.transport.corporate.grpc.service;
+
+import "google/protobuf/struct.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+/*
+ * Сервис для получения данных о группе исполнителя.
+ */
+service ExecutorGroups {
+
+  /*
+   * Получить данные об одной организации.
+   */
+  rpc GetExecutorGroupByEmployeeId(GetExecutorGroupByEmployeeIdRequest) returns (GetExecutorGroupByEmployeeIdResponse);
+
+}
+
+/*
+ * Запрос данных.
+ */
+message GetExecutorGroupByEmployeeIdResponse {
+  // Идентификатор Группы исполнителей.
+  string id = 1;
+
+  // Услуга.
+  string service = 2;
+
+  // Человеко-читаемый идентификатор.
+  string human_readable_id = 3;
+
+  // Разрешение на редактирование.
+  bool editable = 4;
+
+  // Активность группы исполнителей.
+  bool active = 5;
+
+  // Название группы.
+  string name = 6;
+
+  // Уровень сервиса.
+  string service_level = 7;
+
+  // Организация исполнителей.
+  string organization_name = 8;
+
+  // Идентификатор организации исполнителей.
+  string organization_id = 9;
+
+  // Дата и время создания в UTC.
+  google.protobuf.Timestamp creation_time = 10;
+
+  // Дата и время изменения в UTC.
+  google.protobuf.Timestamp update_time = 11;
+
+  // Идентификатор инициатора.
+  string author_id = 12;
+
+  // Идентификатор последнего модификатора.
+  string user_id = 13;
+
+  // Массив исполнителей.
+  repeated Executor executors = 14;
+
+  // Массив организаций заказчика.
+  repeated OrganizationExecutorGroup organizations = 15;
+
+  // Массив подразделений заказчика.
+  repeated DepartmentExecutorGroup departments = 16;
+
+  // Массив заказчиков.
+  repeated EmployeeExecutorGroup customers = 17;
+
+  // Массив территорий заказчика.
+  repeated GeoZoneShort geo_zones = 18;
+
+  repeated string contractors = 19;
+
+  string additional_feature = 20;
+}
+
+message Executor {
+  // Идентификатор сотрудника.
+  string employee_id = 1;
+
+  // ФИО.
+  string employee_name = 2;
+
+  // Табельный номер.
+  string employee_personnel_number = 3;
+
+  // Статус.
+  string employee_status = 4;
+
+  // Идентификатор подразделения.
+  string department_id = 5;
+
+  // Наименование.
+  string department_name = 6;
+
+  // Человеко-читаемый идентификатор.
+  string department_human_readable_id = 7;
+
+  // Статус.
+  string department_status = 8;
+}
+
+message OrganizationExecutorGroup {
+  // Поле id типа int32
+  string id = 1;
+  // Поле name типа string
+  string official_name = 2;
+  // Поле description типа string
+  string status = 3;
+}
+
+// Определяем сообщение DepartmentShortDTO с десятью полями
+message DepartmentExecutorGroup {
+  // Уникальный идентификатор отдела
+  string id = 1;
+  // Название отдела
+  string department_name = 2;
+  // Статус отдела (ACTIVE или INACTIVE)
+  string status = 3;
+  // Код отдела
+  string code = 4;
+  // Имя первого руководителя отдела
+  string head_name_first = 5;
+  // Имя последнего руководителя отдела
+  string head_name_last = 6;
+  // Название организации, к которой принадлежит отдел
+  string organization_name = 7;
+  // Название родительского отдела
+  string parent_department_name = 8;
+  // Местоположение отдела
+  string location = 9;
+  // Уникальный идентификатор EASUP отдела
+  string easup_id = 10;
+//Идентификатор (человекочитаемый)
+  string humanReadableId = 11;
+}
+
+message EmployeeExecutorGroup {
+  // Уникальный идентификатор сотрудника
+  string id = 1;
+  // ФИО сотрудника
+  string name = 2;
+  // Уникальный табельный номер сотрудника
+  string personnel_number = 3;
+  // Статус сотрудника (ACTIVE или INACTIVE)
+  string status = 4;
+}
+
+message GeoZoneShort {
+  // Идентификатор.
+  string id = 1;
+
+  // Наименование.
+  string name = 2;
+}
+
+/*
+ * Запрос данных.
+ */
+message GetExecutorGroupByEmployeeIdRequest {
+
+  /*
+  * Идентификатор сотрудника.
+  */
+  string employee_id = 1;
+  /*
+  * Идентификаторы гео зон.
+  */
+  repeated string geo_zone_ids = 2;
+
+  /*
+  * тип сервиса.
+  */
+  string service = 3;
+}
+

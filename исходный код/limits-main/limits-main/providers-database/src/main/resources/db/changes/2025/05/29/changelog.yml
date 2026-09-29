@@ -1,0 +1,550 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250529-0816"
+      author: medvedev-ad
+      context: "TRANSPORT-32758"
+      changes:
+        - tagDatabase:
+            tag: "D-04.009.000"
+        - renameColumn:
+            schemaName: ${schema_name}
+            tableName: spendings
+            oldColumnName: limit_sharing_per_period_id
+            newColumnName: period_sharing_id
+      rollback:
+        - renameColumn:
+            schemaName: ${schema_name}
+            tableName: spendings
+            newColumnName: period_sharing_id
+            oldColumnName: period_sharing_id
+  - changeSet:
+      id: "20250529-1017"
+      author: medvedev-ad
+      context: "TRANSPORT-32758"
+      changes:
+        - tagDatabase:
+            tag: "D-04.009.000"
+        - createTable:
+            schemaName: ${schema_name}
+            tableName: services
+            columns:
+              - column:
+                  name: id
+                  type: varchar(255)
+                  remarks: Идентификатор сервиса
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: ${schema_name}_services_pk
+  - changeSet:
+      id: "20250529-1034"
+      author: medvedev-ad
+      context: "TRANSPORT-32758"
+      changes:
+        - tagDatabase:
+            tag: "D-04.009.000"
+        - sql:
+            dbms: postgresql
+            sql: drop materialized view limits.limit_stats_spending;
+        - sql:
+            dbms: h2
+            sql: drop view limits.limit_stats_spending;
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: "limit"
+            columnName: limit_service_type
+            newDataType: varchar(255)
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: limit_history
+            columnName: limit_service_type
+            newDataType: varchar(255)
+        - sql:
+            sql: drop type ${schema_name}.service_type
+        - sql:
+            sql: insert into ${schema_name}.services (id) (select distinct limit_service_type from limits."limit")
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${schema_name}
+            baseTableName: limit
+            baseColumnNames: limit_service_type
+            referencedTableSchemaName: ${schema_name}
+            referencedTableName: services
+            referencedColumnNames: id
+            constraintName: ${schema_name}_limit_service_type_fk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${schema_name}
+            baseTableName: limit_history
+            baseColumnNames: limit_service_type
+            referencedTableSchemaName: ${schema_name}
+            referencedTableName: services
+            referencedColumnNames: id
+            constraintName: ${schema_name}_limit_history_service_type_fk
+        - renameColumn:
+            schemaName: ${schema_name}
+            tableName: "limit"
+            oldColumnName: limit_service_type
+            newColumnName: service_type
+        - renameColumn:
+            schemaName: ${schema_name}
+            tableName: limit_history
+            oldColumnName: limit_service_type
+            newColumnName: service_type
+        - sql:
+            dbms: postgresql
+            sql: >-
+              create materialized view limits.limit_stats_spending as
+              SELECT limit_stats.sharing_id,
+                  limit_stats.period_sharing_id,
+                  limit_stats.organization_id,
+                  limit_stats."year",
+                  limit_stats.transport_type,
+                  limit_stats.period,
+                  spendings.spent,
+                  spendings.request_id
+                 FROM limits.limit_stats
+                   JOIN limits.spendings ON limit_stats.period_sharing_id = spendings.period_sharing_id
+                WHERE spendings.status::text = 'SPENT'::text AND spendings.spent > 0
+                ORDER BY limit_stats.sharing_id, limit_stats.period_sharing_id;
+        - sql:
+            dbms: h2
+            sql: create view limits.limit_stats_spending as SELECT limit_stats.sharing_id, limit_stats.period_sharing_id, limit_stats.organization_id, limit_stats."year", limit_stats.transport_type, limit_stats.period, spendings.spent, spendings.request_id FROM limits.limit_stats JOIN limits.spendings ON limit_stats.period_sharing_id = spendings.period_sharing_id WHERE spendings.status::text = 'SPENT'::text AND spendings.spent > 0 ORDER BY limit_stats.sharing_id, limit_stats.period_sharing_id;
+      rollback:
+        - sql:
+            dbms: postgresql
+            sql: drop materialized view limits.limit_stats_spending;
+        - sql:
+            dbms: h2
+            sql: drop view limits.limit_stats_spending;
+        - dropForeignKeyConstraint:
+            baseTableSchemaName: ${schema_name}
+            baseTableName: limit
+            baseColumnNames: service_type
+            referencedTableSchemaName: ${schema_name}
+            referencedTableName: services
+            referencedColumnNames: id
+            constraintName: ${schema_name}_limit_service_type_fk
+        - sql:
+            sql: CREATE TYPE limits."service_type" AS ENUM ('PASSENGER', 'CARGO', 'REPAIR');
+        - dropForeignKeyConstraint:
+            baseTableSchemaName: limits
+            baseTableName: limit_sharing
+            baseColumnNames: limit_id
+            referencedTableSchemaName: limits
+            referencedTableName: limit
+            referencedColumnNames: id
+            constraintName: limitsharing_limit_fk
+        - dropForeignKeyConstraint:
+            baseTableSchemaName: limits
+            baseTableName: limit_responsible_employee
+            baseColumnNames: limit_id
+            referencedTableSchemaName: limits
+            referencedTableName: limit
+            referencedColumnNames: id
+            constraintName: limits_limit_responsible_employee_limit_id_fk
+        - renameColumn:
+            schemaName: ${schema_name}
+            tableName: "limit"
+            newColumnName: limit_service_type
+            oldColumnName: service_type
+        - renameColumn:
+            schemaName: ${schema_name}
+            tableName: limit_history
+            newColumnName: limit_service_type
+            oldColumnName: service_type
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: "limit"
+            columnName: limit_service_type
+            newDataType: ${schema_name}."service_type"
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: limit_history
+            columnName: limit_service_type
+            newDataType: ${schema_name}."service_type"
+        - dropForeignKeyConstraint:
+            baseTableSchemaName: ${schema_name}
+            baseTableName: limit
+            baseColumnNames: limit_service_type
+            referencedTableSchemaName: ${schema_name}
+            referencedTableName: services
+            referencedColumnNames: id
+            constraintName: ${schema_name}_limit_service_type_fk
+        - dropForeignKeyConstraint:
+            baseTableSchemaName: ${schema_name}
+            baseTableName: limit_history
+            baseColumnNames: limit_service_type
+            referencedTableSchemaName: ${schema_name}
+            referencedTableName: services
+            referencedColumnNames: id
+            constraintName: ${schema_name}_limit_history_service_type_fk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: limits
+            baseTableName: limit_sharing
+            baseColumnNames: limit_id
+            referencedTableSchemaName: limits
+            referencedTableName: limit
+            referencedColumnNames: id
+            constraintName: limitsharing_limit_fk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: limits
+            baseTableName: limit_responsible_employee
+            baseColumnNames: limit_id
+            referencedTableSchemaName: limits
+            referencedTableName: limit
+            referencedColumnNames: id
+            constraintName: limits_limit_responsible_employee_limit_id_fk
+        - sql:
+            dbms: postgresql
+            sql: >-
+              create materialized view limits.limit_stats_spending as
+              SELECT limit_stats.sharing_id,
+                  limit_stats.period_sharing_id,
+                  limit_stats.organization_id,
+                  limit_stats."year",
+                  limit_stats.transport_type,
+                  limit_stats.period,
+                  spendings.spent,
+                  spendings.request_id
+                 FROM limits.limit_stats
+                   JOIN limits.spendings ON limit_stats.period_sharing_id = spendings.period_sharing_id
+                WHERE spendings.status::text = 'SPENT'::text AND spendings.spent > 0
+                ORDER BY limit_stats.sharing_id, limit_stats.period_sharing_id;
+        - sql:
+            dbms: h2
+            sql: create view limits.limit_stats_spending as SELECT limit_stats.sharing_id, limit_stats.period_sharing_id, limit_stats.organization_id, limit_stats."year", limit_stats.transport_type, limit_stats.period, spendings.spent, spendings.request_id FROM limits.limit_stats JOIN limits.spendings ON limit_stats.period_sharing_id = spendings.period_sharing_id WHERE spendings.status::text = 'SPENT'::text AND spendings.spent > 0 ORDER BY limit_stats.sharing_id, limit_stats.period_sharing_id;
+  - changeSet:
+      id: "20250529-1126"
+      author: medvedev-ad
+      context: "TRANSPORT-32758"
+      changes:
+        - tagDatabase:
+            tag: "D-04.009.000"
+        - sql:
+            dbms: postgresql
+            sql: drop materialized view limits.limit_stats_spending
+        - sql:
+            dbms: postgresql
+            sql: drop materialized view limits.limit_stats
+        - sql:
+            dbms: h2
+            sql: drop view limits.limit_stats_spending
+        - sql:
+            dbms: h2
+            sql: drop view limits.limit_stats
+        - dropForeignKeyConstraint:
+            baseTableSchemaName: limits
+            baseTableName: limit_sharing_per_period
+            baseColumnNames: limit_sharing_id
+            referencedTableSchemaName: limits
+            referencedTableName: limit_sharing
+            referencedColumnNames: id
+            constraintName: limitsharingperperiod_limitsharing_fk
+        - renameTable:
+            schemaName: ${schema_name}
+            tableName: limit_sharing
+            oldTableName: limit_sharing
+            newTableName: sharings
+        - renameColumn:
+            schemaName: ${schema_name}
+            tableName: sharings
+            oldColumnName: balance
+            newColumnName: remains
+        - setColumnRemarks:
+            schemaName: ${schema_name}
+            tableName: sharings
+            columnName: remains
+            remarks: Остаток по лимиту
+        - setColumnRemarks:
+            schemaName: ${schema_name}
+            tableName: sharings
+            columnName: sum
+            remarks: Общая сумма
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: sharings
+            columnName: transport_type
+            newDataType: varchar(255)
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: limit_history
+            columnName: transport_type
+            newDataType: varchar(255)
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: limit_request
+            columnName: transport_type
+            newDataType: varchar(255)
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: limit_history
+            columnName: counterpart_transport_type
+            newDataType: varchar(255)
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: limit_transfer_history
+            columnName: source_transport_type
+            newDataType: varchar(255)
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: limit_transfer_history
+            columnName: target_transport_type
+            newDataType: varchar(255)
+        - createTable:
+            schemaName: ${schema_name}
+            tableName: types
+            remarks: Типы услуг
+            columns:
+              - column:
+                  name: id
+                  type: varchar(255)
+                  remarks: Идентификатор
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: ${schema_name}_types_pk
+        - sql:
+            dbms: postgresql
+            sql: insert into ${schema_name}.types (id) (select distinct transport_type from ${schema_name}.sharings) on conflict do nothing
+        - sql:
+            dbms: postgresql
+            sql: insert into ${schema_name}.types (id) (select distinct source_transport_type from ${schema_name}.limit_transfer_history) on conflict do nothing
+        - sql:
+            dbms: postgresql
+            sql: insert into ${schema_name}.types (id) (select distinct target_transport_type from ${schema_name}.limit_transfer_history) on conflict do nothing
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${schema_name}
+            baseTableName: limit_transfer_history
+            baseColumnNames: source_transport_type
+            referencedTableSchemaName: ${schema_name}
+            referencedTableName: types
+            referencedColumnNames: id
+            constraintName: ${schema_name}_limit_transfer_history_source_transport_type_fk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${schema_name}
+            baseTableName: limit_transfer_history
+            baseColumnNames: target_transport_type
+            referencedTableSchemaName: ${schema_name}
+            referencedTableName: types
+            referencedColumnNames: id
+            constraintName: ${schema_name}_limit_transfer_history_target_transport_type_fk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${schema_name}
+            baseTableName: sharings
+            baseColumnNames: transport_type
+            referencedTableSchemaName: ${schema_name}
+            referencedTableName: types
+            referencedColumnNames: id
+            constraintName: ${schema_name}_sharings_transport_type_types_fk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${schema_name}
+            baseTableName: limit_transfer_history
+            baseColumnNames: source_transport_type
+            referencedTableSchemaName: ${schema_name}
+            referencedTableName: types
+            referencedColumnNames: id
+            constraintName: ${schema_name}_limit_history_transport_type_types_fk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${schema_name}
+            baseTableName: limit_request
+            baseColumnNames: transport_type
+            referencedTableSchemaName: ${schema_name}
+            referencedTableName: types
+            referencedColumnNames: id
+            constraintName: ${schema_name}_limit_request_transport_type_types_fk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${schema_name}
+            baseTableName: limit_history
+            baseColumnNames: counterpart_transport_type
+            referencedTableSchemaName: ${schema_name}
+            referencedTableName: types
+            referencedColumnNames: id
+            constraintName: ${schema_name}_limit_history_counterpart_transport_type_types_fk
+        - sql:
+            sql: drop type ${schema_name}.transport_type;
+        - addForeignKeyConstraint:
+           baseTableSchemaName: limits
+           baseTableName: limit_sharing_per_period
+           baseColumnNames: limit_sharing_id
+           referencedTableSchemaName: limits
+           referencedTableName: sharings
+           referencedColumnNames: id
+           constraintName: limitsharingperperiod_limitsharing_fk
+        - sql:
+            dbms: postgresql
+            sql: >-
+              create materialized view limits.limit_stats as
+                            SELECT lspp.id AS period_sharing_id,
+                                l.organization_id as organization_id,
+                                lspp.period,
+                                l."year",
+                                ls.id AS sharing_id,
+                                ls.transport_type,
+                                lspp.sum
+                               FROM limits.limit_sharing_per_period lspp
+                                 JOIN limits.sharings ls ON ls.id = lspp.limit_sharing_id
+                                 JOIN limits."limit" l ON l.id = ls.limit_id
+                              WHERE l.limit_status::text = 'SHARED'::text AND lspp.sum > 0;
+        - sql:
+            dbms: postgresql
+            sql: >-
+              create materialized view limits.limit_stats_spending as
+              SELECT limit_stats.sharing_id,
+                  limit_stats.period_sharing_id,
+                  limit_stats.organization_id,
+                  limit_stats."year",
+                  limit_stats.transport_type,
+                  limit_stats.period,
+                  spendings.spent,
+                  spendings.request_id
+                 FROM limits.limit_stats
+                   JOIN limits.spendings ON limit_stats.period_sharing_id = spendings.period_sharing_id
+                WHERE spendings.status::text = 'SPENT'::text AND spendings.spent > 0
+                ORDER BY limit_stats.sharing_id, limit_stats.period_sharing_id;
+        - sql:
+            dbms: h2
+            sql: >-
+              create view limits.limit_stats as SELECT lspp.id AS period_sharing_id, l.organization_id as organization_id, lspp.period, l."year", ls.id AS sharing_id, ls.transport_type, lspp.sum FROM limits.limit_sharing_per_period lspp JOIN limits.sharings ls ON ls.id = lspp.limit_sharing_id JOIN limits."limit" l ON l.id = ls.limit_id WHERE l.limit_status::text = 'SHARED'::text AND lspp.sum > 0;
+        - sql:
+            dbms: h2
+            sql: create view limits.limit_stats_spending as SELECT limit_stats.sharing_id, limit_stats.period_sharing_id, limit_stats.organization_id, limit_stats."year", limit_stats.transport_type, limit_stats.period, spendings.spent, spendings.request_id FROM limits.limit_stats JOIN limits.spendings ON limit_stats.period_sharing_id = spendings.period_sharing_id WHERE spendings.status::text = 'SPENT'::text AND spendings.spent > 0 ORDER BY limit_stats.sharing_id, limit_stats.period_sharing_id;
+      rollback:
+        - sql:
+            dbms: postgresql
+            sql: drop materialized view limits.limit_stats_spending
+        - sql:
+            dbms: postgresql
+            sql: drop materialized view limits.limit_stats
+        - sql:
+            dbms: h2
+            sql: drop view limits.limit_stats_spending
+        - sql:
+            dbms: h2
+            sql: drop view limits.limit_stats
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${schema_name}
+            baseTableName: limit_transfer_history
+            baseColumnNames: source_transport_type
+            referencedTableSchemaName: ${schema_name}
+            referencedTableName: types
+            referencedColumnNames: id
+            constraintName: ${schema_name}_limit_transfer_history_source_transport_type_fk
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ${schema_name}
+            baseTableName: limit_transfer_history
+            baseColumnNames: target_transport_type
+            referencedTableSchemaName: ${schema_name}
+            referencedTableName: types
+            referencedColumnNames: id
+            constraintName: ${schema_name}_limit_transfer_history_target_transport_type_fk
+        - dropForeignKeyConstraint:
+            baseTableSchemaName: limits
+            baseTableName: limit_sharing_per_period
+            baseColumnNames: limit_sharing_id
+            referencedTableSchemaName: limits
+            referencedTableName: limit_sharing
+            referencedColumnNames: id
+            constraintName: limitsharingperperiod_limitsharing_fk
+        - renameTable:
+            schemaName: ${schema_name}
+            tableName: limit_sharing
+            oldTableName: sharings
+            newTableName: limit_sharing
+        - renameColumn:
+            schemaName: ${schema_name}
+            tableName: sharings
+            oldColumnName: remains
+            newColumnName: balance
+        - dropForeignKeyConstraint:
+            baseTableSchemaName: ${schema_name}
+            baseTableName: sharings
+            constraintName: ${schema_name}_sharings_transport_type_types_fk
+        - dropForeignKeyConstraint:
+            baseTableSchemaName: ${schema_name}
+            baseTableName: limit_history
+            constraintName: ${schema_name}_limit_history_transport_type_types_fk
+        - dropForeignKeyConstraint:
+            baseTableSchemaName: ${schema_name}
+            baseTableName: limit_history
+            constraintName: ${schema_name}_limit_history_counterpart_transport_type_types_fk
+        - dropForeignKeyConstraint:
+            baseTableSchemaName: ${schema_name}
+            baseTableName: limit_request
+            constraintName: ${schema_name}_limit_request_counterpart_transport_type_types_fk
+        - dropTable:
+            schemaName: ${schema_name}
+            tableName: types
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: limit_transfer_history
+            columnName: source_transport_type
+            newDataType: ${schema_name}."transport_type"
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: limit_transfer_history
+            columnName: target_transport_type
+            newDataType: ${schema_name}."transport_type"
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: sharings
+            columnName: transport_type
+            newDataType: ${schema_name}."transport_type"
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: limit_history
+            columnName: transport_type
+            newDataType: ${schema_name}."transport_type"
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: limit_request
+            columnName: transport_type
+            newDataType: ${schema_name}."transport_type"
+        - modifyDataType:
+            schemaName: ${schema_name}
+            tableName: limit_history
+            columnName: counterpart_transport_type
+            newDataType: ${schema_name}."transport_type"
+        - sql:
+            sql: CREATE TYPE limits."transport_type" AS ENUM ('TAXI', 'PERSONAL', 'PUBLIC', 'CARSHARING', 'GROUP_TRANSFER', 'BICYCLE', 'WALK', 'SCOOTER', 'DEDICATED', 'COURIER', 'DOMESTIC_COURIER', 'INTERREGIONAL', 'INDIVIDUAL', 'OFFICIAL', 'PRIVATE', 'SPECIAL');
+        - addForeignKeyConstraint:
+            baseTableSchemaName: limits
+            baseTableName: limit_sharing_per_period
+            baseColumnNames: limit_sharing_id
+            referencedTableSchemaName: limits
+            referencedTableName: limit_sharing
+            referencedColumnNames: id
+            constraintName: limitsharingperperiod_limitsharing_fk
+        - sql:
+            dbms: postgresql
+            sql: >-
+              create materialized view limits.limit_stats as
+                            SELECT lspp.id AS period_sharing_id,
+                                l.organization_id as organization_id,
+                                lspp.period,
+                                l."year",
+                                ls.id AS sharing_id,
+                                ls.transport_type,
+                                lspp.sum
+                               FROM limits.limit_sharing_per_period lspp
+                                 JOIN limits.limit_sharing ls ON ls.id = lspp.limit_sharing_id
+                                 JOIN limits."limit" l ON l.id = ls.limit_id
+                              WHERE l.limit_status::text = 'SHARED'::text AND lspp.sum > 0;
+        - sql:
+            dbms: postgresql
+            sql: >-
+              create materialized view limits.limit_stats_spending as
+              SELECT limit_stats.sharing_id,
+                  limit_stats.period_sharing_id,
+                  limit_stats.organization_id,
+                  limit_stats."year",
+                  limit_stats.transport_type,
+                  limit_stats.period,
+                  spendings.spent,
+                  spendings.request_id
+                 FROM limits.limit_stats
+                   JOIN limits.spendings ON limit_stats.period_sharing_id = spendings.period_sharing_id
+                WHERE spendings.status::text = 'SPENT'::text AND spendings.spent > 0
+                ORDER BY limit_stats.sharing_id, limit_stats.period_sharing_id;
+        - sql:
+            dbms: h2
+            sql: create view limits.limit_stats as SELECT lspp.id AS period_sharing_id, l.organization_id as organization_id, lspp.period, l."year", ls.id AS sharing_id, ls.transport_type, lspp.sum FROM limits.limit_sharing_per_period lspp JOIN limits.limit_sharing ls ON ls.id = lspp.limit_sharing_id JOIN limits."limit" l ON l.id = ls.limit_id WHERE l.limit_status::text = 'SHARED'::text AND lspp.sum > 0;
+        - sql:
+            dbms: h2
+            sql: create view limits.limit_stats_spending as SELECT limit_stats.sharing_id, limit_stats.period_sharing_id, limit_stats.organization_id, limit_stats."year", limit_stats.transport_type, limit_stats.period, spendings.spent, spendings.request_id FROM limits.limit_stats JOIN limits.spendings ON limit_stats.period_sharing_id = spendings.period_sharing_id WHERE spendings.status::text = 'SPENT'::text AND spendings.spent > 0 ORDER BY limit_stats.sharing_id, limit_stats.period_sharing_id;

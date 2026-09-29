@@ -1,0 +1,14 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20201109
+            author: vod
+            changes:
+                -   sqlFile:
+                        path: alter_employee_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+            rollback:
+                -   sqlFile:
+                        path: rollback_alter_employee_table.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;

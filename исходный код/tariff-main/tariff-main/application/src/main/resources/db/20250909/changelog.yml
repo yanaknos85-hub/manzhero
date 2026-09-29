@@ -1,0 +1,10 @@
+databaseChangeLog:
+    -   changeSet:
+            id: tariff_fleet/20250909-1
+            author: azatsepilin
+            dbms: postgresql
+            changes:
+                -   sqlFile:
+                        path: changes/add_tariff_search_roles.sql
+                        relativeToChangelogFile: true
+                        splitStatements: false

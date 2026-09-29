@@ -1,0 +1,4 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+ru.sber.transport.authorization.config.SecurityConfigurerAdapter,\
+ru.sber.transport.authorization.AuthorizationConfiguration,\
+ru.sber.transport.authorization.service.impl.CheckUserAccessServiceImpl

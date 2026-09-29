@@ -1,0 +1,87 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20210908-remastered
+      author: medvedev-ad
+      context: TRASNPORT-27047
+      preConditions:
+        - not:
+            - tableExists:
+                schemaName: corporate
+                tableName: cargo_delivery_time
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.024.000
+        - createTable:
+            schemaName: corporate
+            tableName: cargo_delivery_time
+            remarks: 'Справочник сроков доставки'
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: 'Идентификатор'
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: corporate_cargo_delivery_time_pk
+              - column:
+                  name: label
+                  type: varchar(255)
+                  remarks: 'Описание срока доставки'
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_cargo_delivery_time_label_nn
+              - column:
+                  name: urgency
+                  type: varchar(10)
+                  remarks: 'Срочность доставки'
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_cargo_delivery_time_urgency_nn
+              - column:
+                  name: dist_start
+                  type: integer
+                  remarks: 'Начало интервала'
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_cargo_delivery_time_dist_start_nn
+              - column:
+                  name: dist_end
+                  type: integer
+                  remarks: 'Конец интервала'
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_cargo_delivery_time_dist_end_nn
+              - column:
+                  name: default_value
+                  type: integer
+                  remarks: 'Срок доставки по-умолчанию'
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_cargo_delivery_time_default_value_nn
+              - column:
+                  name: value
+                  type: integer
+                  remarks: 'Срок доставки'
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_cargo_delivery_time_value_nn
+              - column:
+                  name: active
+                  type: boolean
+                  remarks: 'Признак активности'
+                  defaultOnNull: true
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: corporate_cargo_delivery_time_active_nn
+        -  sqlFile:
+            dbms: postgresql
+            path: add_cargo_delivery_time.sql
+            relativeToChangelogFile: true
+            splitStatements: false
+      rollback:
+        - dropTable:
+            schemaName: corporate
+            tableName: cargo_delivery_time
+            cascade: true

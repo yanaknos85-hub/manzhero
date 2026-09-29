@@ -1,0 +1,66 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250212-1614"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.003"
+        - addColumn:
+            schemaName: corporate_sync
+            tableName: sync_department
+            columns:
+              - column:
+                  name: error
+                  type: text
+                  remarks: 'Ошибка при синхронизации'
+        - addColumn:
+            schemaName: corporate_sync
+            tableName: sync_employee
+            columns:
+              - column:
+                  name: error
+                  type: text
+                  remarks: 'Ошибка при синхронизации'
+        - addColumn:
+            schemaName: corporate_sync
+            tableName: sync_position
+            columns:
+              - column:
+                  name: error
+                  type: text
+                  remarks: 'Ошибка при синхронизации'
+  - changeSet:
+      id: "20250212-1647"
+      author: medvedev-ad
+      context: "TRANSPORT-29751"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.003"
+        - dropPrimaryKey:
+            schemaName: corporate_sync
+            tableName: sync_position
+            constraintName: corporate_sync_position_pk
+        - dropPrimaryKey:
+            schemaName: corporate_sync
+            tableName: sync_department
+            constraintName: corporate_sync_department_pk
+        - dropPrimaryKey:
+            schemaName: corporate_sync
+            tableName: sync_employee
+            constraintName: corporate_sync_employee_pk
+        - addPrimaryKey:
+            schemaName: corporate_sync
+            tableName: sync_position
+            constraintName: corporate_sync_position_pk
+            columnNames: sync_id,organization_sync_id
+        - addPrimaryKey:
+            schemaName: corporate_sync
+            tableName: sync_department
+            constraintName: corporate_sync_department_pk
+            columnNames: sync_id,organization_sync_id
+        - addPrimaryKey:
+            schemaName: corporate_sync
+            tableName: sync_employee
+            constraintName: corporate_sync_employee_pk
+            columnNames: sync_id,organization_sync_id

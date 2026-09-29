@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "ru.sber.transport.tariff_fleet.grpc.service";
+import "dto/dto.proto";
+import "google/protobuf/wrappers.proto";
+
+package ru.sber.transport.tariff_fleet.grpc.service;
+
+service ContractsService {
+    rpc haveActiveContractsByContractorId (ru.sber.transport.tariff_fleet.grpc.dto.HasActiveByContractorIdRequest) returns (google.protobuf.BoolValue);
+}

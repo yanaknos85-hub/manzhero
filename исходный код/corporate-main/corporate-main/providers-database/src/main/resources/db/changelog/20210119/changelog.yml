@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20210119-remastered-1
+      author: medvedev-ad
+      context: TRANSPORT-27855
+      preConditions:
+        - not:
+            - columnExists:
+                schemaName: corporate
+                tableName: employee
+                columnName: cost_center
+          onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: D-03.020.001
+        - addColumn:
+            schemaName: corporate
+            tableName: employee
+            columns:
+              - column:
+                  name: cost_center
+                  type: varchar(128)
+                  remarks: 'Место возникновения затрат'
+              - column:
+                  name: itinerant_type
+                  type: varchar(10)
+                  remarks: 'Характер разъездной работы сотрудника'
+              - column:
+                  name: marriage_certificate_id
+                  type: varchar(128)

@@ -1,0 +1,12 @@
+CREATE INDEX idx_approval_journal_actor_id ON approvals.approval_journal (actor_id);
+CREATE INDEX idx_approval_journal_approved_by_id ON approvals.approval_journal (approved_by_id);
+CREATE INDEX idx_approval_journal_trip_purpose_id ON approvals.approval_journal (trip_purpose_id);
+CREATE INDEX idx_approval_journal_creation_time ON approvals.approval_journal (creation_time);
+CREATE INDEX idx_approval_journal_desired_date ON approvals.approval_journal (desired_date);
+CREATE INDEX idx_approval_journal_status ON approvals.approval_journal ("status");
+CREATE INDEX idx_approval_journal_expected_cost ON approvals.approval_journal (expected_cost);
+CREATE INDEX idx_approval_journal_transport_type ON approvals.approval_journal (transport_type);
+CREATE INDEX idx_approval_journal_approval_id ON approvals.approval_journal (approval_id);
+CREATE INDEX idx_approval_journal_action_id ON approvals.approval_journal (action_id);
+CREATE INDEX idx_approval_journal_type ON approvals.approval_journal ("type");
+CREATE INDEX idx_approval_journal_actor_id_status_transport_type ON approvals.approval_journal (actor_id,"status",transport_type);

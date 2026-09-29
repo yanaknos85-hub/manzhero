@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20231017-1058"
+      author: medvedev-ad
+      context: "TRANSPORT-16955"
+      changes:
+        - tagDatabase:
+            tag: "D-02.034.000"
+        - createIndex:
+            schemaName: limits
+            tableName: employee
+            column:
+              name: user_id
+            indexName: limits_employee_user_idx
+  - changeSet:
+      id: "20231017-1555"
+      author: medvedev-ad
+      context: "TRANSPORT-16955"
+      changes:
+        - tagDatabase:
+            tag: "D-02.034.000"
+        - sql:
+            dbms: postgresql
+            sql: >-
+              create materialized view limits.limit_stats as
+              select lspp.id as period_sharing_id, lspp.organization_id as organization_id, lspp.period as period, l.year as year, ls.id as sharing_id, ls.transport_type as transport_type, lspp.sum as sum
+              from limits.limit_sharing_per_period lspp
+                       join limits.limit_sharing ls on ls.id = lspp.limit_sharing_id
+                       join limits.limit l on l.id = ls.limit_id;
+        - sql:
+            dbms: h2
+            sql: create view limits.limit_stats as select lspp.id as period_sharing_id, lspp.organization_id as organization_id, lspp.period as period, l."year" as "year", ls.id as sharing_id, ls.transport_type as transport_type, lspp.sum as sum from limits.limit_sharing_per_period lspp join limits.limit_sharing ls on ls.id = lspp.limit_sharing_id join limits."limit" l on l.id = ls.limit_id;
+      rollback:
+        - sql:
+            dbms: postgresql
+            sql: drop materialized view limits.limit_stats;
+        - sql:
+            dbms: h2
+            sql: drop view limits.limit_stats;

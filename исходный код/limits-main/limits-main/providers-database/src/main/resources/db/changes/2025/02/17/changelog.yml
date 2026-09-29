@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250217-1142"
+      author: ladeyshchikov-aa
+      context: "TRANSPORT-29936"
+      changes:
+        - tagDatabase:
+            tag: "D-04.002.000"
+        - addColumn:
+            schemaName: limits
+            tableName: limit_sharing_per_period
+            columns:
+              - column:
+                  name: moved_to_next
+                  type: boolean
+                  remarks: Признак был ли перемещен лимит на следующий месяц
+                  defaultOnNull: true
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limits_limit_sharing_per_period_nn

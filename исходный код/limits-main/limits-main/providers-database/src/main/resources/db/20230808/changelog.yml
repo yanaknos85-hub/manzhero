@@ -1,0 +1,124 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20230808-remastered"
+      author: sigalov-aa
+      preConditions:
+        - not:
+            - tableExists:
+                schemaName: limits
+                tableName: limit_history
+          onFail: MARK_RAN
+      changes:
+        - createTable:
+            schemaName: limits
+            tableName: limit_history
+            remarks: История
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: limit_history_pk
+              - column:
+                  name: author_id
+                  type: uuid
+                  remarks: Автор
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limits_limit_history_author_id_nn
+              - column:
+                  name: organization_id
+                  type: uuid
+                  remarks: Организация
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limits_limit_history_organization_id_nn
+              - column:
+                  name: year
+                  type: int
+                  remarks: Год
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limits_limit_history_year_nn
+              - column:
+                  name: sum
+                  type: bigint
+                  remarks: Сумма
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limits_limit_history_sum_nn
+              - column:
+                  name: limit_id
+                  type: uuid
+                  remarks: Идентификатор лимита
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limits_limit_history_limit_id_nn
+              - column:
+                  name: transport_type
+                  type: text
+                  remarks: Тип транспорта
+              - column:
+                  name: period
+                  type: int
+                  remarks: Период
+              - column:
+                  name: counterpart_limit_id
+                  type: uuid
+                  remarks: Идентификатор лимита с другой стороны
+              - column:
+                  name: counterpart_transport_type
+                  type: text
+                  remarks: Тип транспорта с другой стороны
+              - column:
+                  name: counterpart_period
+                  type: int
+                  remarks: Период с другой стороны
+              - column:
+                  name: history_type
+                  type: text
+                  remarks: Тип истории
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limits_limit_history_history_type_nn
+              - column:
+                  name: limit_service_type
+                  type: text
+                  remarks: Тип услуг
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limits_limit_history_limit_service_type_nn
+              - column:
+                  name: limit_sum
+                  type: bigint
+                  remarks: Сумма лимита
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limits_limit_history_limit_sum_nn
+              - column:
+                  name: limit_sharing_sum
+                  type: bigint
+                  remarks: Сумма распределения
+              - column:
+                  name: limit_sharing_balance
+                  type: bigint
+                  remarks: Баланс распределения
+              - column:
+                  name: limit_sharing_per_period_sum
+                  type: bigint
+                  remarks: Сумма распределения за период
+              - column:
+                  name: limit_sharing_per_period_balance
+                  type: bigint
+                  remarks: Баланс распределения за период
+              - column:
+                  name: creation_time
+                  type: timestamp
+                  remarks: Время создания
+                  defaultOnNull: true
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: limits_limit_history_creation_time_nn

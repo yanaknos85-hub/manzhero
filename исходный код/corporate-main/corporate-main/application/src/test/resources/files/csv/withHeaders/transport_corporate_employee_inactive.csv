@@ -1,0 +1,2 @@
+email,firstName,lastName,mobilePhone,patronymic,personnelNumber,delegatedBy,department,positionRecord,supervisorId,userId,status
+12345DDE@BBB.COM,Антон,Бутырский,+7122456789,Валерьевич,0987654,,Департамент розничного бизнеса,Босс,28bca53a-4340-4d28-8f16-cefa09a5a5ae,98bca53a-4340-4d28-8f16-cefa09a5a5ae,INACTIVE

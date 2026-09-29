@@ -1,0 +1,14 @@
+databaseChangeLog:
+    -   changeSet:
+            id: corporate/20200707
+            author: apa
+            changes:
+                -   sqlFile:
+                        path: update_constraint.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;
+            rollback:
+                -   sqlFile:
+                        path: rollback_update_constraint.sql
+                        relativeToChangelogFile: true
+                        endDelimiter: ;

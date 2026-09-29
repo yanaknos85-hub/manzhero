@@ -1,0 +1,401 @@
+syntax = "proto3";
+
+package ru.sber.transport.corporate.sync.grpc.service;
+
+import "google/protobuf/struct.proto";
+
+/*
+ * Сервис для обмена оргштатной структурой.
+ */
+service StateService {
+
+  /*
+   * Получить данные сотрудника по табельному номеру.
+   */
+  rpc GetEmployee(Request) returns (Employee);
+
+  /*
+   * Получить данные подразделения по номеру.
+   */
+  rpc GetDepartment(Request) returns (Department);
+
+  /*
+   * Получить данные должности по номеру.
+   */
+  rpc GetPosition(Request) returns (Position);
+}
+
+/*
+ * Запрос данных.
+ */
+message Request {
+
+  /*
+  * Идентификатор.
+  */
+  string id = 1;
+}
+
+/*
+ * Ответ с данными сотрудника.
+ */
+message Employee {
+
+  /*
+  * Идентификатор организации.
+  */
+  string organizationId = 1;
+
+  /*
+  * Дата обновления.
+  */
+  OffsetDateTime updateDate = 2;
+
+  /*
+  * Табельный номер.
+  */
+  string personnelNumber = 3;
+
+  /*
+  * Идентфиикатор подразделения.
+  */
+  string departmentId = 4;
+
+  /*
+  * Идентификатор должности.
+  */
+  string positionId = 5;
+
+  /*
+  * Имя.
+  */
+  string firstName = 6;
+
+  /*
+  * Фамилия.
+  */
+  string lastName = 7;
+
+  /*
+  * Отчество.
+  */
+  NullableString patronymic = 8;
+
+  /*
+  * Пол.
+  */
+  Gender gender = 9;
+
+  /*
+  * EMail.
+  */
+  NullableString email = 10;
+
+  /*
+  * Внешний EMail.
+  */
+  NullableString externalEmail = 11;
+
+  /*
+  * Адрес.
+  */
+  NullableString address = 12;
+
+  /*
+  * Комната.
+  */
+  NullableString room = 13;
+
+  /*
+  * Факт подписания ПДн.
+  */
+  bool consent = 14;
+
+  /*
+  * МВЗ.
+  */
+  NullableString costCenter = 15;
+
+  /*
+  * Разъездной характер.
+  */
+  ItinerantType itinerantType = 16;
+
+  /*
+  * Идентификатор свидетельства о браке.
+  */
+  NullableString marriageCertificateId = 17;
+
+  /*
+  * Дата увольнения.
+  */
+  NullableDate fireDate = 18;
+
+  /*
+  * Дата найма.
+  */
+  Date hireDate = 19;
+
+  /*
+  * Дата вступления в последнюю должность.
+  */
+  Date positionGetDate = 20;
+
+  /*
+  * Дата снятия с последней должности.
+  */
+  NullableDate positionRemovalDate = 21;
+
+  /*
+  * Флаг активности.
+  */
+  bool active = 22;
+
+}
+
+
+/*
+* Данные подразделения.
+*/
+message Department {
+
+  /*
+  * Идентификатор организации.
+  */
+  string organizationId = 1;
+
+  /*
+  * Идентификатор ЕАСУП.
+  */
+  string id = 2;
+
+  /*
+  * Идентификатор ЕАСУП родителя.
+  */
+  NullableString parentId = 3;
+
+  /*
+  * Дата обновления.
+  */
+  OffsetDateTime updateDate = 4;
+
+  /*
+  * Код.
+  */
+  NullableString code = 5;
+
+  /*
+  * Название.
+  */
+  string name = 6;
+
+  /*
+  * Табельный номер руководителя.
+  */
+  NullableString headPersonnel = 7;
+
+  /*
+  * Дата формирования подразделения.
+  */
+  Date startRecordingDate = 8;
+
+  /*
+  * Дата расформирования подразделения.
+  */
+  NullableDate endRecordingDate = 9;
+
+  /*
+  * Флаг активности.
+  */
+  bool active = 10;
+}
+
+
+/*
+* Данные должности.
+*/
+message Position {
+
+  /*
+  * Идентификатор организации.
+  */
+  string organizationId = 1;
+
+  /*
+  * Идентификатор ЕАСУП.
+  */
+  string id = 2;
+
+  /*
+  * Дата обновления.
+  */
+  OffsetDateTime updateDate = 3;
+
+  /*
+  * Код должности.
+  */
+  string code = 4;
+
+  /*
+  * Название должности.
+  */
+  string name = 5;
+
+  /*
+  * Разъездной характер работы.
+  */
+  ItinerantType itinerantType = 6;
+
+  /*
+  * Дата формирования должности.
+  */
+  Date startRecordingDate = 7;
+
+  /*
+  * Дата расформирования должности.
+  */
+  NullableDate endRecordingDate = 8;
+
+  /*
+  * Флаг активности.
+  */
+  bool active = 9;
+
+  /*
+  * Флаг руководителя.
+  */
+  bool chief = 10;
+
+}
+
+/*
+ * Дата-время со сдвигом.
+ */
+message OffsetDateTime {
+
+  /*
+   * Дата.
+   */
+  Date date = 1;
+
+  /*
+   * Час.
+   */
+  uint32 hour = 4;
+
+  /*
+   * Минута.
+   */
+  uint32 minute = 5;
+
+  /*
+   * Секунда.
+   */
+  uint32 second = 6;
+
+  /*
+   * Милисекунда.
+   */
+  uint32 millis = 7;
+
+  /*
+   * Сдвиг.
+   */
+  string offset = 8;
+
+}
+
+/*
+ * Дата.
+ */
+message Date {
+
+  /*
+   * Год.
+   */
+  uint32 year = 1;
+
+  /*
+   * Месяц.
+   */
+  uint32 month = 2;
+
+  /*
+   * День.
+   */
+  uint32 day = 3;
+
+}
+
+/*
+ * Пол.
+ */
+enum Gender {
+
+  /*
+   * Мужской.
+   */
+  MALE = 0;
+
+  /*
+   * Женский.
+   */
+  FEMALE = 1;
+}
+
+/*
+ * Разъездной характер работы.
+ */
+enum ItinerantType {
+
+  /*
+   * Нет.
+   */
+  NONE = 0;
+
+  /*
+   * Частичный.
+   */
+  PARTIAL = 1;
+
+  /*
+   * Полный.
+   */
+  FULL = 2;
+}
+
+/*
+ * Обнуляемая строка.
+ */
+message NullableString {
+  oneof Kind {
+
+    /*
+     * Признак отсутствия значения.
+     */
+    google.protobuf.NullValue null = 1;
+
+    /*
+     * Значение.
+     */
+    string value = 2;
+  }
+}
+
+/*
+ * Обнуляемая дата.
+ */
+message NullableDate {
+  oneof Kind {
+
+    /*
+     * Признак отсутствия значения.
+     */
+    google.protobuf.NullValue null = 1;
+
+    /*
+     * Значение.
+     */
+    Date value = 2;
+  }
+}
