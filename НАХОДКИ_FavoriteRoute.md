@@ -436,5 +436,30 @@
 
 ---
 
+## Уточнение 29.09.2026 (2): сверка с каталогом GitLab `sbertransport`
+
+Источник: документ пользователя со структурой GitLab (14 скриншотов групп `dzo`, `autoservice`, `cargo`, `platform` — 4 страницы, `front`, `lib` — 3 страницы, `passenger`, `fleet`). Текстового слоя нет, прочитаны изображения.
+
+**Ограничения источника:** подгруппа `front / lib` на скриншоте не раскрыта; между страницами `platform` («Roles» → «Request external registry») и `lib` («javers» → «indexer») возможны пропущенные проекты — стыки скриншотов не перекрываются.
+
+**Соответствие скачанных архивов группам (уточняет A.1):**
+- `passenger / Tariff` = `tariff-main (2)` (`spring.application.name: tariff`); `fleet / Tariff` = `tariff-main` (`tariff-fleet`) — подтверждает разделение из A.1.
+- `passenger / oto` в архивах отсутствует; скачан `cargo / OTO` (`oto-cargo`). Именно это объясняет упоминание «двух oto» в инструкции.
+- `passenger / Passenger reports`, `Request aggregation`, `SRM`, `Passenger_request`, `platform / Address`, `Config server`, `Gateway`, `GEO`, `Request checks`, `Trips` — уже скачаны.
+
+**Исправление раздела F (уверенность повышена):**
+
+| Артефакт / класс | Репозиторий в каталоге | Основание | Вопросы |
+|---|---|---|---|
+| `human-readable-generator` (`SQGenerator`) | `lib / human_readable_generator` | имя совпадает | Q10 |
+| `authorization` (`ControllerUtils`, `EmployeeOrganizationFunction`) | `lib / authorization` | имя совпадает | Q14 |
+| `ru.sberbank.ditsib.converters.DurationMillisConverter` | `lib / core` — **кандидат, уверенность средняя-высокая** | [КОД] `transport_core-main/transport_core-main/pom.xml` зависит от артефакта `core`; PR, TF и GEO получают его транзитивно; TF зависит от `core` напрямую; в скачанных исходниках пакета нет | D02, D06 |
+| `tariff-grpc`, `request-model`, `tariff-model`, `srm-model`, `geo grpc` | `lib / grpc` — кандидат | TF pom: `tariff-grpc`; PR pom: `request-model`, `tariff-model` | Q08, I01 (актуальный контракт `TariffService`) |
+
+**Дополнительно найденные в каталоге проекты, релевантные открытым вопросам:** `platform / Corporate` (организации, digitId, `/api/organizations/self/addresses/favorite` → `corporate-service`), `platform / Trip purpose request check` (D07), `platform / Fraud monitoring` (D02), `platform / Limits` + `lib / limits_sdk` (резервирование лимита на сумму заявки), `passenger / Passenger approvals` (согласование, Q12), `passanger / Passanger integrations` (внешние агрегаторы такси, факт/план), `lib / jooq_envers` (вариант истории для D04), `front / lib` (общие компоненты фронта).
+
+---
+
 ## Журнал изменений
 - 29.09.2026 — первая редакция. Параллельно в `Вопрос ответ.docx` добавлен датированный раздел «Результаты исследования исходного кода 29.09.2026» (три таблицы, исходные таблицы сохранены без изменений).
+- 29.09.2026 (2) — добавлено уточнение по каталогу GitLab; раздел F уточнён (кандидаты `lib/core`, `lib/grpc`, приоритеты скачивания).
