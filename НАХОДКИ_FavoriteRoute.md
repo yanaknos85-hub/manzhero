@@ -460,6 +460,113 @@
 
 ---
 
+## Уточнение 29.09.2026 (3): анализ загруженных репозиториев первого приоритета
+
+Основание: коммит `d8287eb3` «Чистый коммит без секретов» в `main` (история переписана; ветка исследования перенесена на новый `main` без изменения содержимого). Методика прежняя: только чтение.
+
+### (3).A. Что загружено и в каком состоянии
+
+| Папка (корень исходников) | Проект GitLab | Версия (pom / version.json) | Состояние |
+|---|---|---|---|
+| `human_readable_generator-main` | `lib / human_readable_generator` | `human-readable-generator 4.6` | полный исходник |
+| `authorization-main` | `lib / authorization` | `authorization 4.10` | полный исходник |
+| `core-main` | `lib / core` | `core 3.24` | полный исходник |
+| `grpc-main` | `lib / grpc` | `ru.sber.transport.grpc parent 4.15` | полный, но это **инфраструктура gRPC** (перехватчики авторизации/трассировки), контрактов тарифа нет |
+| `jooq_envers-main` | `lib / jooq_envers` | `jooq-envers 4.2-SNAPSHOT` | **только pom и README**, исходников нет; потребителей в скачанных pom не найдено |
+| `corporate-main` | `platform / Corporate` | parent 5.15, `corporate-service` | полный исходник |
+| `limits-main` | `platform / Limits` | parent `${release.version}` | полный исходник |
+| `passenger-approvals-main` | `passenger / Passenger approvals` | parent 5.10, `approvals` | полный исходник |
+| `fraud-monitoring-main` | `platform / Fraud monitoring` | parent 5.14 | полный исходник |
+| `passanger-integrations-main` | `passenger / Passanger integrations` | parent 5.15, `integrations` | полный исходник |
+| `trip-purpose-request-check-main` | `platform / Trip purpose request check` | — | **только `CODEOWNERS`** (и `.gitignore`), исходников нет |
+| `corp-passengers-main (1)`, `(2)` | `front / Corp passengers` | `feat/TRANSPORT-36167`, `c21830f`, 06.11.2025 | **идентичны** уже имевшемуся `corp-passengers-main` (`diff -rq` — различий нет) |
+| — | `front / Client passengers` (актуальная ветка), `front / lib` | — | **не загружены**; `client-passengers-main` остался версией 02.08.2024 (удалён только `build.sh`) |
+
+### (3).B. Новые факты по вопросам
+
+**T01.2:Q10 — номер и конкуренция (исправление вывода от 29.09 (1): «механизм атомарности не виден» → установлен).**
+- [КОД] `human_readable_generator-main/…/humanreadableid/service/impl/CompanySQServiceImpl.java:24` — `@Transactional(propagation = Propagation.NOT_SUPPORTED)`: счётчик читается и пишется **вне транзакции вызывающего**.
+- [КОД] там же, стр. 32-44, `getOrCreateCompanySQ()`: «findByPrefixAndOrgDigitId(...)» → «companySQ.setSq(start + count)» → «saveAndFlush» — чтение-изменение-запись **без блокировки строки**; `@Version` в `BaseCompanySQ` нет.
+- [КОД] `…/humanreadableid/dao/AbstractRepository.java:27-28` — метод `findByPrefixAndOrgDigitIdForWrite` объявлен обычным `@Query` без `@Lock`/`FOR UPDATE`; генератором `SQGeneratorImpl` не используется.
+- [КОД] `…/service/impl/HumanReadableIdFormatterImpl.java:24` — «String.format("%s-%04d-%08d", …)»; при счётчике > 99 999 999 номер станет длиннее (формат не обрезает), `varchar(20)` T01.1 это вмещает, но шаблон `FR-XXXX-XXXXXXXX` нарушится.
+- [КОД] `…/service/SQGenerator.java:22,32` — `@Min(1) @Max(9999)` для digitId; `…/model/BaseCompanySQ.java:29` — префикс ровно 2 символа.
+- [ТЕСТ: ПРОЧИТАН, НЕ ЗАПУЩЕН] `human_readable_generator-main/…/test/…/SQGeneratorImplTest.java` — только последовательный сценарий «US-0001-00000001», конкурентных тестов нет.
+- **Следствие [ПРЕДПОЛОЖЕНИЕ по коду]:** два одновременных `getNextId` для одной организации могут получить **одинаковый номер**; защита — только уникальный индекс номера в целевой таблице (в T01.1 есть `UNIQUE favorite_route_number`) → второй запрос упадёт на ограничении, нужен повтор. Первичное создание строки счётчика защищено `UNIQUE (prefix, orgDigitId)` — одновременная первая вставка тоже даст ошибку у одного из запросов.
+- [КОД] Альтернативная реализация в `corporate`: `corporate-main/…/application/src/main/java/ru/sber/transport/corporate/providers/human_readable/BaseHumanReadableProvider.java:28` — метод `synchronized` (блокировка только в пределах одного экземпляра JVM) и проверка уже занятых номеров в целевой таблице перед выдачей (стр. 45-63 по циклу). В стр. 83-86 `context().update(table()).set(…SQ…).execute()` **без условия WHERE** — обновляет все строки `company_sq` [КОД; как образец для FR не использовать, сообщить владельцу `corporate`].
+- [КОД] digitId: `corporate-main/…/web/http/mappers/OrganizationWebMapper.java:24` — `digitId` не принимается от клиента; `providers-database/…/changelog/20230809/changelog.yml:40-44` — колонка `digit_id` переведена с `serial` на `bigint` (исходно назначалась последовательностью БД). Организация с digitId > 9999 не сможет получить номер (ограничение генератора).
+- **Статус Q10:** техническая часть — Подтверждена кодом; решение — Архитектор (блокировка `SELECT … FOR UPDATE`/advisory-lock/последовательность БД, повтор при конфликте, поведение после 99 999 999).
+
+**T01.2:Q14 — организация и доступ (исправление: «Частично; нужен репозиторий» → Подтверждена кодом).**
+- [КОД] `authorization-main/…/authorization/utils/ControllerUtils.java:28` — идентификатор пользователя берётся из JWT `jti` («token.getToken().getId()»).
+- [КОД] `…/authorization/service/impl/CheckUserAccessServiceImpl.java:44-56` — организация пользователя вычисляется функцией сервиса (`EmployeeOrganizationFunction`: пользователь → сотрудник → подразделение → организация) и **должна совпадать** с запрошенной; исключение — claim `data_master=true` (стр. 86, «пользователь системы мастер-данных»).
+- [КОД] `…/authorization/aspect/CheckOrganizationAspect.java:39` — работает через аннотации `@CheckOrganizationAccess` на методе и `@Organization` на параметре (UUID или поле DTO).
+- [КОД] `…/authorization/exceptions/UnauthorizedException.java:11` — ответ **403** (`@ResponseStatus(FORBIDDEN)`); политика «404 для чужого» в платформе не используется.
+- [КОД] `corporate-main/corporate-main/providers-database/src/main/resources/db/changelog/20221114/changelog.yml:40-46` — уникальный индекс `corporate_employee_user_id_uk` на `employee.user_id`: **один пользователь = один сотрудник = одна организация**; переключения организации в модели данных нет.
+- [КОД] Использование: 35 файлов, в основном контроллеры `corporate` (цели поездки, сотрудники, подразделения, должности) и выгрузки `passenger_reports`; в `passenger_request` и `tariff` аннотация не применяется.
+- **Рекомендация (не решение):** для API FavoriteRoute — путь с `{organizationId}` + `@CheckOrganizationAccess`, как у `corporate /{organizationId}/purposes`. Решение — Архитектор.
+
+**T01.1:D02 / D06 — единицы (исправление метки: [ПРЕДПОЛОЖЕНИЕ] о конвертере → [КОД]).**
+- [КОД] `core-main/core-main/src/main/java/ru/sberbank/ditsib/converters/DurationMillisConverter.java:20,25` — сериализация `Duration` в миллисекунды; **`null` сериализуется как `0`** («orElse(0L)»).
+- [КОД] `…/converters/MillisDurationConverter.java:19,25` — чтение из миллисекунд («Duration.ofMillis», «getLongValue»; дробная часть отбрасывается).
+- Следствие: в ответах API заявок/geo отсутствующее ожидание неотличимо от нуля; при хранении FavoriteRoute это различие (null/0) API заявки не сохранит.
+- [КОД] `fraud-monitoring-main/…/messaging/listeners/TripRequestListener.java:257` — в мониторинге фрода ожидание хранится в мс; `…/business/impl/FraudDecisionServiceImpl.java:26` — решения по случаям принимает пользователь (`solve`), т. е. fraud по ожиданию разбирается вручную и не блокирует заявку.
+
+**T01.1:D04 / T01.2:Q11 — история: найдены ещё два образца в платформе.**
+- [КОД] **Копирование при изменении (версии записей):** `corporate-main/…/corpclient/service/impl/TripPurposeServiceImpl.java:70-79` — при редактировании цели поездки создаётся **новая запись**, старая получает `active=false`, версии связывает общий ключ `purposeParentLabel` (`…/corpclient/database/model/TripPurpose.java:63`); удаление — `active=false` + событие Kafka (стр. 240-243); дубль названия в организации — `DuplicateDataException` → 409 (стр. 90). Аналогично ведёт себя тариф такси (`disableOldTariff`). Для FavoriteRoute это вариант «полные версии»: заявка ссылается на id конкретной версии, номер FR играет роль группового ключа.
+- [КОД] **Триггерный снимок строк:** `corporate-main/…/providers-database/src/main/resources/db/changelog/20200629/create_function.sql:1-25` — триггер пишет в `corporate.t_history` JSON старой/новой строки (`row_to_json`) для `corporate.employee`; колонка `who` триггером **не заполняется** (автора нет).
+- `lib / jooq_envers` — исходников нет; оценить нельзя.
+- **Статус D04:** техническая часть — Подтверждена кодом (три образца: Envers в `request`, версии записей в `corporate`/`tariff`, триггерный JSON в `corporate`); решение — Архитектор.
+
+**T01.1:D07 — цель поездки (дополнение).**
+- [КОД] `corporate-main/…/corpclient/database/model/TripPurpose.java:30-42` — цель принадлежит организации и ограничивается подразделениями, датами, временем суток и днями недели. Следовательно, доступность цели зависит от даты/времени конкретной заявки — хранение цели в FavoriteRoute не только не требуется (решение 17.09), но и было бы некорректно.
+- Серверная проверка цели при создании заявки находится в `platform / Trip purpose request check` — **исходники не загружены** (только CODEOWNERS).
+
+**T01.2:Q03 — список (дополнение).** [КОД] `corporate-main/…/corpclient/controller/TripPurposeController.java` — у справочника раздельные методы «все активные» (`GET /{organizationId}/purposes`) и «все, включая неактивные» (`/all`), поиск `/search?value=`; пагинации нет. Образец для разделения «список выбора» и «административный список».
+
+**T01.2:Q12 / заявки — согласование (новое).**
+- [КОД] `passenger-approvals-main/…/approvals/database/model/ApprovalsSettings.java:18,44,51` — настройки на пару «организация + вид транспорта»: `approval_active`, `min_cost_to_be_approved` (коп), плюс исключения по цели и региону.
+- [КОД] `…/approvals/services/impl/ApprovalsSettingsInjectionServiceImpl.java:75,88,105,120` — автосогласование, если согласование выключено или **стоимость заявки (коп) строго меньше порога**; иначе заявка ждёт согласующего (статус `*_AWAITING_APPROVAL`).
+- Влияние на ТЗ: заявка по FavoriteRoute пройдёт существующее согласование по своей плановой стоимости (фиксированной цене), если бизнес не решит иначе. **Заказчик:** нужны ли исключения для избранных маршрутов.
+
+**Коллега:Q5 / Q6 / O02 — цена перевозчика и факт (новое).**
+- [КОД] `passanger-integrations-main/…/integrations/mapper/OrderRequestMapper.java:31,45` — в заказе перевозчику по универсальному API тариф не передаётся (`tariff` ignore), передаются маршрут, время, расстояние, ожидание точек; **цена (плановая/фиксированная) не передаётся**.
+- [КОД] там же, стр. 101-111 — комментарий «В рамках проекта Манжерок передаём тип транспорта вместо класса трансфера»: для `GROUP_TRANSFER` перевозчику уходит класс `GROUP_TRANSFER`, а не `TRANSFER_*` — **класс трансфера перевозчику не сообщается**.
+- [КОД] `…/mapper/InContractorTaxiTripInProgressMessageMapper.java:38,45` — перевозчик возвращает `price` (Double) и `waitTime`; PR `service/impl/InProgressGroupTransferMessageProcessorImpl.java:107,111-112` — факт сохраняется в `trip.tripFactPrice` (`intValue()`, усечение) и `tripFactWaitTime` (**минуты** перевозчика → `Duration.ofMinutes`). Сравнения факта с планом и флага превышения в коде `passenger_request` нет (поиск `variance|overrun` — только проверка месячного пробега `request-checks`, `maxMonthlyDistance` default 5 000 000).
+- Единица `price` перевозчика в коде не документирована [ПРЕДПОЛОЖЕНИЕ: копейки по аналогии с платформой] → **владелец интеграций**.
+- Влияние: правило «цена исполнителя выше фиксированной» (O02) потребует новой логики сравнения в `passenger_request`/T04.1; сейчас факт только записывается.
+
+**Лимиты (новое, к Коллега:Q6/Q8).**
+- [КОД] PR `service/impl/ReservationServiceImpl.java:58,104` — резерв лимита на `(long) expected.cost` (коп) с `setCheckLimit(false)` (превышение лимита создание не блокирует); PR `RequestForTaxiServiceImpl.java:416,439,510` — списание при завершении/отмене тоже по **плановой** `expected.cost`, не по факту. Для `GROUP_TRANSFER` вызовов резерва не найдено.
+- Влияние: при фиксированной цене лимит будет резервироваться и списываться по фиксированной цене, если она попадёт в `expected.cost`.
+
+### (3).C. Раздел F — актуализация
+| Было | Стало |
+|---|---|
+| `human-readable-generator` — нужен репозиторий | Разобран (см. Q10) |
+| `authorization` — нужен репозиторий | Разобран (см. Q14) |
+| Конвертеры Duration — кандидат `lib/core` | Подтверждено: `core-main/…/ditsib/converters/*` |
+| `tariff-grpc`, `request-model`, `tariff-model` — кандидат `lib/grpc` | **Исправление:** `lib/grpc` их не содержит (только инфраструктура). Источник этих артефактов не установлен [ПРЕДПОЛОЖЕНИЕ: модули самих сервисов `tariff`/`passenger_request` или отдельные lib-проекты, не видимые на скриншотах] → владелец сервиса тарифов |
+| — | `trip-purpose-request-check` — загружен без исходников |
+| — | `jooq_envers` — загружен без исходников |
+| — | `front / Client passengers` актуальной ветки и `front / lib` — не загружены |
+
+### (3).D. Новые проверки на стенде
+| № | Вопрос | Шаги | Ожидаемо по коду | Ограничение |
+|---|---|---|---|---|
+| E11 | Q10 | Не на стенде: нагрузочный тест в тестовой среде — 20 параллельных созданий заявок одной организации | Возможны совпадения номеров/ошибки уникальности | Только с разрешения владельца среды |
+| E12 | Q12, согласование | Создать заявку такси ниже и выше порога `min_cost_to_be_approved` организации | Ниже порога — автосогласование | Порог — из настроек стенда |
+| E13 | O02 | Трансфер с перевозчиком по универсальному API: сравнить `expected.cost` и `tripFactPrice` в карточке/реестре | Факт записывается, флага превышения нет | Нужен тестовый перевозчик |
+
+### (3).E. Дополнительные вопросы для согласования
+- **Архитектору:** генератор номеров не защищён от гонки (см. Q10) — выбрать механизм для FR; принять ли для API FavoriteRoute шаблон `{organizationId}` + `@CheckOrganizationAccess` и ответ 403; выбрать схему истории из трёх найденных образцов.
+- **Заказчику:** проходит ли заявка по избранному маршруту обычное согласование по сумме; перевозчику цена не передаётся — как перевозчик узнаёт о фиксированной цене (договорённость вне системы или доработка интеграции).
+- **Владельцу `corporate`:** обновление `company_sq` без условия WHERE (`BaseHumanReadableProvider.java:83-86`).
+- **Владельцу интеграций:** единица `price` и `waitTime` в ответах перевозчика; нужна ли передача класса трансфера.
+- **Аналитику (загрузка):** исходники `trip-purpose-request-check`, актуальная ветка `front / Client passengers`, раскрыть `front / lib`.
+
+---
+
 ## Журнал изменений
 - 29.09.2026 — первая редакция. Параллельно в `Вопрос ответ.docx` добавлен датированный раздел «Результаты исследования исходного кода 29.09.2026» (три таблицы, исходные таблицы сохранены без изменений).
 - 29.09.2026 (2) — добавлено уточнение по каталогу GitLab; раздел F уточнён (кандидаты `lib/core`, `lib/grpc`, приоритеты скачивания).
+- 29.09.2026 (3) — разобраны загруженные репозитории первого приоритета; исправлены выводы по Q10, Q14, D02 (метка), разделу F (`lib/grpc`); добавлены образцы истории, согласование, цена перевозчика, лимиты.
