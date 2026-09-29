@@ -456,7 +456,7 @@
 | `ru.sberbank.ditsib.converters.DurationMillisConverter` | `lib / core` — **кандидат, уверенность средняя-высокая** | [КОД] `transport_core-main/transport_core-main/pom.xml` зависит от артефакта `core`; PR, TF и GEO получают его транзитивно; TF зависит от `core` напрямую; в скачанных исходниках пакета нет | D02, D06 |
 | `tariff-grpc`, `request-model`, `tariff-model`, `srm-model`, `geo grpc` | `lib / grpc` — кандидат | TF pom: `tariff-grpc`; PR pom: `request-model`, `tariff-model` | Q08, I01 (актуальный контракт `TariffService`) |
 
-**Дополнительно найденные в каталоге проекты, релевантные открытым вопросам:** `platform / Corporate` (организации, digitId, `/api/organizations/self/addresses/favorite` → `corporate-service`), `platform / Trip purpose request check` (D07), `platform / Fraud monitoring` (D02), `platform / Limits` + `lib / limits_sdk` (резервирование лимита на сумму заявки), `passenger / Passenger approvals` (согласование, Q12), `passanger / Passanger integrations` (внешние агрегаторы такси, факт/план), `lib / jooq_envers` (вариант истории для D04), `front / lib` (общие компоненты фронта).
+**Дополнительно найденные в каталоге проекты, релевантные открытым вопросам:** `platform / Corporate` (организации, digitId, `/api/organizations/self/addresses/favorite` → `corporate-service`), `platform / Trip purpose request check` (D07), `platform / Fraud monitoring` (D02), `platform / Limits` + `lib / limits_sdk` (резервирование лимита на сумму заявки), `passenger / Passenger approvals` (согласование, Q12), `passenger / Passanger integrations` (внешние агрегаторы такси, факт/план), `lib / jooq_envers` (вариант истории для D04), `front / lib` (общие компоненты фронта).
 
 ---
 
