@@ -1,0 +1,64 @@
+{
+  "name": "@sber-sbertransport/mf-core",
+  "version": "2.0.22",
+  "license": "MIT",
+  "author": "Команда разработчиков SBERTRANSPORT",
+  "maintainers": [
+    {
+      "name": "Поляков Василий Сергеевич",
+      "email": "Polyakov.V.Serg@sberbank.ru"
+    }
+  ],
+  "publishConfig": {
+    "registry": "https://nexus-ci.delta.sbrf.ru/repository/npm-release"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/types/index.d.ts",
+  "files": [
+    "/dist"
+  ],
+  "scripts": {
+    "build": "yarn clean:dist && yarn build:tsc && yarn copy-files",
+    "build:tsc": "tsc",
+    "watch:tsc": "tsc -w",
+    "copy-files": "copyfiles -u 1 src/**/*.scss dist/ && copyfiles -u 1 src/**/*.png dist/ && copyfiles -u 1 src/**/*.svg dist/",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "ci": "rm -rf node_modules && yarn install --frozen-lockfile",
+    "clean:dist": "rm -rf dist",
+    "clean:node": "rm -rf node_modules",
+    "preversion": "git rev-parse --abbrev-ref HEAD",
+    "postversion": "git push origin HEAD && git push origin HEAD --follow-tags"
+  },
+  "dependencies": {
+    "antd": "4.17.2",
+    "axios": "^0.19.2",
+    "fp-ts": "^2.6.3",
+    "history": "^4.9.0",
+    "inversify": "^5.0.1",
+    "io-ts": "^2.2.4",
+    "io-ts-reporters": "^1.2.0",
+    "mobx": "^5.15.4",
+    "moment": "^2.24.0",
+    "qs": "^6.9.4",
+    "ramda": "^0.27.1",
+    "react": "16.14.0",
+    "react-dom": "^16.9.5",
+    "react-scripts": "5.0.1",
+    "reflect-metadata": "^0.1.13"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.3.0",
+    "@evilmartians/lefthook": "^1.6.7",
+    "@sber-sbertransport/tool-kit": "^3.0.5",
+    "@types/history": "^4.7.11",
+    "@types/lodash": "^4.14.120",
+    "@types/qs": "^6.9.7",
+    "@types/ramda": "^0.29.12",
+    "@types/react": "^16.9.25",
+    "@types/react-dom": "^16.9.5",
+    "copyfiles": "^2.4.1",
+    "eslint": "8.56.0",
+    "typescript": "5.2.2"
+  }
+}

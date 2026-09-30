@@ -1,0 +1,49 @@
+@import "../../styles/varibles.scss";
+
+.tag {
+    font-size: $font-size;
+    line-height: 22px;
+    letter-spacing: -0.3px;
+
+    :global(.#{$kitPrefix}-tag-close-icon) {
+        height: 10px;
+        margin-inline-start: 6px;
+
+        path {
+            fill: $pale-grey;
+        }
+    }
+}
+
+.default {
+    background-color: rgba(242, 243, 246, 0.6);
+    color: $dark-grey;
+
+    &:hover {
+        background-color: #f2f3f6;
+    }
+
+    &:active {
+        background-color: rgba(0, 0, 0, 0.04);
+    }
+}
+
+.bordered {
+    border-color: #ebebeb;
+}
+
+.tag_small {
+    padding: 4px 8px;
+}
+
+.tag_default {
+    padding: 8px 12px;
+}
+
+.tag_large {
+    padding: 8px 16px;
+
+    :global(.#{$kitPrefix}-tag-close-icon) {
+        margin-inline-start: 8px;
+    }
+}

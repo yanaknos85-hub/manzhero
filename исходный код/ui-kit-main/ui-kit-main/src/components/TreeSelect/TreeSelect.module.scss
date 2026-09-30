@@ -1,0 +1,218 @@
+@import "../../styles/varibles.scss";
+
+.TreeSelect {
+  &:global(.#{$kitPrefix}-select-focused .#{$kitPrefix}-select-selector) {
+    border-color: $color-green !important;
+  }
+
+  &:global(.#{$kitPrefix}-select-selector) {
+    border: 1px solid #e0e0e0;
+  }
+
+  &:global(.#{$kitPrefix}-select-single.#{$kitPrefix}-select-open .#{$kitPrefix}-select-selection-item) {
+    color: $dark-grey;
+  }
+
+  &:global(.#{$kitPrefix}-select-outlined.#{$kitPrefix}-select-multiple .#{$kitPrefix}-select-selection-item) {
+    background: #f7f8fa;
+    border: 1px solid #ebebeb;
+    border-radius: 5px;
+    line-height: 22px;
+    height: 24px;
+
+    padding: 0 4px 0 8px;
+    margin: 2px 4px 2px 0;
+  }
+
+  &:global(
+      .#{$kitPrefix}-select-multiple.#{$kitPrefix}-select-show-arrow .#{$kitPrefix}-select-selector,
+      .#{$kitPrefix}-select-multiple.#{$kitPrefix}-select-allow-clear .#{$kitPrefix}-select-selector
+    ) {
+    padding-inline-start: 4px;
+  }
+
+  &:global(.#{$kitPrefix}-select-multiple .#{$kitPrefix}-select-selector, ) {
+    padding: 1px 30px 1px 3px !important;
+  }
+
+  &:global(.#{$kitPrefix}-select .#{$kitPrefix}-select-arrow) {
+    width: 24px;
+    height: 24px;
+    transform: translateY(-50%);
+    margin: 0;
+    justify-content: center;
+  }
+
+  &:global(.#{$kitPrefix}-select .#{$kitPrefix}-select-clear) {
+    width: 24px;
+    height: 24px;
+    transform: translateY(-50%);
+    margin: 0;
+
+    > span {
+      display: none;
+    }
+
+    &::before {
+      content: "";
+      position: relative;
+      top: 8px;
+      left: 8px;
+      width: 8px;
+      height: 8px;
+      background: url(../../icons/close.svg) no-repeat no-repeat center 0;
+      background-size: contain;
+    }
+  }
+
+  &:global(.#{$kitPrefix}-select .anticon-down) {
+    > svg {
+      display: none;
+    }
+
+    width: 16px;
+    height: 16px;
+    background: url(../../icons/arrow.svg) no-repeat no-repeat center 0;
+    background-size: contain;
+  }
+}
+
+.TreeSelectDropdown {
+  box-shadow:
+    0px 8px 16px -4px rgba(0, 0, 0, 0.12),
+    0px 0px 1px 0px rgba(0, 0, 0, 0.12);
+
+  &:global(
+      .#{$kitPrefix}-tree-select-dropdown
+        .#{$kitPrefix}-select-tree
+        .#{$kitPrefix}-select-tree-node-content-wrapper.#{$kitPrefix}-select-tree-node-selected
+    ) {
+    background-color: #f2f3f6;
+    color: rgba(0, 0, 0, 0.85);
+  }
+
+  &:global(
+      .#{$kitPrefix}-tree-select-dropdown
+        .#{$kitPrefix}-select-tree
+        .#{$kitPrefix}-select-tree-treenode:not(.#{$kitPrefix}-select-tree-treenode-disabled).filter-node
+        .#{$kitPrefix}-select-tree-title
+    ) {
+    color: $color-green;
+  }
+
+  &:global(.#{$kitPrefix}-tree-select-dropdown .#{$kitPrefix}-select-tree .#{$kitPrefix}-select-tree-switcher) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &:global(
+      .#{$kitPrefix}-tree-select-dropdown
+        .#{$kitPrefix}-select-tree
+        .#{$kitPrefix}-select-tree-switcher
+        .#{$kitPrefix}-select-tree-switcher-icon
+    ) {
+    width: 16px;
+    height: 16px;
+    background: url(../../icons/arrow.svg) no-repeat no-repeat center 0;
+    background-size: contain;
+
+    > svg {
+      display: none;
+    }
+  }
+
+  &:global(
+      .#{$kitPrefix}-tree-select-dropdown
+        .#{$kitPrefix}-select-tree
+        .#{$kitPrefix}-select-tree-switcher_close
+        .#{$kitPrefix}-select-tree-switcher-icon
+    ) {
+    transform: rotate(-90deg);
+  }
+
+  &:global(
+      .#{$kitPrefix}-tree-select-dropdown .#{$kitPrefix}-select-tree .#{$kitPrefix}-select-tree-switcher-loading-icon
+    ) {
+    color: $color-green;
+  }
+
+  // Select Tree Checkbox Styles
+
+  &:global(
+      .#{$kitPrefix}-tree-select-dropdown
+        .#{$kitPrefix}-select-tree-checkbox-indeterminate
+        .#{$kitPrefix}-select-tree-checkbox-inner:after
+    ) {
+    width: 12px;
+    height: 12px;
+  }
+
+  &:global(
+      .#{$kitPrefix}-tree-select-dropdown .#{$kitPrefix}-select-tree-checkbox .#{$kitPrefix}-select-tree-checkbox-inner
+    ) {
+    width: 20px;
+    height: 20px;
+  }
+
+  &:global(
+      .#{$kitPrefix}-tree-select-dropdown
+        .#{$kitPrefix}-select-tree-checkbox-checked
+        .#{$kitPrefix}-select-tree-checkbox-inner:after
+    ) {
+    width: 8px;
+    height: 12px;
+  }
+
+  &:global(
+      .#{$kitPrefix}-tree-select-dropdown .#{$kitPrefix}-select-tree-checkbox .#{$kitPrefix}-select-tree-checkbox-inner
+    ) {
+    border-radius: 4px;
+    border-color: #e7e7eb;
+  }
+
+  &:global(
+      .#{$kitPrefix}-tree-select-dropdown
+        .#{$kitPrefix}-select-tree-checkbox-indeterminate
+        .#{$kitPrefix}-select-tree-checkbox-inner:after
+    ) {
+    background-color: $color-green;
+  }
+
+  &:global(
+      .#{$kitPrefix}-tree-select-dropdown
+        .#{$kitPrefix}-select-tree-checkbox-checked
+        .#{$kitPrefix}-select-tree-checkbox-inner
+    ) {
+    background-color: #19bd50;
+    border-color: transparent;
+  }
+
+  &:global(
+      .#{$kitPrefix}-tree-select-dropdown
+        .#{$kitPrefix}-select-tree-checkbox-checked:not(.#{$kitPrefix}-select-tree-checkbox-disabled):hover
+        .#{$kitPrefix}-select-tree-checkbox-inner
+    ) {
+    background-color: #19bd50;
+  }
+
+  &:global(
+      .#{$kitPrefix}-tree-select-dropdown
+        .#{$kitPrefix}-select-tree-checkbox:not(.#{$kitPrefix}-select-tree-checkbox-disabled):hover
+        .#{$kitPrefix}-select-tree-checkbox-inner
+    ) {
+    border-color: $color-green;
+  }
+
+  &:global(
+      .#{$kitPrefix}-tree-select-dropdown
+        .#{$kitPrefix}-select-tree-checkbox-indeterminate:hover
+        .#{$kitPrefix}-select-tree-checkbox-inner
+    ) {
+    border-color: $color-green !important;
+  }
+
+  &:global(.#{$kitPrefix}-tree-select-dropdown .#{$kitPrefix}-select-tree .#{$kitPrefix}-select-tree-switcher:before) {
+    border-radius: 4px;
+  }
+}

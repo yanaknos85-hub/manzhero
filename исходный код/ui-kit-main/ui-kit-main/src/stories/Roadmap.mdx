@@ -1,0 +1,76 @@
+import { Meta } from '@storybook/blocks';
+
+import Box from "./assets/box.png";
+
+<Meta title="Roadmap" />
+
+# Roadmap по компонентам
+
+<div className="sb-container">
+  <table className="sb-table">
+      <thead>
+        <tr>
+          <th>
+              Название
+          </th>
+          <th>
+              Компонент
+          </th>
+          <th>
+              Готовность
+          </th>
+          <th>
+              Наличие макета
+          </th>
+          <th>
+             Тесты
+          </th>
+          <th>
+              a11y
+          </th>
+          <th>
+              Ок от дизайнера
+          </th>
+          <th>
+              Примечание
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr><td colSpan="9"><strong>Простые элементы (Elements)</strong></td></tr>
+          <tr>
+              <td data-value="name">Кнопка</td>
+              <td data-value="name">Button</td>
+              <td data-value="ready">🚧</td>
+              <td data-value="figma">✅</td>
+              <td data-value="tests">🚫</td>
+              <td data-value="a11y">🚫</td>
+              <td data-value="designok">🚫</td>
+              <td></td>
+          </tr>
+          <tr><td colSpan="9"><strong>Составные элементы (Composite)</strong></td></tr>
+          <tr>
+              <td data-value="name">Поле</td>
+              <td data-value="name">Field</td>
+              <td data-value="ready">🚧</td>
+              <td data-value="figma">✅</td>
+              <td data-value="tests">🚫</td>
+              <td data-value="a11y">🚫</td>
+              <td data-value="designok">🚫</td>
+              <td></td>
+          </tr>
+      </tbody>
+  </table>
+</div>
+
+<style>
+  {`
+  .sb-container {
+    width: 100%;
+  }
+
+  .sb-table {
+     width: 100%;
+  }
+  `}
+</style>

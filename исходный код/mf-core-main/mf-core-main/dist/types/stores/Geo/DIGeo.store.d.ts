@@ -1,0 +1,31 @@
+import { AddressModel } from '../Address/models/Address.model';
+import { RouteModel } from '../../models/geo/Route.model';
+import type { LatLngTuple } from '../../models/geo/types';
+import { WaypointModel } from '../../models/geo/Waypoint.model';
+import type { IGeoStore } from './Geo.interface';
+export declare class DIGeoStore implements IGeoStore {
+    private service;
+    currentCoordinates: LatLngTuple;
+    addressAutocompleteList: WaypointModel[];
+    waypoints: WaypointModel[];
+    calculatedRoute: RouteModel | undefined;
+    setCurrentAddressByCoordinates(coordinates: LatLngTuple): Promise<void>;
+    setWaypointFromAddress(address: AddressModel, currentInputNumber: number): void;
+    searchLocation: import("lodash").DebouncedFunc<(location: string, centerCoordinates?: LatLngTuple) => Promise<void>>;
+    editWaypointAddress(index: number, value: string, centerCoordinates?: LatLngTuple): void;
+    editWaypointWaitTime(index: number, time: string): void;
+    editSingleAddress(value: string, centerCoordinates?: LatLngTuple): void;
+    onAddressBySortCoordinates(coordinates: LatLngTuple): Promise<WaypointModel[]>;
+    onAddressSelect(value: string, _: unknown, index: number, dontClear?: boolean): Promise<void>;
+    private calcRoute;
+    addWaypoint(): void;
+    removeWaypoint(index: number): void;
+    clearCurrentState(): void;
+    private getAddressByCoordinates;
+    private getCoordinateByAddress;
+    private editWaypoints;
+    private clearAutocompleteList;
+    private clearRoute;
+    private _addWaypoint;
+    private _removeWaypoint;
+}

@@ -1,0 +1,28 @@
+@import "../../styles/varibles.scss";
+
+.popconfirm {
+    :global(.#{$kitPrefix}-popover-content .#{$kitPrefix}-popover-inner) {
+        box-shadow:
+            0 0 1px rgba(0, 0, 0, 0.12),
+            0 4px 8px rgba(0, 0, 0, 0.12);
+
+        :global(.#{$kitPrefix}-popconfirm-title) {
+            font-size: 16;
+            font-weight: 500;
+            color: $dark-grey;
+        }
+
+        :global(.#{$kitPrefix}-popconfirm-description) {
+            color: #737373;
+        }
+
+        :global(.#{$kitPrefix}-btn) {
+            height: 32px;
+            padding: 12px 15px;
+        }
+
+        :global(.#{$kitPrefix}-popconfirm-buttons) {
+            margin-top: 16px;
+        }
+    }
+}

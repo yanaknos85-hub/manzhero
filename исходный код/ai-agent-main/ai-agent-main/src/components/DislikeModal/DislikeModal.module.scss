@@ -1,0 +1,146 @@
+@use '../../styles/variables.scss' as *;
+
+.wrapper {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  :global(.ant-modal) {
+    margin: 20px;
+    padding: 0;
+    top: 0;
+  }
+}
+
+.modal {
+  :global(.ant-modal-content) {
+    height: 468px;
+    border-radius: 12px;
+    box-shadow: 0px 0px 44px 0px rgba(60, 60, 60, 0.53);
+    padding: 20px 24px 24px;
+  }
+
+  :global(.ant-modal-header) {
+    padding: 8px 0;
+    border: none;
+    margin: 0;
+  }
+
+  :global(.ant-modal-title) {
+    font-family: SB Sans Interface;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 28px;
+    color: $dark-grey;
+  }
+
+  :global(.ant-modal-body) {
+    font-family: SB Sans Text;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+    letter-spacing: -0.3px;
+    color: $dark-grey;
+    padding: 0;
+
+    .description {
+      font-family: SB Sans Text;
+      font-size: 16px;
+      line-height: 24px;
+      color: $charcoal;
+    }
+
+    .variants {
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      padding-top: 16px;
+      gap: 8px;
+    }
+
+    .textArea {
+      height: 140px;
+      border-radius: 8px;
+      resize: none;
+      border-color: $silver;
+      box-shadow: none;
+      margin-top: 10px;
+
+      &:hover {
+        border-color: $silver;
+        box-shadow: 0 0 0 1px $silver;
+        outline: 0;
+      }
+
+      &::after {
+        display: none !important;
+      }
+
+      :global(.ant-input) {
+        font-family: SB Sans Text;
+        font-size: 16px;
+        line-height: 24px;
+        color: $dark-grey;
+        resize: none;
+        padding: 18px 16px;
+
+        &::placeholder {
+          color: $pale-grey;
+        }
+      }
+
+      :global(.ant-input-data-count) {
+        letter-spacing: 0.12px;
+        color: $pale-grey;
+        bottom: -32px;
+      }
+    }
+
+    :global(.ant-input-affix-wrapper-focused) {
+      border-color: $jade !important;
+      box-shadow: 0 0 0 1px $jade !important;
+    }
+  }
+
+  :global(.ant-modal-footer) {
+    display: flex;
+    justify-content: flex-end;
+    border: none;
+    gap: 16px;
+    padding: 0;
+    margin-top: 60px;
+
+    button {
+      height: 40px;
+      padding: 9px 20px;
+      font-family: SB Sans Text;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 22px;
+      letter-spacing: -0.3px;
+    }
+
+    :global(.ant-btn-text) {
+      &:hover {
+        background-color: transparent;
+      }
+    }
+
+    :global(.ant-btn-primary) {
+      min-width: 116px;
+      border: none;
+
+      &:hover,
+      &:focus {
+        background-color: $light-jade;
+      }
+
+      &:disabled {
+        background-color: $jade;
+        color: $white;
+        border: none;
+        opacity: 0.4;
+      }
+    }
+  }
+}

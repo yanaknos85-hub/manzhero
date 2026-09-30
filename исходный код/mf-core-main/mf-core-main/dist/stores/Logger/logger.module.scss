@@ -1,0 +1,74 @@
+:global(.ant-notification) {
+  .logger {
+    border-radius: 8px;
+
+    :global(.ant-notification-notice-message) {
+      padding-right: 30px;
+    }
+  }
+
+  .error {
+    width: 430px;
+
+    :global(.ant-notification-notice-content) {
+      min-height: 74px;
+    }
+
+    :global(.ant-notification-notice-message) {
+      margin-left: 90px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    :global(.ant-notification-notice-icon) {
+      margin-left: 0;
+      height: calc(100% - 24px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    :global(.ant-notification-notice-description) {
+      margin-left: 90px;
+    }
+  }
+}
+
+.icon {
+  width: 84px;
+}
+
+.desc {
+  font-size: 14px;
+  color: rgb(77, 77, 77);
+  letter-spacing: -0.3px;
+}
+
+.phone {
+  display: block;
+  color: rgb(16, 191, 106);
+  font-weight: 600;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.closeBtn {
+  color: rgb(16, 191, 106);
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+:global(.ant-typography).code {
+  margin-bottom: 0;
+}

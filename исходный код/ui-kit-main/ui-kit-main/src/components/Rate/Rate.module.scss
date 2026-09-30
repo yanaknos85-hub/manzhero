@@ -1,0 +1,37 @@
+@import '../../styles/varibles.scss';
+
+.Rate {
+  color: #ffc914;
+
+  &_small {
+    font-size: 20px;
+
+    :global(.#{$kitPrefix}-rate-star:not(:last-child)) {
+      margin-inline-end: 8px;
+    }
+  }
+
+  &_medium {
+    font-size: 24px;
+
+    :global(.#{$kitPrefix}-rate-star:not(:last-child)) {
+      margin-inline-end: 10px;
+    }
+  }
+
+  &_large {
+    font-size: 40px;
+
+    :global(.#{$kitPrefix}-rate-star:not(:last-child)) {
+      margin-inline-end: 24px;
+    }
+  }
+
+  &_dynamicBad {
+    color: #ff9a32;
+  }
+
+  &_dynamicGood {
+    color: #10bf6a;
+  }
+}

@@ -1,0 +1,48 @@
+@use '../../styles/variables.scss' as *;
+
+.answer {
+  width: max-content;
+  max-width: 100%;
+  border-radius: 12px 12px 12px 0;
+  background-color: $light-grey;
+  padding-top: 8px;
+
+  .text {
+    margin: 0;
+    padding: 0 8px;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    border-top: 1px solid rgba(38, 38, 38, 0.08);
+    padding: 4px 8px;
+    margin-top: 8px;
+
+    svg {
+      cursor: pointer;
+    }
+
+    .likeActive {
+      fill: $turquoise;
+
+      path {
+        stroke: $jade;
+      }
+    }
+
+    .dislikeActive {
+      fill: $peach;
+
+      path {
+        stroke: $light-red;
+      }
+    }
+
+    .inActive {
+      cursor: default;
+    }
+  }
+}

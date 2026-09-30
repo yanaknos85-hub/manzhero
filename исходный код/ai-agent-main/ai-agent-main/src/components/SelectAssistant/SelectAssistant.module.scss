@@ -1,0 +1,58 @@
+@use '../../styles/variables.scss' as *;
+
+.select {
+  width: auto !important;
+  max-width: 80%;
+  height: 40px;
+
+  :global(.ant-select-selector) {
+    height: 40px !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 16px !important;
+  }
+
+  :global(.ant-select-selection-item) {
+    line-height: 40px !important;
+    font-family: SB Sans Interface;
+    font-size: 20px;
+    font-weight: 600;
+    color: $dark-grey;
+    padding-right: 32px !important;
+  }
+
+  &:global(.ant-select .ant-select-arrow) {
+    right: 0;
+    width: 16px;
+    height: 16px;
+    right: 20px;
+    margin: 0;
+    transform: translateY(-50%);
+    justify-content: center;
+  }
+}
+
+.selectDropdown {
+  min-width: 300px !important;
+  box-shadow: 0px 8px 16px -4px rgba(0, 0, 0, 0.12), 0px 0px 1px 0px rgba(0, 0, 0, 0.12);
+  padding: 0 !important;
+
+  :global(.ant-select-item-option) {
+    border-radius: 0;
+    padding: 12px 16px;
+    font-family: SB Sans Text;
+    letter-spacing: -0.3px;
+    color: $dark-grey;
+  }
+
+  :global(.ant-select-item-option-active:not(.ant-select-item-option-disabled)) {
+    background-color: $solitude;
+    color: $dark-grey;
+  }
+
+  :global(.ant-select-item-option-selected:not(.ant-select-item-option-disabled)) {
+    font-weight: 400;
+    color: $dark-grey;
+    background-color: $solitude;
+  }
+}
