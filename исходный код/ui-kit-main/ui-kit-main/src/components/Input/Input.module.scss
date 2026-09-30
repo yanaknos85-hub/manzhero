@@ -1,0 +1,42 @@
+@import '../../styles/varibles.scss';
+
+.Input {
+  &.default{
+    &:hover:not(:focus):not(.disabled) {
+      box-shadow: 0 0 0 1px #D6D6D6;
+      outline: 0;
+    }
+    &:focus,
+    &:focus-within {
+      border-color: #10BF6A;
+      box-shadow: 0 0 0 1px #10BF6A !important; // у анта стоит important в коде!
+      outline: 0;
+    }
+  }
+
+  // сложнотрон стилей потому что нет токенов для внутренних элементов анта
+  &.search {
+
+    :global(.#{$kitPrefix}-input-wrapper) {
+      border-radius: 8px;
+    }
+
+    input {
+      &:focus {
+        border-color: #10BF6A;
+        box-shadow: 0 0 0 1px #10BF6A;
+      }
+
+      &:hover:not(:focus):not(:disabled) {
+        border-color: #D6D6D6;
+        box-shadow: 0 0 0 1px #D6D6D6;
+        outline: 0;
+      }
+    }
+
+    :global(>.#{$kitPrefix}-input-group > .#{$kitPrefix}-input-group-addon:last-child .#{$kitPrefix}-input-search-button:not(.#{$kitPrefix}-btn-primary):hover) {
+      color: #0EA85D;
+    }
+  }
+}
+

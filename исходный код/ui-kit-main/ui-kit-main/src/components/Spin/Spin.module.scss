@@ -1,0 +1,15 @@
+@import '../../styles/varibles.scss';
+
+.Spin {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-flow: column;
+
+  // В исключительном случае спиннер юзается еще до провайдера, в Suspense bootstrap
+  :global(.ant-spin-dot-holder) {
+    color: $color-green;
+  }
+}

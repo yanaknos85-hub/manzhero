@@ -1,0 +1,16 @@
+@import "../../styles/varibles.scss";
+
+.timeline {
+  font-family: SB Sans Interface, serif;
+
+  &--lineColor {
+    :global(.#{$kitPrefix}-timeline-item-tail) {
+      border-inline-start: 2px solid #10bf6a;
+    }
+  }
+
+  :global(.#{$kitPrefix}-timeline-item-head) {
+    padding-block: 0;
+    line-height: 0;
+  }
+}

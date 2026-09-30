@@ -1,0 +1,34 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+_*
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+#maven
+/config/maven/*/target
+**/pom.xml.versionsBackup
+*.iml
+
+# misc
+.DS_Store
+.env.*.local
+.idea/
+.vscode/
+.eslintcache
+.project
+*.http
+
+build_pass.txt
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json*

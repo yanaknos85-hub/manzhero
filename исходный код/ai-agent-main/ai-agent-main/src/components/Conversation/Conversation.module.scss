@@ -1,0 +1,44 @@
+@use '../../styles/variables.scss' as *;
+
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &:not(:first-child) {
+    margin-top: 10px;
+  }
+
+  .date {
+    width: max-content;
+    display: block;
+    font-size: 16px;
+    line-height: 24px;
+    color: $pale-grey;
+    margin: 0 auto;
+  }
+
+  .conversation {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .question {
+      width: max-content;
+      max-width: 100%;
+      border-radius: 12px 12px 0 12px;
+      background-color: $light-green;
+      padding: 4px 8px;
+      margin: 0 0 0 auto;
+    }
+  }
+
+  .loader {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    justify-content: center;
+  }
+}

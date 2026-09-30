@@ -1,0 +1,33 @@
+import lodash from 'lodash';
+import { EmployeeModel } from '../Employee/models/EmployeeModel';
+import type { ICorporateStore, IOrganization, IPosition, TDepartment } from './Corporate.interface';
+import { DepartmentModel } from './models/Department.model';
+import { DepartmentDetailedModel } from './models/DepartmentDetailed.model';
+import { OrganizationNormalizedModel } from './models/OrganizationNormalized.model';
+export declare class DICorporateStore implements ICorporateStore {
+    private service;
+    private process;
+    private selfStore;
+    private logger;
+    get selfEmployee(): EmployeeModel;
+    organizations: IOrganization[];
+    departments: DepartmentModel[];
+    departmentsDetailed: DepartmentDetailedModel[];
+    positions: IPosition[];
+    savedDepartment: DepartmentDetailedModel | undefined;
+    get organizationsMapped(): lodash.Dictionary<OrganizationNormalizedModel>;
+    get departmentsMapped(): lodash.Dictionary<TDepartment>;
+    get positionsMapped(): lodash.Dictionary<IPosition>;
+    getDepartment(depId: string): TDepartment;
+    private updateDepartment;
+    private createDepartment;
+    deleteDepartment(depId: string): Promise<void>;
+    editDepartment(model: DepartmentDetailedModel): Promise<void>;
+    loadAllOrganizations(): Promise<void>;
+    loadAllDepartments(orgId: string): Promise<void>;
+    loadAllPositions(orgId: string): Promise<void>;
+    clearSavedDepartment(): void;
+    editSavedDepartment(model: DepartmentDetailedModel): void;
+    refreshDepartments(): void;
+    initStore(): void;
+}

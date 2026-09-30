@@ -1,0 +1,55 @@
+@import "../../styles/varibles.scss";
+
+.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+
+    &:global(.#{$kitPrefix}-empty .#{$kitPrefix}-empty-description) {
+        font-size: 14px;
+        line-height: 22px;
+        font-weight: 400;
+        color: $pale-grey;
+    }
+
+    &:global(.#{$kitPrefix}-empty .#{$kitPrefix}-empty-image) {
+        height: auto;
+
+        img {
+            width: inherit;
+        }
+    }
+
+    .textSide {
+        text-align: center;
+
+        .title {
+            font-size: 16px;
+            line-height: 24px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            color: $dark-grey;
+        }
+
+        .description {
+            font-size: 14px;
+            line-height: 22px;
+            font-weight: 400;
+            color: $pale-grey;
+            margin: 8px 0;
+        }
+    }
+}
+
+.titleContainer {
+    &:global(.#{$kitPrefix}-empty .#{$kitPrefix}-empty-footer) {
+        margin-top: 0;
+    }
+}
+
+.emptyFooter {
+    margin-top: 16px;
+}

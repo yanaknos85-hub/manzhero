@@ -1,0 +1,24 @@
+@import '../../styles/varibles.scss';
+
+.Button {
+
+  &.secondary {
+    border-color: #C2C2C2;
+
+    &:hover:global(#{$kitPrefix}-btn-text:not(:disabled):not(#{$kitPrefix}-btn-text-disabled):hover)  {
+      border-color: #909090;
+      background-color: transparent;
+    }
+
+    &.disabled {
+      border-color: rgba(38, 38, 38, 0.2);
+      color: rgba(38, 38, 38, 0.2);
+
+      &:hover:global(#{$kitPrefix}-btn-text:not(:disabled):not(#{$kitPrefix}-btn-text-disabled):hover) {
+        border-color: rgba(38, 38, 38, 0.2);
+        color: rgba(38, 38, 38, 0.2);
+        background-color: transparent;
+      }
+    }
+  }
+}

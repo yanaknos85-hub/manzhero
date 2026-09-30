@@ -1,0 +1,8 @@
+@import '../../styles/varibles.scss';
+
+.Tabs {
+  :global(#{$kitPrefix}-tabs-tab-btn) {
+    font-weight: 600;
+    text-shadow: none;
+  }
+}

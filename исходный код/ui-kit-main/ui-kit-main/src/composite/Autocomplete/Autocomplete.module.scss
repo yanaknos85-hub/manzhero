@@ -1,0 +1,39 @@
+@import '../../styles/varibles.scss';
+
+.Autocomplete {
+  &:hover:not(.withInput):not(:focus):not(.disabled) {
+    border-radius: 8px;
+    box-shadow: 0 0 0 1px #D6D6D6;
+    outline: 0;
+  }
+
+  &:global(.#{$kitPrefix}-select-focused .#{$kitPrefix}-select-selector) {
+    border-color: #10BF6A !important;
+  }
+
+  &.small,
+  &.middle,
+  &.large {
+    input {
+      // Вообше непонятно почему это нужно тут прописывать, но без этого инпут просте резетиться
+      font-size: $font-size;
+      font-family: $font-family;
+    }
+  }
+}
+
+.AutocompleteDropdown {
+  box-shadow: 0px 8px 16px -4px rgba(0, 0, 0, 0.12), 0px 0px 1px 0px rgba(0, 0, 0, 0.12);
+
+  :global(.#{$kitPrefix}-select-item-option) {
+    border-radius: 0;
+  }
+
+  :global(.#{$kitPrefix}-select-item-empty) {
+    padding: 10px;
+  }
+}
+
+.AutocompleteInput {
+  //
+}

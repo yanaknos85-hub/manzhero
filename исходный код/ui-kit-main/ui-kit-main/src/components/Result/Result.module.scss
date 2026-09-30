@@ -1,0 +1,27 @@
+@import "../../styles/varibles.scss";
+
+.result {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+
+    :global(.#{$kitPrefix}-result-title) {
+        font-size: 20px;
+        font-weight: 600;
+        line-height: 28px;
+        font-family: SB Sans Interface;
+        color: $dark-grey;
+        margin: 0;
+    }
+
+    :global(.#{$kitPrefix}-result-subtitle) {
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 22px;
+        font-family: $font-family;
+        color: $pale-grey;
+        margin-top: 2px;
+    }
+}
