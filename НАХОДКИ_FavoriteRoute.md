@@ -606,8 +606,27 @@
 
 ---
 
+## Уточнение 01.10.2026 (5): структура адреса и точек для «Избранных маршрутов» (сверка с OpenAPI «Платформа — Адреса» v3.16.0)
+
+Контекст: предлагается скопировать для FavoriteRoute структуру из OpenAPI адресного сервиса (файл «…2.yml», `components.schemas`): обязательные `label`, `address.country`, `address.region`, `address.latitude`, `address.longitude`; опциональные `address.city/street/house/building/structure`; плюс `waitingTime`. Ниже — сверка с кодом заявок. Решения остаются за заказчиком/архитектором.
+
+| ID | Вопрос | Что установлено | Источник | Статус |
+|---|---|---|---|---|
+| Адрес:V1 | Формат отсутствующих значений | `[КОД]` В YAML нет ни одного `nullable` (0 вхождений) — «поле опущено» и `null` не различаются. Адресный сервис сериализует с `default-property-inclusion: non_null` (пустые поля не отдаёт). В заявке `latitude/longitude` — примитивы `double`: отсутствующая координата становится `0`, а не `null`; `equalsByCoords` считает `0` «координат нет». | `address-main/.../application/src/main/resources/application.yml:22`; `passenger_request-main/.../dto/WaypointDTO.java:70,76`; `srm-main/.../model/WaypointDTO.java` (`equalsByCoords`) | Частично: поведение платформы установлено; выбор «опускать/null» — решение архитектора |
+| Адрес:V2 | Что уходит в диспетчерскую | `[КОД]` В Kafka-сообщение подрядчику уходит `Waypoint(name, latitude, longitude, waitTime, passengers)`: `name` — одна строка адреса (`address.toStringTrimmed()`, `OutContractorTaxiTripMessageMapperImpl.java:314`), структурированного адреса нет; `waitTime` — `Integer` секунд. Что нужно диспетчерской на самом деле, из кода не видно. | `passenger_request-main/.../messaging/Waypoint.java`; `passanger-integrations-main/.../mapper/OrderRequestMapper.java:57-75` | Не закрыт (внешнее требование) |
+| Адрес:V3 | Нужен ли `id` адреса | `[КОД]` Вход `NewFavoriteAddress` без `id`, ответ `UserAddress` с `id`. В адресном сервисе `id` — случайный UUID из `GeoClientImpl` (не стабильный идентификатор адреса). В `WaypointDTO` заявки `id` адреса нет — адрес хранится по значению. `[ПРЕДПОЛОЖЕНИЕ]` Вариант: точки в `jsonb` без `id`, как в заявке; избранное не зависит от справочника. | YAML `components.schemas`; `address-main` `GeoClientImpl` | Частично — решение проекта |
+| Адрес:V4 | `waitingTime` внутри `address` или снаружи | `[КОД]` В схемах адресного сервиса поля нет. В платформе ожидание — на уровне точки (`WaypointDTO.waitTime`, `Duration`, в JSON миллисекунды через `DurationMillisConverter`/`MillisDurationConverter`), не внутри адреса. Три варианта имени: `waitTime` (код), `waitTimeSeconds` (T01.1), `waitingTime` (вопрос). `[ПРЕДПОЛОЖЕНИЕ]` Вариант: на уровне точки, снаружи `address`. | `srm-main/.../WaypointDTO.java`; `passenger_request-main/.../dto/WaypointDTO.java:88`; `lib/core` `DurationMillisConverter` | Закрыт по фактам; имя и единицу утвердить |
+| Адрес:V5 | Обязательность координат | `[КОД]` Для избранного адреса адресный сервис требует (`NewFavoriteAddress.required`: country, region, latitude, longitude, label). Для адреса встречи — нет (`NewAddress`: координаты необязательные). Заявка при отсутствии координат принимает `0`. Диспетчерская и тариф работают по координатам. | YAML `components.schemas`; `WaypointDTO` заявки | Частично — решение: требовать всегда или геокодировать при использовании |
+
+### (5).B. Дополнительные находки при сверке
+
+- **Корпус/строение перепутаны (новое противоречие, раздел H).** `[КОД]` YAML: `building` = «Номер корпуса», `structure` = «Номер строения». `passenger_request-main/.../dto/WaypointDTO.java:54-64` и `srm-main/.../WaypointDTO.java:58,64`: `building` = «Строение», `structure` = «Корпус». При копировании без выбора избранное разойдётся с заявкой — зафиксировать значение в ТЗ.
+- **Ошибка в OpenAPI.** `[КОД]` Схема `NewAddress` содержит `label` в `required`, но поля `label` в `properties` нет (он объявлен в `NewMeetingAddress`). Копировать как есть нельзя; сообщить владельцу адресного сервиса.
+- **Единицы ожидания по цепочке (три разные).** `[КОД]` В JSON заявки `waitTime` — миллисекунды; в Kafka-сообщение подрядчику уходит `Integer` **секунд** (`OutContractorTaxiTripMessageMapperImpl.java:317` — `(int) waypoint.getWaitTime().toSeconds()`, при `null` — `0`; для SRM-ветки `:549` берётся `getWaitingTime()` как есть); обратный факт от подрядчика — минуты (`tripFactWaitTime`, раздел D). Единицу `waitTime` в избранном (мс или секунды) и конвертацию при создании заявки описать в ТЗ.
+
 ## Журнал изменений
 - 29.09.2026 — первая редакция. Параллельно в `Вопрос ответ.docx` добавлен датированный раздел «Результаты исследования исходного кода 29.09.2026» (три таблицы, исходные таблицы сохранены без изменений).
 - 29.09.2026 (2) — добавлено уточнение по каталогу GitLab; раздел F уточнён (кандидаты `lib/core`, `lib/grpc`, приоритеты скачивания).
 - 29.09.2026 (3) — разобраны загруженные репозитории первого приоритета; исправлены выводы по Q10, Q14, D02 (метка), разделу F (`lib/grpc`); добавлены образцы истории, согласование, цена перевозчика, лимиты.
 - 30.09.2026 (4) — сверка develop-ветки Client passengers (идентична), разбор front/lib (mf-core, ui-kit), повторная проверка trip-purpose-request-check (исходников нет); уточнён список недостающего.
+- 01.10.2026 (5) — сверка предлагаемой структуры адреса/точек (OpenAPI «Платформа — Адреса» v3.16.0) с кодом заявок: ответы по пяти открытым вопросам, два новых замечания (корпус/строение, ошибка в `NewAddress`); параллельно дополнен `Вопрос ответ.docx`.
