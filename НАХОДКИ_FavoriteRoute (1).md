@@ -566,7 +566,138 @@
 
 ---
 
+## Уточнение 28.10.2026: технические вопросы к T01.2 (согласованная T01.1, T01.2 от 22.10.2026)
+
+Основание: T01.1 «Модель данных избранных маршрутов» (согласована, с дополнением 19.10.2026) и T01.2 «API справочника избранных маршрутов» (22.10.2026, предварительно одобрена заказчиком). Методика прежняя: исходники только читались. Локальные проверки сериализации выполнены отдельными программами вне репозитория на библиотеках с Maven Central; сервисы, сборки и стенд не запускались.
+
+Источники: этот репозиторий, ветка `claude/sharp-gates-rjaxlz` (коммит `22097970`), корень `исходный код/`; дозагруженные 28.10.2026 репозитории — `main`, коммит `4c344bd7` (папки в корне репозитория). Сокращения: **PR** — `passenger_request-main/passenger_request-main/application/src/main/java/ru/sberbank/ditsib/transport/request/`; **CORP** — `corporate-main/corporate-main/application/src/main/java/ru/sberbank/ditsib/corpclient/`; **TF** — `tariff-main (2)/tariff-main/application/src/main/java/`; **GEO** — `geo-main/geo-main/application/src/main/`; **GZ** — `geo-zones-main/geo-zones-main/application/src/main/java/ru/sberbank/ditsib/geo_zones/`; **KF** — `kafka_functional-main/` (в `main`).
+
+### (28.10).A. Дозагруженные репозитории
+
+| Репозиторий | Версия | Состояние / польза |
+|---|---|---|
+| `lib / kafka_functional` | 5.8 | Полный исходник; закрыл формат `creationTime` |
+| `lib / transport_bom` | 5.7 (Spring Boot 3.5.9, `kafka-functional 4.6.0.2`) | Только текущая версия; сервисы собраны на `java-parent 4.13.x`, его история недоступна |
+| `platform / OAuth`, `platform / JWKS` | — | Полный исходник; см. (28.10).B.5 |
+| `front / Client passengers` | `release/D-03.014.000`, `0d213fd`, 02.08.2024 | **Та же версия**, что была (добавились три папки, отсутствовавшие в прежней копии) |
+| `front / Corp passengers` | `feat/TRANSPORT-36167`, `c21830f`, 06.11.2025 | **Та же версия** (отличаются только сборочные файлы) |
+| `front / lib`: mf-core, tool-kit, ui-kit | — | Совпадают с прежними копиями |
+| `platform / Trip purpose request check` | — | Снова только `CODEOWNERS` и `.gitignore` |
+| `platform / Trips reports`, `Trip registries` | — | Не используют `service.request`, `passenger_reports` к ним не обращается; для FavoriteRoute не нужны |
+
+### (28.10).B. Выводы по вопросам
+
+| № | Вопрос | Статус | Нужна правка T01.2 |
+|---|---|---|---|
+| 1 | UTC в `creationTime` | Подтверждена кодом | — |
+| 1 | JSON-формат `creationTime` в Kafka | Подтверждена кодом и локальной сериализацией (с оговорками) | Да |
+| 2 | corporate `GET /` | Подтверждена кодом (версия Boot corporate — косвенно) | Да |
+| 3 | Загородные метрики TAXI | Противоречит T01.2 (невыполнимо без решения) | Да, архитектор |
+| 3 | Загородность GROUP_TRANSFER | Подтверждена кодом (риск) | Уточнение |
+| 3 | `trafficJamScore=0` | Подтверждена кодом; конфигурация стенда — нужна проверка стенда | Уточнение |
+| 4 | Сверка первой точки без дома | Противоречит T01.2 (AC-F-68, AC-F-118) | Да, архитектор |
+| 4 | `regionBranch` с id зон | Подтверждена кодом | — |
+| 5 | Права geo | Подтверждена кодом | — |
+| 5 | Права corporate / заявок / тарифов / geo-zones | Нужна проверка стенда (назначения только в БД среды) | — |
+| 5 | Сервисный субъект для чтения версии реестрами | Подтверждено отсутствие механизма в платформе | Да, архитектор |
+
+#### 1. `creationTime` в `service.request`
+
+- [КОД] TAXI: `PR/service/impl/RequestForTaxiServiceImpl.java:189` — «LocalDateTime.now(clock)», запись в сущность — стр. 209; бин часов `PR/config/BeanConfig.java:26-28` — «Clock.systemUTC()».
+- [КОД] GROUP_TRANSFER: `PR/service/impl/RequestForGroupTransferServiceImpl.java:127` — «LocalDateTime.now(ZoneOffset.UTC)», запись — стр. 173.
+- [КОД] Других путей создания нет: `RequestForTaxi.builder()` / `RequestForGroupTransfer.builder()` только в этих `add()`; оба вызова (включая совместную поездку) — `PR/service/impl/RequestControllerServiceImpl.java:105, 132`. `setCreationTime` вызывается только для общественного транспорта и каршеринга (`RequestForPublicServiceImpl.java:179`, `CarsharingJoinRequestServiceImpl.java:155`). В `request-external*` создания заявок не найдено.
+- [КОД] Хранение: `PR/database/model/Request.java:91-92` (`LocalDateTime`), колонка `timestamp` без зоны (`.../db/changelog/2024/02/22/sql/create_group_transfer.sql:107`). Колонка обновляемая — ручной SQL на среде не исключён.
+- [КОД] В событие поле попадает неявным маппингом MapStruct (`PR/mappers/RequestMapper.java:81, 187`); в сообщении — `LocalDateTime` без аннотаций формата (`passenger_request-main/.../messaging/src/main/java/ru/sber/transport/request/messaging/RequestMessage.java:73`).
+- [КОД] **Сериализация в Kafka:** `KF/src/main/java/ru/sber/transport/messaging/kafka/binding/OutputBridge.java:62-76, 124-135, 147-150` — заголовок «contentType=application/json» и `StreamBridge.send`; своего ObjectMapper или конвертера в библиотеке нет (автоконфигурация — только `EnvironmentConfig`).
+- [КОД] JSON по `application/json` формирует Spring Cloud Function: байткод `ContextFunctionCatalogAutoConfiguration$JsonMapperConfiguration.jackson()` (spring-cloud-function-context 4.2.0, соответствует `spring-cloud 4.2.0` из pom KF) — «getBean(ObjectMapper.class).copy()», меняются только `FAIL_ON_EMPTY_BEANS`, `FAIL_ON_TRAILING_TOKENS`, `FAIL_ON_UNKNOWN_PROPERTIES`. Собственного бина ObjectMapper в сервисе заявок нет, поэтому действуют `spring.jackson.*` из `PR/../resources/application.yml:79-82`: `WRITE_DATES_AS_TIMESTAMPS: true`, `WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS: false`.
+- [ЛОКАЛЬНАЯ ПРОВЕРКА] Jackson 2.18 с теми же настройками и `copy()`: `2026-10-19T09:00` → `[2026,10,19,9,0]`; `2026-10-19T09:00:05.123456789` → `[2026,10,19,9,0,5,123]`. **Массив переменной длины 5–7 элементов**, нулевые хвостовые элементы опускаются, доля — миллисекунды, смещения нет.
+- [КОД] Надёжность продюсера: отправка асинхронная через пул из 10 потоков (`OutputBridge.java:39`), ошибка только логируется (`:131-133`), повтора нет → **события одной заявки могут уйти не по порядку и потеряться молча**. Это подтверждает оговорки T01.2 о порядке и потере событий уже на стороне источника.
+- Ограничения: исходник KF — 5.8, версия у сервиса заявок задаётся недоступным `java-parent 4.13.2`; `spring.jackson.*` может переопределить Config Server; окончательно — по реальному сообщению со стенда.
+- **Правка T01.2** (раздел «Топики Kafka», строка `creationTime`): «`creationTime` передаётся массивом `[год, месяц, день, час, минута, секунда?, миллисекунды?]` без смещения; хвостовые нулевые элементы опускаются; значение — UTC. Потребитель принимает массив длины 5–7; при получении строки формат перепроверяется по реальному сообщению».
+
+#### 2. corporate `GET /` (`projection=FULL&page=0&size=20`)
+
+- [КОД] `CORP/controller/OrganizationController.java:25, 28, 82`; `CORP/controller/impl/OrganizationControllerImpl.java:82-96`.
+  - Обычный пользователь: `check()` бросает исключение → «new PageImpl<>(List.of(organization), Pageable.unpaged(), 1)»; `page`, `size` и фильтры игнорируются.
+  - data master: `get(page, size, …).map(mapper::toDto)` — обычная страница всех организаций (`CORP/service/impl/OrganizationControllerServiceImpl.java:54-61`); по умолчанию `page=0`, `size=20` (`core-main/.../request/PageSortFilterParameters.java:34, 41`).
+- [КОД] `projection=SELECT` не содержит `digitId` (`CORP/mapper/OrganizationMapper.java:35-42`, «@Mapping(target = "digitId", ignore = true)»), `FULL` содержит (`:32-33`). Выбор `FULL` подтверждён.
+- [КОД] Своего сериализатора Page, обёртки, `@EnableSpringDataWebSupport` или `pageSerializationMode` нет; `application.yml:17-18` — только `default-property-inclusion: non_null`. Платформа на Spring Boot 3.4.0 (`transport_core-main/.../pom.xml:9-11`); версия Boot самого corporate (`java-parent 4.13.1`) выведена косвенно — тесты используют `@MockitoBean` (Spring 6.2).
+- [ЛОКАЛЬНАЯ ПРОВЕРКА] Spring Data Commons 3.4.0 + Jackson 2.18.1 + `SpringDataJacksonConfiguration.PageModule` в режиме `DIRECT`: `content`, `totalElements`, `size`, `number` — на верхнем уровне; у обычного пользователя `"pageable":"INSTANCE"`; без `PageModule` сериализация `Pageable.unpaged()` падает. [ТЕСТ: ПРОЧИТАН, НЕ ЗАПУЩЕН] `OrganizationControllerTest.java:806-812` ожидает 200 и `content.length()=1` на пути обычного пользователя — согласуется с активным `PageModule`.
+- Типы: `id` — строка UUID; `digitId` — целое (`Long`, `CORP/database/model/Organization.java:27-28`), в БД `NOT NULL` (`providers-database/.../20200708/changelog.yml:32-40`), при null ключ отсутствует (не `null`) из-за `non_null`; `totalElements` — целое (`long`).
+- Пример, одна организация (проверено локальной сериализацией, DTO сокращён): `{"content":[{"id":"9e281d23-…","digitId":13,"status":"ACTIVE","officialName":"…","address":"…","contacts":[]}],"pageable":"INSTANCE","totalPages":1,"totalElements":1,"last":true,"size":1,"number":0,"sort":{"empty":true,"sorted":false,"unsorted":true},"first":true,"numberOfElements":1,"empty":false}`. Несколько организаций (data master): `content` из N элементов, `"pageable":{"pageNumber":0,"pageSize":20,…}`, `totalElements` = N; при `size=1` — одна запись в `content` и `totalElements` > 1.
+- [КОД] Ошибки, не описанные в T01.2: пользователь не сотрудник → `EntityNotFoundException` → **404** (`CORP/service/impl/EmployeeServiceImpl.java:151-154`, `transport_core-main/.../handlers/RequestExceptionHandler.java:117-133`); сотрудник без подразделения → `getOrganizationByUserId` возвращает `null` (`EmployeeServiceImpl.java:489-493`) → `List.of(null)` → NPE → **500**.
+- Риск: `spring.data.web.pageable.serialization-mode=via-dto` (может прийти из Config Server) переносит `totalElements` в `page.totalElements`.
+- **Правка T01.2** (раздел «Организация и защита от data master»): «404 corporate (пользователь не найден как сотрудник) → 403 FORBIDDEN; 500 corporate → 502 DEPENDENCY_ERROR. Если `totalElements` отсутствует на верхнем уровне → 502 DEPENDENCY_INVALID_RESPONSE; длина `content` не заменяет `totalElements`».
+
+#### 3. Данные для рекомендуемой цены
+
+- [КОД] TAXI: цена = (база + загородная часть) × коэффициенты (`TF/ru/sberbank/ditsib/transport/tariff/service/impl/CalculateServiceImpl.java:804-808`). Загородная часть (`:1038-1047`, `:1135-1141`) берёт `suburbTripData` (`suburbDistance`, `suburbTime`, `suburbServiceDistance`, `suburbServiceTime`, `interRegionDistance`, `interRegionTime`) — **все по умолчанию 0** (`TF/ru/sber/transport/tariff/model/TripDto.java:90`, `SuburbTripDataDTO`).
+- [КОД] Источника этих метрик нет: geo `POST /route` отдаёт только `distance`, `time` и сегменты (`GEO/java/.../dto/RouteDto.java:20-38`); фронт их не передаёт (`client-passengers-develop/.../stores/Trip/Trip.interface.ts:199-209`); в SRM DTO объявлен, но не используется. Загородная часть такси в текущей платформе всегда считается нулём.
+- Это **противоречит** правилу T01.2 «нули по умолчанию не заменяют подтверждение; при недоступных метриках — CALCULATION_MODE_UNAVAILABLE»: буквальное выполнение даёт отказ для любого тарифа такси с ненулевыми загородными ставками, даже для городского маршрута.
+- [КОД] GROUP_TRANSFER: загородность = «больше одного различного `city` среди всех точек», `null` — отдельное значение (`CalculateServiceImpl.java:876`). Точка без `city` рядом с точками с городом включает загородные ставки; если `city` нет ни у одной точки — городские.
+- [КОД] `trafficJamScore`: надбавка только при `trafficJamScore >= trafficThreshold`; порог `@Value("${traffic.threshold:7}")` (`CalculateServiceImpl.java:57-58`), default 7 в `application.yml:86`. При `0` и пороге ≥ 0 надбавки нет; значение стенда (Config Server) не проверено.
+- [КОД] Время маршрута geo для `EMPLOYEE_TRANSPORTATION` — `type=statistic` (`GEO/java/.../client/impl/GeoServiceClientImpl.java:187-192`), без времени отправления; `mf-core` вызывает `POST /geo/route` без `transportServiceType` (`mf-core-main/src/stores/Geo/DIGeo.service.ts:62-64`) — разные экраны получают разное время на одном маршруте. [ПРЕДПОЛОЖЕНИЕ по документации 2ГИС] `statistic` — статистические пробки; тогда минутная часть цены зависит от момента расчёта независимо от `trafficJamScore`.
+- [КОД, ЛОКАЛЬНАЯ ПРОВЕРКА] `waitTime` точки в тарифе — `Duration` без конвертера, формула делит секунды на 1000 (`:1026-1032`, `:877-882`): JSON `60000` → 1 минута; `Duration.ofMinutes(1)`, сериализованный Jackson по умолчанию (`60.000000000`) → 0 минут. Ожидание передаётся JSON-числом в мс.
+- [КОД] `TripDto` по умолчанию `timeZone="GMT+03"` (`:77`) и `tripDate` = текущее время + 5 мин — передавать всегда. Расчёт по конкретному тарифу (`POST /calculate/enum/{transportType}/{tariffId}`, `:84-98`) не фильтрует по `vip`/`animal`/`childSeat`; каталожный `POST /calculate` фильтрует (`:947-950`); итог округляется до 100 копеек (`:727`).
+- **Правка T01.2** (раздел «Полнота расчётных данных»), решение архитектора: вариант А (рекомендую) — «Для TAXI загородные метрики в платформе не вычисляются; как и при текущем оформлении заявки, передаются нули; рекомендуемая цена отражает городскую часть»; вариант Б — «Тариф TAXI с ненулевыми загородными ставками → CALCULATION_MODE_UNAVAILABLE». Для GROUP_TRANSFER: «Загородность считается по различным `city` всех точек; если `city` хотя бы одной точки не определён — CALCULATION_MODE_UNAVAILABLE». Для пробок: «Надбавка за пробки — коэффициент `coefTraffic` по `trafficJamScore`; время движения geo и параметр `transportServiceType` фиксируются в T01.4».
+
+#### 4. Серверная сверка первой точки
+
+- [КОД] Регион фронт получает только из `GET /api/geo/address?latitude&longitude[&radius=50]` (`client-passengers-develop/.../stores/Geo/DIGeo.service.ts:27-37`, `DIGeo.store.ts:153-163`; так же `client-main`, `mf-core`). Если дом не найден — сообщение об ошибке и пустая точка без региона; запасного способа нет; `useSearchGeoZone` (`geo-zones/search`) объявлен, но не используется. Исходников фронта T01.3 нет — «метод T01.3» не установлен.
+- [КОД] Обратный поиск — только здания (`GEO/java/.../dto/AddressRequestDto.java:31`, `GEO/resources/application.yml:71-72`, `type: building`). «Не найдено» у 2ГИС (`meta.code=404`) → `GeoApiException(404)` (`GeoServiceClientImpl.java:231-246`) → **417** (`GEO/java/.../handlers/ControllerExceptionHandler.java:37-50`); ошибки соединения и таймауты — тоже 417 (`BaseRestClient.java:113`). Тело `{timestamp, path, message}` без кода: «не найдено» отличается от технической ошибки только текстом 2ГИС. При 2xx со сбоем разбора — `Map.of()` → 200 `[]`.
+- [КОД] `POST /api/geo/region` — **заглушка**, всегда «Москва», код 50 (`GEO/java/.../controller/impl/GeoControllerImpl.java:64-66`).
+- [КОД] `regionBranch`: geo-zones HTTP `POST /searchBranch` (`GZ/web/http/controller/GeoZoneController.java:69-73`) и gRPC `RegionBranch` (`.../GeoZonesService.proto:11`). Порядок — от подробной зоны к корню по `parent` (`GZ/providers/geo_zone/GeoZoneProviderImpl.java:101-109`); элементы `id` (UUID), `parentId`, `code`, `timeZone`; не найдено → `[]` / пустой поток. Поиск полнотекстовый по названиям (дом → улица → город → район → регион), координаты и `country` не используются (`GZ/providers/geo_zone/dao/impl/SearchRepositoryImpl.java:32-85, 121-137`).
+- [КОД] Тарифный сервис передаёт в gRPC `country`, `region`, `city` первой точки без проверки на null (`TF/ru/sberbank/ditsib/transport/tariff/service/impl/RegionDataResolverImpl.java:54-56`) → при отсутствии поля NPE → `RegionResolvingFailedException` (`CalculateServiceImpl.java:1261-1273`).
+- Вывод: ветка T01.2 «допустимый ответ геокодера без территории → принять присланный регион» недостижима; первая точка без зданий в радиусе даст 502 DEPENDENCY_ERROR — **противоречит AC-F-68 и AC-F-118**.
+- **Правка T01.2** (раздел «Geo и сверка первой точки»), решение архитектора: вариант А — «В текущем контракте geo ни один класс 417 не считается отсутствием территории; сверка требует, чтобы `GET /api/geo/address` (тип `building`, радиус как в T01.3) вернул адрес, иначе 502 DEPENDENCY_ERROR»; AC-F-68 переформулировать: «дом и улица не введены пользователем, но геокодер вернул адрес». Вариант Б — при 417 сверять только присланный регион через `geo-zones/searchBranch` по строкам пользователя, явно указав, что координаты не проверяются. Отдельно для T01.4: «`country`, `region`, `city` первой точки обязательны для тарифного расчёта; при отсутствии во вводе берутся из сверки и не сохраняются».
+- Для T02.2: в клиентском фронте есть «Повторить заявку» для трансфера (`client-passengers-main/.../TripRequestContentGroupTransfer/components/repeatRouteAndAtriumModal/RepeatAtriumModal.tsx`) — действующий аналог автозаполнения по готовому маршруту.
+
+#### 5. Права на зависимости и сервисный субъект
+
+| Зависимость и метод | Механизм прав | Назначения EMPLOYEE / ADMIN / ENGINEER | Статус |
+|---|---|---|---|
+| corporate `GET /` | role-check-starter + authorization | В Liquibase нет; в ручных релизных скриптах `corporate-main/_documents/scripts/**/fill_roles*.sql` `GET /` нет | Только БД среды |
+| заявки `GET /{requestId}/` | role-check-starter | В миграциях `PR/../resources/db/changes/2026/01/changes/grant_access.sql`, `changelog/20250813`, `20251022` нет | Только БД среды |
+| тарифы `POST /calculate/…`, `GET /{transportTypeId}/{tariffId}` (`TF/.../controller/CalculatingController.java:22`, `TariffController.java:48`) | role-check-starter | `fill_roles` в репозитории нет | Только БД среды |
+| geo `GET /address`, `POST /route` | только authorization | Своих `AuthorizationManager` нет → `fullyAuthenticated()` (`authorization-main/.../config/SecurityConfigurerAdapter.java:93-98`): достаточно действующего JWT | Подтверждена кодом |
+| geo-zones `POST /searchBranch`, gRPC | role-check-starter | `fill_roles` в репозитории нет | Только БД среды |
+
+- Проверка на стенде: выборка из `<schema>.urls` и `<schema>.roles` по нужным `url`/`method` для трёх ролей в схемах `corporate`, `request`, `tariff`, `geo-zones` (сопоставление — `role_check_starter-main/.../UrlRolesServiceImpl.java:26-31`, `UrlRoleRepositoryImpl.java:30-34`).
+- [КОД] Сервисный субъект для внутреннего чтения версии: OAuth — вход пользователя через СУДИР, JWT с ролями учётной записи (`oauth-main/.../providers/access/AccessTokenProviderImpl.java:92-118`), сценария для сервисов нет; JWKS только публикует ключи (`jwks-main/.../JwksController.java:12`); `token-generator` — gRPC `generate`, подписывает JWT с переданными `subject` и ролями (`token-generator-main/.../grpc/JwtGeneratorServiceImpl.java:44-70`), клиентов в доступных исходниках нет; `passenger_reports` передаёт дальше токен пользователя (`ReportsXlsxControllerImpl.java:40`, `ReportsOrganizationXlsxControllerImpl.java:56`).
+- Вывод: требование T01.2 «только JWT выделенного сервисного субъекта, пользовательский токен запрещён» не опирается на существующий механизм; его нужно строить в T05.1/T05.2. [ПРЕДПОЛОЖЕНИЕ] кандидат — gRPC `token-generator`.
+- **Правка T01.2** (раздел «Межсервисное чтение исторической версии»), решение архитектора: вариант А — «В платформе нет готового выпуска сервисного JWT; `passenger_reports` передаёт токен пользователя; выпуск токена сервисного субъекта (кандидат — gRPC `token-generator`) — обязательная доработка T05.1/T05.2 и внешнее условие выпуска»; вариант Б — разрешить вызов с токеном пользователя реестров при проверке его организации (как принято в платформе) и убрать запрет из матрицы ролей.
+
+### (28.10).C. Раздел F — актуализация
+
+| Было | Стало |
+|---|---|
+| `kafka-functional` — нужен репозиторий | Разобран (см. B.1) |
+| `front / Client passengers` (актуальная ветка) — не загружен | Загружен архив `*-main`, но это снова релиз 02.08.2024; **нужна ветка, развёрнутая на стенде** (`develop` или последний `release/*`) |
+| `front / lib` — не раскрыт | mf-core, tool-kit, ui-kit — совпадают с имевшимися |
+| `trip-purpose-request-check` — без исходников | Повторная загрузка — снова без исходников |
+| — | `transport_bom` версии 4.13.x (тег или ветка) — если нужны точные версии Spring Boot, Spring Cloud и `kafka-functional` |
+
+### (28.10).D. Проверки на стенде
+
+| № | Вопрос | Что сделать | Ожидаемо по коду | Ограничение |
+|---|---|---|---|---|
+| E14 | B.1 | Снять реальное сообщение `service.request` по заявке TAXI и GROUP_TRANSFER | `creationTime` — массив 5–7 элементов без смещения, UTC | Значения `spring.jackson.*` из Config Server не известны |
+| E15 | B.2 | `GET /api/organizations/?projection=FULL&page=0&size=20` под обычным пользователем и под data master | `content`, `totalElements` на верхнем уровне; `"pageable":"INSTANCE"` у обычного пользователя | Режим сериализации страниц из Config Server |
+| E16 | B.3 | Узнать `traffic.threshold` тарифного сервиса в Config Server | 7 (default) | — |
+| E17 | B.4 | `GET /api/geo/address` по координатам точки без зданий в радиусе 50 м | 417 с текстом 2ГИС | Текст сообщения не является контрактом |
+| E18 | B.5 | Выборка `urls`/`roles` для трёх ролей в схемах `corporate`, `request`, `tariff`, `geo-zones` | Назначения существуют | Доступ к БД среды |
+
+### (28.10).E. Вопросы для согласования
+
+- **Архитектору:** загородные метрики TAXI (вариант А/Б, B.3); сверка первой точки без дома (вариант А/Б, B.4); механизм сервисного JWT для чтения версии реестрами (вариант А/Б, B.5).
+- **Команде сервиса заявок:** подтвердить формат `creationTime` в Kafka и отсутствие переопределения `spring.jackson.*` в Config Server; известно ли о возможной перестановке и молчаливой потере событий в `OutputBridge`.
+- **Команде corporate:** обработка сотрудника без подразделения (сейчас 500).
+- **Аналитику (загрузка):** актуальная ветка `front / Client passengers`; исходники `trip-purpose-request-check`.
+
+---
+
 ## Журнал изменений
 - 29.09.2026 — первая редакция. Параллельно в `Вопрос ответ.docx` добавлен датированный раздел «Результаты исследования исходного кода 29.09.2026» (три таблицы, исходные таблицы сохранены без изменений).
 - 29.09.2026 (2) — добавлено уточнение по каталогу GitLab; раздел F уточнён (кандидаты `lib/core`, `lib/grpc`, приоритеты скачивания).
 - 29.09.2026 (3) — разобраны загруженные репозитории первого приоритета; исправлены выводы по Q10, Q14, D02 (метка), разделу F (`lib/grpc`); добавлены образцы истории, согласование, цена перевозчика, лимиты.
+- 28.10.2026 — разобраны технические вопросы к T01.2 (creationTime, corporate `GET /`, данные для цены, сверка первой точки, права и сервисный субъект) и дозагруженные репозитории (`kafka_functional`, `transport_bom`, OAuth, JWKS, фронты); уточнён раздел F, добавлены проверки E14–E18 и вопросы для согласования.
