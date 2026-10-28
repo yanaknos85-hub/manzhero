@@ -738,9 +738,57 @@
 
 ---
 
+## Уточнение 28.10.2026 (3): закрытие расхождений по ожиданию, надбавке за пробки и `changeDate`
+
+### (28.10-3).A. `waitTime` в тарифном расчёте — сквозная трассировка
+
+Цепочка одинакова для обоих HTTP-путей расчёта:
+- [КОД] Эндпоинты: `POST /calculate` и `POST /calculate/enum/{transportType}/{tariffId}` — тело `@Valid @RequestBody TripDto` (`TF/ru/sberbank/ditsib/transport/tariff/controller/CalculatingController.java:38, 78`) → `CalculatingControllerImpl.java:33-50` → `CalculateServiceImpl.calculate(...)` → `calculateData` (`:663-666`) → `calculateByTransportType` (`:715-723`) → `calculateTaxi` (`:804-808`) / `calculateGroupTransfer` (`:870`).
+- [КОД] DTO: `TripDto.waypoints` — `List<WaypointDTO>` без аннотаций (`TF/ru/sber/transport/tariff/model/TripDto.java:134-135`); `WaypointDTO.waitTime` — `Duration` без аннотаций, класс помечен только `@Builder @Getter` (`WaypointDTO.java:12-14, 55`).
+- [КОД] Конвертер: тело `@RequestBody` читает Jackson HTTP-конвертер. `MillisDurationConverter` зарегистрирован в `WebConfiguration.addFormatters` (`TF/ru/sberbank/ditsib/transport/tariff/config/WebConfiguration.java`) — это Spring `ConversionService` для параметров запроса и форм, Jackson его не использует. Глобальных Jackson-модулей или десериализаторов `Duration` в tariff и подключённых библиотеках (`core`, `transport_core`, `authorization`, `role_check_starter`, `grpc`, `as_sbertransport_libraries`) нет; в `application.yml` тарифа — только `non_null`. Следовательно, работает `DurationDeserializer` из `JavaTimeModule`: целое число — **секунды**.
+- [КОД] Формулы: TAXI (`:1026-1032`) — сумма ожиданий **всех** точек «Duration::toSeconds → d / 1000 → toMinutes» × `waitCostPerMinIntermediate`, **бесплатный лимит не вычитается** (вычитается только из отдельного поля `waitingTime` первой точки); GROUP_TRANSFER (`:877-882`) — то же преобразование по каждой точке, затем `max(минуты − freeWaitingTime, 0)`.
+- [ЛОКАЛЬНАЯ ПРОВЕРКА] ObjectMapper собран `Jackson2ObjectMapperBuilder` (spring-web 6.2.0, как в Spring Boot) + `non_null`; точные выражения формул скопированы из кода:
+
+| JSON `waitTime` промежуточных точек | `Duration` в DTO | TAXI, минуты в формуле (лимит не участвует) | GROUP_TRANSFER, оплачиваемые минуты при `freeWaitingTime=0` |
+|---|---|---|---|
+| `60000` | `PT16H40M` | 1 | 1 |
+| `600000`, `300000` | `PT166H40M`, `PT83H20M` | 15 | 15 |
+| `90000` | `PT25H` | 1 (усечение) | 1 |
+| ключ отсутствует | `null` | `NullPointerException` | `NullPointerException` |
+
+- Итог: **прежний вывод подтверждён** — JSON `waitTime=60000` даёт в формуле 1 минуту; деление на 1000 компенсирует чтение миллисекунд как секунд. Вывод проверки о `MillisDurationConverter` и нуле **не подтверждён**: он верен только если бы на поле или в ObjectMapper был подключён `MillisDurationConverter` как Jackson-десериализатор, а этого в коде нет. Остаточный риск конфигурации: `spring.jackson.deserialization.READ_DATE_TIMESTAMPS_AS_NANOSECONDS=false` в Config Server переключит чтение на миллисекунды и обнулит ожидание.
+- [КОД] Новое для T01.4: точка **без ключа** `waitTime` роняет расчёт (NPE на `Duration::toSeconds`). T01.2 нормализует отсутствие ожидания к отсутствию ключа — значит, T01.4 при вызове тарифа должна передавать `waitTime: 0` для каждой точки. Доли минуты усекаются.
+- [КОД] gRPC `TariffService.calculate` (`TariffActionReplierImpl.java:36-80`, `TariffDescriptor.proto:51-62`) ожидание **не передаёт вовсе**: в `Waypoint` нет поля, `waitTime` = null. Этот путь для FavoriteRoute непригоден без доработки тарифа.
+- Единицы `waitTime` в публичном API T01.2 не меняются; вопрос относится к контракту T01.4.
+
+### (28.10-3).B. Надбавка за пробки — точные выражения
+
+| Вид | Условие | Множитель | Строки |
+|---|---|---|---|
+| TAXI | `trafficJamScore >= trafficThreshold` | `1 + coefTraffic × (trafficJamScore − trafficThreshold)` | `CalculateServiceImpl.java:1054-1056`, путь вызова `calculateTaxi` `:804-808` ← `calculateByTransportType` `:715-717` |
+| Личный транспорт | `trafficJamScore >= 7` | `1 + coefTraffic × (score − trafficThreshold)` | `:1104-1105` |
+| Каршеринг | `trafficJamScore >= 7` | то же | `:1160-1161` |
+
+- `trafficThreshold` — `@Value("${traffic.threshold:7}")` (`:57-58`), default 7 (`application.yml:86`). `trafficJamScore` — `@Min(0)`, по умолчанию 0. `TaxiTariff.coefTraffic` — `@Min(0) @Max(10)`, по умолчанию 0 (`TaxiTariff.java:120-126`).
+- Для TAXI при `score=0`: надбавки нет при пороге ≥ 0; при пороге 0 условие истинно, но множитель равен 1. Надбавка при `score=0` возможна только при **отрицательном** пороге в конфигурации **и** `coefTraffic > 0` у тарифа — это вывод из выражения, а не наблюдаемое поведение; фактический порог стенда не известен. Расхождение с проверкой: «жёсткое `>= 7`» относится к личному транспорту и каршерингу, не к TAXI.
+
+### (28.10-3).C. `changeDate`
+
+- [КОД] В сообщении `service.request` (`RequestMessage`) поля `changeDate` **нет**; в модуле `messaging` оно не встречается. `changeDate` — поле истории заявки: `PR/database/model/RequestHistoryElement.java:39` (по умолчанию `LocalDateTime.now(UTC)`, `:81`), DTO истории `RequestHistoryElementDTO.java:24`, сортировка истории в репозиториях `*HistoryRepository`. Заполняется по-разному: текущее UTC-время (`RequestServiceImpl.java:149`), `creationTime` заявки (`RequestForGroupTransferServiceImpl.java:199`), дата согласования (`RequestForPersonalServiceImpl.java:521` и др.).
+- Вывод: для определения актуальности события `service.request` использовать нельзя — его там нет, а в истории значение не является монотонным временем изменения.
+
+### (28.10-3).D. Согласование формулировок
+
+- Сверка ответа `GET /{requestId}` при DELETE: `requestId`, `organizationId` и привязка к маршруту; **автор заявки не сверяется** — инициатор DELETE проверяет связанные заявки других авторов своей организации (по T01.2).
+- AC-F-118: «территория отсутствует» допустимо выводить только из штатного пустого результата успешного поиска, если это закреплено контрактом T01.4 (geo-zones `searchBranch` возвращает `200 []`, когда названия не сопоставились; технические сбои дают ошибку). Ошибка маппинга, неоднозначный 417 и сбой разбора — технические отказы и не разрешают принять присланный регион.
+- Гарантия доставки `service.request` формально не установлена; зафиксированы риски потери, повторов, нарушения порядка и публикации до commit. Термин «at-most-once» не используется.
+
+---
+
 ## Журнал изменений
 - 29.09.2026 — первая редакция. Параллельно в `Вопрос ответ.docx` добавлен датированный раздел «Результаты исследования исходного кода 29.09.2026» (три таблицы, исходные таблицы сохранены без изменений).
 - 29.09.2026 (2) — добавлено уточнение по каталогу GitLab; раздел F уточнён (кандидаты `lib/core`, `lib/grpc`, приоритеты скачивания).
 - 29.09.2026 (3) — разобраны загруженные репозитории первого приоритета; исправлены выводы по Q10, Q14, D02 (метка), разделу F (`lib/grpc`); добавлены образцы истории, согласование, цена перевозчика, лимиты.
 - 28.10.2026 — разобраны технические вопросы к T01.2 (creationTime, corporate `GET /`, данные для цены, сверка первой точки, права и сервисный субъект) и дозагруженные репозитории (`kafka_functional`, `transport_bom`, OAuth, JWKS, фронты); уточнён раздел F, добавлены проверки E14–E18 и вопросы для согласования.
 - 28.10.2026 (2) — сверка с независимой проверкой: исправлен вывод о формате `creationTime` (зависит от версии Spring Cloud Function), уточнены B.2 и B.5; зафиксированы расхождения проверки с кодом (`waitTime`, `trafficThreshold`, `mf-core`, role-check, роли фронта, срез `22097970`).
+- 28.10.2026 (3) — сквозная трассировка `waitTime` с локальным исполнением (вывод «60000 = 1 минута» подтверждён; добавлены NPE при отсутствии ключа и отсутствие ожидания в gRPC); точные выражения надбавки за пробки по видам транспорта; `changeDate` — поле истории, не события; согласованы формулировки по сверке автора, AC-F-118 и гарантии доставки.
