@@ -1,0 +1,18 @@
+server:
+  port: @server.port@
+spring:
+  application:
+    name: jwks
+  main:
+    banner-mode: off
+  cloud:
+    vault.enabled: false
+jwk:
+  kid: jwt
+  algo: RS512
+management:
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true

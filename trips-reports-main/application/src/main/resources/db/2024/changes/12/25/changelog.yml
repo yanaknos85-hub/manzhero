@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20241226-0851"
+      author: blandin-ad
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - columnExists:
+                schemaName: trips_reports
+                tableName: column_settings
+                columnName: user_id
+      context: "TRANSPORT-28365"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - createTable:
+            schemaName: trips_reports
+            tableName: column_settings
+            columns:
+              - column:
+                  name: user_id
+                  type: uuid
+                  remarks: Идентификатор пользователя
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: setting
+                  type: json
+                  remarks: Объект данных о настройке отображения столбцов
+      rollback:
+        - dropTable:
+            schemaName: trips_reports
+            tableName: column_settings

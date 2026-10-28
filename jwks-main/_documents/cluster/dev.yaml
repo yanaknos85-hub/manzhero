@@ -1,0 +1,26 @@
+application: jwks
+repo: app_platform_jwks
+serviceAccount: springboot-servicediscovery
+resources:
+  limits:
+    cpu: 500m
+    memory: 1G
+  requests:
+    cpu: 500m
+    memory: 1G
+port:
+  http:
+    number: 8090
+    name: jwks
+    target: 8080
+routing:
+  internal: true
+secman:
+  type: built_in
+additional:
+  envs:
+    - name: SPRING_CLOUD_VAULT_JWT_PATH
+      value: >-
+        CI02351878_CI02671580/A/TRANSP/OSH/MAIN/KV/ci02351878-edevgen-sbertransport-dev/jwt
+    - name: SPRING_CLOUD_VAULT_JWT_NAME
+      value: jwt.public

@@ -1,0 +1,21 @@
+<svg width="44.000000" height="44.000000" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<defs>
+		<linearGradient x1="-22.000000" y1="21.999996" x2="21.999989" y2="66.000000" id="paint_linear_331_517_0" gradientUnits="userSpaceOnUse">
+			<stop stop-color="#2EFF9A"/>
+			<stop offset="1.000000" stop-color="#10BF6A"/>
+		</linearGradient>
+		<linearGradient x1="-9.428648" y1="21.999994" x2="21.999920" y2="53.428566" id="paint_linear_331_518_0" gradientUnits="userSpaceOnUse">
+			<stop offset="0.007634" stop-color="#00FE83"/>
+			<stop offset="1.000000" stop-color="#006A36"/>
+		</linearGradient>
+		<linearGradient x1="-3.142721" y1="22.000017" x2="22.000134" y2="47.142876" id="paint_linear_331_519_0" gradientUnits="userSpaceOnUse">
+			<stop offset="0.007634" stop-color="#00E476"/>
+			<stop offset="1.000000" stop-color="#004A26"/>
+		</linearGradient>
+	</defs>
+	<rect id="AI-logo" width="44.000000" height="44.000000" fill="#FFFFFF" fill-opacity="0"/>
+	<circle id="Oval 5" cx="22.000000" cy="22.000000" r="22.000000" fill="url(#paint_linear_331_517_0)" fill-opacity="0.500000"/>
+	<circle id="Oval 6" cx="21.999931" cy="22.000000" r="15.714286" fill="url(#paint_linear_331_518_0)" fill-opacity="1.000000"/>
+	<circle id="Oval 6" cx="22.000137" cy="22.000031" r="12.571429" fill="url(#paint_linear_331_519_0)" fill-opacity="1.000000"/>
+	<path id="Ai" d="M29.17 14.11C29.17 15.02 28.7 15.48 27.7 15.48C26.69 15.48 26.22 15.02 26.22 14.11C26.22 13.21 26.69 12.76 27.7 12.76C28.7 12.76 29.17 13.21 29.17 14.11ZM14.84 28L12.29 28L16.98 14L19.84 14L24.5 28L21.83 28L20.79 24.67L15.88 24.67L14.84 28ZM20.13 22.54L18.36 16.79L16.54 22.54L20.13 22.54ZM28.92 28L26.47 28L26.47 17.32L28.92 17.32L28.92 28Z" fill="#FFFFFF" fill-opacity="1.000000" fill-rule="evenodd"/>
+</svg>

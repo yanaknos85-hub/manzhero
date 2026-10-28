@@ -1,0 +1,98 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20241219-1443"
+      author: blandin-ad
+      context: "TRANSPORT-28751"
+      preConditions:
+        - not:
+            - columnExists:
+                schemaName: trips_reports
+                tableName: report
+                columnName: fact_start_time
+            - columnExists:
+                schemaName: trips_reports
+                tableName: report
+                columnName: expected_start_time
+        - onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - addColumn:
+            schemaName: trips_reports
+            tableName: report
+            columns:
+              - column:
+                  name: fact_start_time
+                  type: timestamp with time zone
+                  remarks: Фактическое время начала поездки
+              - column:
+                  name: expected_start_time
+                  type: timestamp with time zone
+                  remarks: Плановое время начала поездки
+        - sql:
+            sql: update trips_reports.report set fact_start_time = start_time, expected_start_time = start_time;
+        - dropColumn:
+            schemaName: trips_reports
+            tableName: report
+            columns:
+              - column:
+                  name: start_time
+              - column:
+                  name: tariff_cost
+              - column:
+                  name: tariff_wait_time
+              - column:
+                  name: pay_place
+              - column:
+                  name: contract_number
+              - column:
+                  name: fact_cost
+        - addNotNullConstraint:
+            schemaName: trips_reports
+            tableName: report
+            columnName: fact_start_time
+            constraintName: trips_reports_report_fact_start_time_nnc
+        - addNotNullConstraint:
+            schemaName: trips_reports
+            tableName: report
+            columnName: expected_start_time
+            constraintName: trips_reports_report_expected_start_time_nnc
+      rollback:
+        - addColumn:
+            schemaName: trips_reports
+            tableName: report
+            columns:
+              - column:
+                  name: start_time
+                  type: timestamp with time zone
+                  remarks: Время начала поездки
+              - column:
+                  name: tariff_cost
+                  type: double precision
+              - column:
+                  name: tariff_wait_time
+                  type: bigint
+              - column:
+                  name: pay_place
+                  type: text
+              - column:
+                  name: contract_number
+                  type: text
+              - column:
+                  name: fact_cost
+                  type: integer
+        - sql:
+            sql: update trips_reports.report set start_time = fact_start_time;
+        - dropColumn:
+            schemaName: trips_reports
+            tableName: report
+            columns:
+              - column:
+                  name: fact_start_time
+              - column:
+                  name: expected_start_time
+        - addNotNullConstraint:
+            schemaName: trips_reports
+            tableName: report
+            columnName: start_time
+            constraintName: trips_reports_report_start_time_nnc

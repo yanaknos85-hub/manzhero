@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package ru.sber.transport.trip_registries.grpc.dto;
+
+message RegistryItem {
+     string requestSbTrId = 1;
+     string requestSbTrHrId = 2;
+     string tripHrId = 3;
+     string material = 4;
+     string mvz = 5;
+     double totalCostNotVAT = 6;
+     double totalVAT = 7;
+     double totalCost = 8;
+}
+
+message Registry {
+  string registryId = 1;
+  string contractIdUVHD = 2;
+  string organizationId = 3;
+  string startDate = 4;
+  string endDate = 5;
+  string serviceType = 6;
+  repeated RegistryItem trip = 7;
+}
+
+message RegistryResponse {
+  int32 result = 1;
+}

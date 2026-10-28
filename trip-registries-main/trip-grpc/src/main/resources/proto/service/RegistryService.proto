@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package ru.sber.transport.contractor.grpc.service;
+option java_package = "ru.sber.transport.trip_registries.grpc.service";
+
+import "dto/RegistryDescriptor.proto";
+import "google/protobuf/empty.proto";
+
+service RegistryService {
+
+  rpc receiveRegistry(ru.sber.transport.trip_registries.grpc.dto.Registry) returns (ru.sber.transport.trip_registries.grpc.dto.RegistryResponse);
+
+}

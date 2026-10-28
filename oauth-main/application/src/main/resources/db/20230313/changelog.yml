@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20230313"
+      author: medvedev
+      context: "20230313"
+      changes:
+        - tagDatabase:
+            tag: "20230313"
+        - addDefaultValue:
+            schemaName: sudir
+            tableName: account
+            columnName: active
+            defaultValueBoolean: true
+        - addDefaultValue:
+            schemaName: sudir
+            tableName: role
+            columnName: default_for
+            defaultValue: "[]"

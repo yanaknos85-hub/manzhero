@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>java-parent</artifactId>
+        <groupId>ru.sber.transport</groupId>
+        <version>4.13.1</version>
+    </parent>
+    <packaging>pom</packaging>
+
+    <artifactId>trip_registries</artifactId>
+    <version>5.8</version>
+
+    <modules>
+        <module>trip-grpc</module>
+        <module>trip-registry-messaging</module>
+        <module>application</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <sonar.projectKey>TRANSPORT_trip_registries</sonar.projectKey>
+    </properties>
+
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

@@ -1,0 +1,5 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+ru.sber.transport.messaging.config.EnvironmentConfig
+
+org.springframework.boot.env.EnvironmentPostProcessor=\
+ru.sber.transport.messaging.config.EnvironmentConfig

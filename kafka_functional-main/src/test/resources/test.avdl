@@ -1,0 +1,23 @@
+/**
+ * Протокол обмена данными по резервам.
+ */
+@namespace("ru.sber.transport.avro.messages")
+protocol Test {
+
+	/**
+	 * Сообщение резервирования.
+	 */
+	record TestMessage {
+
+		/**
+		  * Идентификатор.
+ 		  */
+		@logicalType("uuid") string @aliases(["headerId"]) id;
+
+		/**
+		  * Сумма.
+ 		  */
+		string text;
+	}
+
+}

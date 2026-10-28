@@ -1,0 +1,27 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20230126"
+            author: medvedev-ad
+            context: "20230126"
+            changes:
+                -   tagDatabase:
+                        tag: "20230126"
+                -   update:
+                        schemaName: sudir
+                        tableName: role
+                        columns:
+                            - column:
+                                  name: default_for
+                                  value: "[]"
+                        where: default_for is null
+                -   addNotNullConstraint:
+                        schemaName: sudir
+                        tableName: role
+                        columnName: default_for
+                        constraintName: nn_sudir_role
+            rollback:
+              - dropNotNullConstraint:
+                  schemaName: sudir
+                  tableName: role
+                  columnName: default_for
+                  constraintName: nn_sudir_role

@@ -1,0 +1,17 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: jwks
+  namespace: ci02351878-edevgen-sbertransport-dev
+  labels:
+    app.kubernetes.io/name: jwks
+    app.kubernetes.io/part-of: transport
+    template: jwks
+spec:
+  ports:
+    - name: http-jwks
+      protocol: TCP
+      port: 8080
+      targetPort: 8090
+  selector:
+    app: jwks

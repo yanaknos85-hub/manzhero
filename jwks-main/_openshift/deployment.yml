@@ -1,0 +1,96 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: jwks
+  namespace: ci02351878-edevgen-sbertransport-dev
+  labels:
+    app: jwks
+    template: jwks
+    version: D-01.016.000
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jwks
+  template:
+    metadata:
+      namespace: ci02351878-edevgen-sbertransport-dev
+      labels:
+        app: jwks
+        istio-injection: enabled
+        version: D-01.016.000
+      annotations:
+        sidecar.istio.io/inject: 'true'
+    spec:
+      volumes:
+        - name: kubernetes
+          configMap:
+            name: kubernetes
+        - name: logs
+          emptyDir: {}
+        - name: cm-fluentbit
+          configMap:
+            name: cm-fluentbit
+            defaultMode: 420
+            optional: true
+        - name: secman
+          configMap:
+            name: secman
+            defaultMode: 420
+            optional: true
+      containers:
+        - resources:
+            limits:
+              cpu: 500m
+              memory: 1G
+          name: jwks
+          env:
+            - name: SPRING_PROFILES_INCLUDE
+              value: secman
+            - name: JDK_JAVA_OPTIONS
+              valueFrom:
+                configMapKeyRef:
+                  key: prom
+                  name: jdk-java-options
+            - name: SPRING_CLOUD_VAULT_JWT_PATH
+              value: CI02351878_CI02671580/A/TRANSP/OSH/MAIN/KV/ci02351878-edevgen-sbertransport-dev/jwt
+            - name: SPRING_CLOUD_VAULT_JWT_NAME
+              value: jwt.public
+          ports:
+            - containerPort: 8090
+              protocol: TCP
+          volumeMounts:
+            - name: logs
+              mountPath: /log
+            - name: kubernetes
+              mountPath: /app/resources/application-kubernetes.yml
+              subPath: application-kubernetes.yml
+            - name: secman
+              mountPath: /app/resources/application-secman.yml
+              subPath: application-secman.yml
+          image: >-
+            registry.sigma.sbrf.ru/dev/ci02351878/ci02353146_transport_dev/transport/jwks:20230719-5-17898164
+        - resources:
+            limits:
+              cpu: 200m
+              memory: 1G
+            requests:
+              cpu: 200m
+              memory: 1G
+          terminationMessagePath: /dev/termination-log
+          name: fluent-bit
+          securityContext:
+            readOnlyRootFilesystem: true
+          ports:
+            - containerPort: 8090
+              protocol: TCP
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: logs
+              mountPath: /log
+            - name: cm-fluentbit
+              readOnly: true
+              mountPath: /fluent-bit/etc/
+          terminationMessagePolicy: File
+          image: >-
+            registry.sigma.sbrf.ru/ci00734898/ci00685811_synapse/fluent-bit@sha256:391be4b7b42d1374f6578e850e74bc4977a1d35cc3adad1fcf0940f74f0ac379

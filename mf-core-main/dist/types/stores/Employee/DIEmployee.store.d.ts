@@ -1,0 +1,36 @@
+import lodash from 'lodash';
+import type { RequestCancelerSetter, RequestParams } from '../Http/http.interface';
+import { EmployeeModel } from './models/EmployeeModel';
+import * as SelfEmployeeInterface from '../SelfEmployee/SelfEmployee.interface';
+import type { IEmployeeStore } from './Employee.interface';
+export declare class DIEmployeeStore implements IEmployeeStore {
+    private process;
+    private service;
+    private selfStore;
+    get selfEmployee(): EmployeeModel;
+    employeeAutocompleteSelected: EmployeeModel[];
+    employeeAutocompleteList: EmployeeModel[];
+    employeeListByOrg: EmployeeModel[];
+    employeeListByDep: EmployeeModel[];
+    get employeeListByDepMapped(): lodash.Dictionary<EmployeeModel>;
+    get employeeListByOrgMapped(): lodash.Dictionary<EmployeeModel>;
+    savedEmployee: EmployeeModel | undefined;
+    getAllEmployeesByOrganization: () => Promise<void>;
+    getAllEmployeesByDepartment: () => Promise<void>;
+    getEmployee: (orgId: string, depId: string, empId: string) => Promise<SelfEmployeeInterface.Employee>;
+    getEmployeesByIds(orgId: string, empIds: string[]): Promise<SelfEmployeeInterface.Employee[]>;
+    searchEmployees: lodash.DebouncedFunc<(name: string) => Promise<void>>;
+    searchEmployeesByOrg: lodash.DebouncedFunc<(name: string) => Promise<void>>;
+    findEmployees(value: string): void;
+    onEmployeeSelect(value: string, index?: number, dontClear?: boolean): Promise<void>;
+    private clearAutocompleteList;
+    searchEmployeesByName(name: string): Promise<EmployeeModel[]>;
+    searchEmployeesByNameByOrg(name: string): Promise<EmployeeModel[]>;
+    private updateEmployee;
+    editEmployee(model: EmployeeModel): Promise<void>;
+    editPhone(phoneNumber: string): Promise<number>;
+    clearSavedEmployee(): void;
+    initStore(): void;
+    searchDepartmentEmployees(params: RequestParams, cancelerSetter?: RequestCancelerSetter): Promise<EmployeeModel[]>;
+    searchOrganizationEmployees(params: RequestParams, cancelerSetter?: RequestCancelerSetter): Promise<EmployeeModel[]>;
+}

@@ -1,0 +1,170 @@
+@import "../../styles/varibles.scss";
+
+.paginationContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .sizeSelector {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    border: 1px solid #d4d8e3;
+    border-radius: 8px;
+    padding: 10px 0 10px 16px;
+    flex-shrink: 0;
+    margin-right: 60px;
+    cursor: pointer;
+
+    .selectDescription {
+      font-size: 14px;
+      line-height: 22px;
+      font-weight: 400;
+      font-family: $font-family;
+      color: #737373;
+      letter-spacing: -0.3px;
+      width: max-content;
+    }
+
+    .select {
+      width: min-content;
+      height: min-content;
+
+      &:hover:not(:focus):not(:disabled) {
+        box-shadow: none;
+      }
+
+      &:global(.#{$kitPrefix}-select-focused .#{$kitPrefix}-select-selector) {
+        border-color: rgba(38, 38, 38, 0.08) !important;
+        box-shadow: none !important;
+      }
+
+      &:global(.#{$kitPrefix}-select .#{$kitPrefix}-select-arrow) {
+        right: 16px;
+      }
+
+      &:global(.#{$kitPrefix}-select-selection-item) {
+        color: var(--gray-10);
+      }
+
+      :global(.#{$kitPrefix}-select-selection-item) {
+        padding-inline-end: 28px !important;
+      }
+
+      :global(.#{$kitPrefix}-select-selector) {
+        border: none;
+        border-radius: 0;
+        border-left: 1px solid rgba(38, 38, 38, 0.08);
+        background: transparent;
+        height: 26px;
+        align-items: center;
+        padding: 0 11px 0 16px;
+      }
+
+      :global(.#{$kitPrefix}-select-arrow) {
+        color: var(--gray-10);
+        top: 13px;
+      }
+    }
+  }
+
+  .disabledSelector {
+    opacity: 0.6;
+    cursor: no-drop;
+  }
+
+  .pagination {
+    flex-shrink: 0;
+
+    &:global(.#{$kitPrefix}-pagination .#{$kitPrefix}-pagination-item) {
+      margin-right: 4px;
+    }
+
+    &:global(.#{$kitPrefix}-pagination .#{$kitPrefix}-pagination-item:not(.#{$kitPrefix}-pagination-item-active)) {
+      &:hover a {
+        color: $color-green;
+      }
+    }
+
+    &:global(.#{$kitPrefix}-pagination .#{$kitPrefix}-pagination-item:not(.#{$kitPrefix}-pagination-item-active)) {
+      background-color: transparent;
+    }
+
+    &:global(.#{$kitPrefix}-pagination .#{$kitPrefix}-pagination-item),
+    &:global(.#{$kitPrefix}-pagination .#{$kitPrefix}-pagination-prev .#{$kitPrefix}-pagination-item-link),
+    &:global(.#{$kitPrefix}-pagination .#{$kitPrefix}-pagination-next .#{$kitPrefix}-pagination-item-link) {
+      border: none;
+      border-radius: 8px;
+      color: #737373;
+    }
+
+    &:global(.#{$kitPrefix}-pagination .#{$kitPrefix}-pagination-item-link) {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      svg path {
+        stroke: #737373;
+      }
+    }
+
+    &:global(.#{$kitPrefix}-pagination .#{$kitPrefix}-pagination-prev .#{$kitPrefix}-pagination-item-link) {
+      transform: rotate(90deg);
+    }
+
+    &:global(.#{$kitPrefix}-pagination .#{$kitPrefix}-pagination-next .#{$kitPrefix}-pagination-item-link) {
+      transform: rotate(-90deg);
+    }
+
+    &:global(.#{$kitPrefix}-pagination-prev):not(&:global(.#{$kitPrefix}-pagination-disabled)),
+    &:global(.#{$kitPrefix}-pagination-next):not(&:global(.#{$kitPrefix}-pagination-disabled)) {
+      &:global(.#{$kitPrefix}-pagination-item-link) {
+        background-color: var(--solitude);
+      }
+    }
+
+    &:global(.#{$kitPrefix}-pagination-item-active) {
+      background-color: var(--jade);
+      color: var(--pure-white);
+
+      a {
+        color: inherit;
+      }
+    }
+
+    &:global(.#{$kitPrefix}-pagination-item-active) + &:global(.#{$kitPrefix}-pagination-item) {
+      background-color: var(--solitude);
+    }
+
+    &:global(.#{$kitPrefix}-pagination .#{$kitPrefix}-pagination-prev),
+    &:global(.#{$kitPrefix}-pagination .#{$kitPrefix}-pagination-jump-next) {
+      margin-inline-end: 4px;
+    }
+
+    &:global(.#{$kitPrefix}-pagination .#{$kitPrefix}-pagination-options-quick-jumper) {
+      height: 32px;
+      line-height: 30px;
+
+      input {
+        height: inherit;
+
+        &:hover:not(:focus) {
+          border-color: #d9d9d9;
+        }
+      }
+    }
+
+    &:global(
+        .#{$kitPrefix}-pagination.#{$kitPrefix}-pagination-simple .#{$kitPrefix}-pagination-simple-pager input:hover
+      ) {
+      border-color: #d9d9d9;
+    }
+
+    &:global(
+        .#{$kitPrefix}-pagination.#{$kitPrefix}-pagination-simple .#{$kitPrefix}-pagination-simple-pager input:focus
+      ) {
+      box-shadow: none;
+      border-color: $color-green;
+    }
+  }
+}

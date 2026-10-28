@@ -1,0 +1,36 @@
+server:
+    port: 8080
+spring:
+    main:
+        banner-mode: off
+        web-application-type: servlet
+    jackson:
+        default-property-inclusion: non_null
+    application:
+        name: trips_reports
+    config:
+      import:
+          - classpath:/application-import.yml
+          - classpath:/application-kafka.yml
+          - optional:configserver:${spring.cloud.config.uri}
+    profiles:
+        active: prod
+    liquibase:
+        enabled: true
+        change-log: db/changelog-master.yml
+        url: ${spring.datasource.url}
+        user: ${spring.datasource.username}
+        password: ${spring.datasource.password}
+        database-change-log-table: changelog_${spring.application.name}
+        database-change-log-lock-table: changelog_${spring.application.name}_lock
+        default-schema: ${spring.application.name}
+        liquibase-schema: ${MIGRATION_SCHEMA:public}
+    cloud:
+        vault:
+            enabled: false
+    security:
+      oauth2:
+        resourceserver:
+            jwt:
+                jws-algorithms: RS512
+                jwk-set-uri: ${JWK_URL}

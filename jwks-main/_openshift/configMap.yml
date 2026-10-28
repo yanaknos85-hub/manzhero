@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubernetes
+  namespace: ci02351878-edevgen-sbertransport-dev
+data:
+  application-kubernetes.yml: |
+    spring:
+      cloud:
+        kubernetes.enabled: true
+        discovery:
+          client:
+            health-indicator:
+              enabled: false
+        kubernetes:
+          discovery:
+            enabled: true
+          config:
+            enabled: false
+            enable-api: false
+          secrets:
+            enabled: false
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: jdk-java-options
+  namespace: ci02351878-edevgen-sbertransport-dev
+  labels:
+    config: jdk-java-options
+    template: jdk-java-options
+data:
+  debug: >-
+    -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:9001
+    -XX:MaxRAMPercentage=75
+  prom: '-XX:MaxRAMPercentage=75'

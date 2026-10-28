@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20241223-1558"
+      author: blandin-ad
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - columnExists:
+                schemaName: trips_reports
+                tableName: report
+                columnName: expected_time
+      context: "TRANSPORT-28868"
+      changes:
+        - tagDatabase:
+            tag: "D-03.024.000"
+        - addColumn:
+            schemaName: trips_reports
+            tableName: report
+            columns:
+              - column:
+                  name: expected_time
+                  type: bigint
+                  remarks: Планируемая длительность поездки
+      rollback:
+        - dropColumn:
+            schemaName: trips_reports
+            tableName: report
+            columns:
+              - column:
+                  name: expected_time

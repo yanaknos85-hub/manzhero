@@ -1,0 +1,23 @@
+@import '../../styles/varibles.scss';
+
+.Radio {
+  &.small,
+  &.middle {
+    :global(.#{$kitPrefix}-radio-disabled) {
+      :global(.#{$kitPrefix}-radio-inner) {
+        background-color: #FFF;
+        border: 1px solid rgba(214, 214, 214, 0.5);
+      }
+    }
+
+    :global(.#{$kitPrefix}-radio-checked.#{$kitPrefix}-radio-disabled) {
+      :global(.#{$kitPrefix}-radio-inner) {
+        background-color: rgba(16, 191, 106, 0.5);
+
+        &:after {
+          border-color: #FFF;
+        }
+      }
+    }
+  }
+}

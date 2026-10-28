@@ -1,0 +1,206 @@
+@import "../../styles/varibles.scss";
+
+@mixin rounded {
+  &:first-of-type {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+  }
+
+  &:last-of-type {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+  }
+}
+
+@mixin borderSpacing($size) {
+  &:global(.#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table .#{$kitPrefix}-table-tbody::before) {
+    display: none !important;
+  }
+
+  &:global(.#{$kitPrefix}-table-wrapper table) {
+    border-spacing: 0 $size;
+  }
+}
+
+.table {
+  width: 100%;
+
+  &:global(.#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table) {
+    scrollbar-color: auto;
+    background-color: transparent;
+  }
+
+  &:global(.#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table-thead),
+  &:global(.#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table-header) {
+    border-radius: 8px;
+
+    &:global(> tr > th) {
+      font-size: 12px;
+      font-weight: 400;
+      font-family: SB Sans Interface;
+      color: #737373;
+      border: none;
+      @include rounded;
+
+      &::before {
+        display: none;
+      }
+    }
+  }
+
+  &:global(.#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table) {
+    font-size: $font-size;
+    font-weight: 400;
+    font-family: $font-family;
+    color: $dark-grey;
+  }
+
+  &:global(.#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table-thead th.#{$kitPrefix}-table-column-has-sorters:hover),
+  &:global(.#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table-thead th.#{$kitPrefix}-table-column-sort) {
+    background-color: none;
+  }
+
+  &:global(.#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table-tbody > tr) {
+    position: relative;
+    background-color: #fff;
+
+    &:global(> td) {
+      border: none;
+      background-color: #fff;
+      text-align: left;
+      @include rounded;
+    }
+
+    &.darkRow {
+      background-color: #f6f7f9;
+
+      &:global(> td) {
+        background-color: #f6f7f9;
+      }
+    }
+  }
+
+  &:global(
+      .#{$kitPrefix}-table-wrapper
+        .#{$kitPrefix}-table.#{$kitPrefix}-table-bordered
+        > .#{$kitPrefix}-table-container
+        > .#{$kitPrefix}-table-content
+        > table
+    ) {
+    &:global(> thead > tr > th),
+    &:global(> tbody > tr > td) {
+      border-inline-end: 1px solid $border-color;
+      border-bottom: 1px solid $border-color;
+    }
+
+    &:global(> thead) {
+      box-shadow: none;
+    }
+
+    &:global(> thead > tr > th) {
+      &:last-of-type {
+        border-bottom-right-radius: 0;
+      }
+      &:first-of-type {
+        border-bottom-left-radius: 0;
+      }
+    }
+
+    &:global(> tbody > tr > td) {
+      border-radius: 0;
+    }
+
+    &:global(> tbody > tr:last-of-type > td:last-of-type) {
+      border-bottom-right-radius: 8px;
+    }
+
+    &:global(> tbody > tr:last-of-type > td:first-of-type) {
+      border-bottom-left-radius: 8px;
+    }
+  }
+
+  &:global(
+      .#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table.#{$kitPrefix}-table-bordered > .#{$kitPrefix}-table-container
+    ) {
+    border-radius: 8px;
+  }
+
+  &:global(.#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table-column-sorter) {
+    width: 20px;
+    height: 20px;
+    color: $pale-grey;
+    background-color: #ebebeb;
+    border-radius: 30px;
+    text-align: center;
+  }
+
+  &:global(.#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table-column-sorter-inner) {
+    height: 15px;
+    vertical-align: bottom;
+  }
+
+  &:global(.#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table-column-sorters:hover .#{$kitPrefix}-table-column-sorter) {
+    color: $pale-grey;
+  }
+
+  &:global(.#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table-column-sorter-up),
+  &:global(.#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table-column-sorter-down) {
+    font-size: 10px;
+  }
+
+  &:global(
+      .#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table .#{$kitPrefix}-table-title + .#{$kitPrefix}-table-container
+    ) {
+    border-radius: 0;
+  }
+
+  :global(.#{$kitPrefix}-table-pagination.#{$kitPrefix}-pagination) {
+    display: none;
+  }
+}
+
+.borderRow {
+  &:global(.#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table-thead > tr > th),
+  &:global(.#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table-tbody > tr > td) {
+    border-bottom: 1px solid $border-color;
+  }
+}
+
+.headerType_default {
+  &:global(.#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table-thead > tr > th) {
+    background-color: #f6f7f9;
+    border-bottom: 1px solid $border-color;
+  }
+}
+
+.headerType_shadow {
+  &:global(.#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table-thead > tr > th) {
+    background-color: #fff;
+    border: none;
+  }
+
+  &:global(.#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table-thead) {
+    box-shadow:
+      0px 4px 8px -2px rgba(0, 0, 0, 0.12),
+      0px 0px 1px 0px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.headerType_empty {
+  &:global(.#{$kitPrefix}-table-wrapper .#{$kitPrefix}-table-thead > tr > th) {
+    background-color: #fff;
+    border: none;
+  }
+}
+
+.borderSpacing_small {
+  @include borderSpacing(5px);
+}
+
+.borderSpacing_default {
+  @include borderSpacing(10px);
+}
+
+.borderSpacing_large {
+  @include borderSpacing(15px);
+}

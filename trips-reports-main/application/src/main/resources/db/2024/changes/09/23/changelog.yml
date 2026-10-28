@@ -1,0 +1,201 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20240923-1404"
+      author: blandin-ad
+      context: "TRANSPORT-11934"
+      preConditions:
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT count(*) FROM information_schema.schemata WHERE schema_name = 'trips_reports';
+        - onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: "D-03.018.000"
+        - sql:
+            sql: create schema trips_reports;
+        - sql:
+            sql: comment on schema trips_reports is 'Схема отчетов по поездкам';
+      rollback:
+        - sql:
+            sql: drop schema trips_reports cascade;
+  - changeSet:
+      id: "20240923-1440"
+      author: blandin-ad
+      context: "TRANSPORT-11934"
+      preConditions:
+        - not:
+            - tableExists:
+                schemaName: trips_reports
+                tableName: report
+        - onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: "D-03.018.000"
+        - createTable:
+            schemaName: trips_reports
+            tableName: report
+            remarks: Талица отчетов по поездкам
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор отчета
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: contractor_id
+                  type: uuid
+                  remarks: Идентификатор контрагента
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: trips_reports_report_contractor_id_nnc
+              - column:
+                  name: trip_human_readable_id
+                  type: varchar(255)
+                  remarks: Идентификатор поездки
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: trips_reports_report_trip_human_readable_id_uc
+                    nullable: false
+                    notNullConstraintName: trips_reports_report_trip_human_readable_id_nnc
+              - column:
+                  name: request_ids
+                  type: text
+                  remarks: Идентификаторы заявок в поездке
+              - column:
+                  name: time_zone
+                  type: text
+                  remarks: Временная зона
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: trips_reports_report_time_zone_nnc
+              - column:
+                  name: start_time
+                  type: timestamp with time zone
+                  remarks: Время начала поездки
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: trips_reports_report_start_time_nnc
+              - column:
+                  name: route_start
+                  type: text
+                  remarks: Начало маршрута
+              - column:
+                  name: route_waypoints
+                  type: text
+                  remarks: Промежуточные точки маршрута
+              - column:
+                  name: route_end
+                  type: text
+                  remarks: Конец маршрута
+              - column:
+                  name: checkin_quantity
+                  type: integer
+                  remarks: Кол-во чекинов в поездке
+              - column:
+                  name: checkin_statuses
+                  type: text
+                  remarks: Статусы поездки при установке чекинов
+              - column:
+                  name: checkin_waypoint_confirmation
+                  type: text
+                  remarks: Признак подтвержденности геопозиции при установке чекинов
+              - column:
+                  name: status
+                  type: text
+                  remarks: Статус поездк
+                  constraints:
+                    nullable: false
+                    notNullConstraintName: trips_reports_report_status_nnc
+              - column:
+                  name: comment
+                  type: text
+                  remarks: Комментарий к поездке
+              - column:
+                  name: passenger
+                  type: text
+                  remarks: ФИО пассажира
+              - column:
+                  name: author
+                  type: text
+                  remarks: ФИО автора поездки
+              - column:
+                  name: vehicle_number
+                  type: text
+                  remarks: Регистрационный номер автомобиля
+              - column:
+                  name: driver
+                  type: text
+                  remarks: Данные водителя
+              - column:
+                  name: creation_time
+                  type: timestamp with time zone
+                  remarks: Время создания поездки
+              - column:
+                  name: expected_distance
+                  type: double precision
+                  remarks: Планируемая дистанция поездки
+              - column:
+                  name: expected_wait_time
+                  type: bigint
+                  remarks: Планируемое время ожидания в поездке (миллисекунды)
+              - column:
+                  name: expected_cost
+                  type: double precision
+                  remarks: Планируемая стоимость поездки
+              - column:
+                  name: fact_distance
+                  type: double precision
+                  remarks: Фактическая дистанция поездки
+              - column:
+                  name: fact_cost
+                  type: integer
+                  remarks: Фактическая стоимость поездки
+              - column:
+                  name: fact_time
+                  type: bigint
+                  remarks: Фактическая длительность поездки (миллисекунды)
+              - column:
+                  name: fact_wait_time
+                  type: bigint
+                  remarks: Фактическое время ожидания в поездке (миллисекунды)
+              - column:
+                  name: trip_type
+                  type: text
+                  remarks: Тип поездки
+              - column:
+                  name: contract_number
+                  type: text
+                  remarks: Номер договора
+              - column:
+                  name: tariff_wait_time
+                  type: bigint
+                  remarks: Время ожидания по тарифу (миллисекунды)
+              - column:
+                  name: tariff_cost
+                  type: double precision
+                  remarks: Стоимость по тарифу
+              - column:
+                  name: pay_place
+                  type: text
+                  remarks: МВЗ
+              - column:
+                  name: dispatcher_name
+                  type: text
+                  remarks: ФИО диспетчера
+              - column:
+                  name: dispatcher_phone
+                  type: text
+                  remarks: Телефон диспетчера
+              - column:
+                  name: taxi_class
+                  type: text
+                  remarks: Класс такси
+              - column:
+                  name: passenger_count
+                  type: integer
+                  remarks: Количество пассажиров
+      rollback:
+        - dropTable:
+            schemaName: trips_reports
+            tableName: report

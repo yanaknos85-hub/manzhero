@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20230804
+      author: 21146167
+      changes:
+        - sqlFile:
+            endDelimiter: \n;;
+            path: change/create_table.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+      rollback:
+        - sqlFile:
+            path: change/create_table_rollback.sql
+            relativeToChangelogFile: true

@@ -1,0 +1,72 @@
+server:
+  port: @server.port@
+  servlet:
+    session:
+      tracking-modes: cookie
+  forward-headers-strategy: none
+spring:
+  cloud:
+    vault:
+      enabled: false
+  jackson:
+    default-property-inclusion: non_null
+  application:
+    name: sudir
+    version: @project.version@
+  config:
+    import: optional:configserver:${spring.cloud.config.uri}
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      schema: sudir
+  liquibase:
+    change-log: classpath:db/changelog-master.yml
+    drop-first: false
+    test-rollback-on-update: false
+    url: ${spring.datasource.url}
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    database-change-log-table: changelog_${spring.application.name}
+    database-change-log-lock-table: changelog_${spring.application.name}_lock
+    default-schema: ${MIGRATIONS_SCHEMA:public}
+    liquibase-schema: ${MIGRATIONS_SCHEMA:public}
+sudir:
+  clock-skew-seconds: 130
+ssl.support: false
+jwt:
+  issuer: SberTransport
+  expire:
+    minutes: 15
+rt:
+  expire:
+    days: 1
+spring.security:
+  oauth2:
+    client:
+      registration:
+        sudir:
+          clientAuthenticationMethod: ${CLIENT_AUTHENTICATION_METHOD:client_secret_basic}
+          client-id: ${SUDIR_CLIENT_ID}
+          client-secret: ${SUDIR_CLIENT_SECRET:}
+          authorization-grant-type: ${AUTH_GRANT_TYPE}
+          redirect-uri: ${SUDIR_REDIRECT_URI}
+          scope: ${SUDIR_SCOPE}
+      provider:
+        sudir:
+          authorization-uri: ${SUDIR_AUTHORIZATION_URI}
+          token-uri: ${SUDIR_TOKEN_URI}
+          user-info-uri: ${SUDIR_USER_INFO_URI}
+          jwk-set-uri: ${SUDIR_JWK_URI}
+ssl:
+  support: true
+  client:
+    enabled: ${CLIENT_ENABLED:true}
+    store:
+      path: ${CLIENT_CERTIFICATE:}
+      password: ${CLIENT_STORE_PASSWORD:}
+    password: ${CLIENT_CERT_PASSWORD:}
+  trust:
+    enabled: ${TRUST_ENABLED:true}
+    store:
+      path: ${TRUST_CERTIFICATE:}
+      password: ${TRUST_CERT_PASSWORD:}

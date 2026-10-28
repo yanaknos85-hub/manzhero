@@ -1,0 +1,9 @@
+spring:
+  cloud:
+    stream:
+      bindings:
+        someTest-in-0:
+          destination: some.topic.input
+          group: test
+        someTestOut-out-0:
+          destination: some.topic.out

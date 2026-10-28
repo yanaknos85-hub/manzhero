@@ -1,0 +1,55 @@
+spring:
+    main:
+        lazy-initialization: true
+        allow-bean-definition-overriding: true
+    security:
+        user:
+            name: anonymous
+            password: ${random.uuid}
+            roles: anonymous
+        oauth2:
+            resourceserver:
+                jwt:
+                    jws-algorithms: RS512
+                    public-key-location: classpath:/key/jwt.key.pub
+    jackson:
+        default-property-inclusion: non_null
+    application:
+        name: trip_registries
+        version: 1
+    cloud:
+        kubernetes.enabled: false
+        consul.enabled: false
+        vault.enabled: false
+        stream:
+            default-binder: test
+            bindings:
+                tripRegistryOutput-out-0:
+                    destination: service.trip.registry
+    datasource:
+        url: jdbc:postgresql://localhost:5432/transport
+        password: root
+        username: postgres
+    liquibase:
+        enabled: true
+        change-log: db/changelog-master.yml
+        url: ${spring.datasource.url}
+        user: ${spring.datasource.username}
+        password: ${spring.datasource.password}
+        database-change-log-table: changelog_${spring.application.name}
+        database-change-log-lock-table: changelog_${spring.application.name}_lock
+        liquibase-schema: public
+    profiles:
+        active: prod,kafka,logging
+config:
+    portal:
+        baseurl: ${PORTAL_URL:localhost}
+        post_registry: ${PATH_POST_REGISTRY:/sapasus/zmms_act_transp/act/}
+        act_number: ${PATH_ACT_NUMBER:/sapasus/zmms_act_transp/act/}
+        act_status: ${PATH_ACT_STATUS:/sapasus/zmms_act/upd/}
+    schedule:
+        cron: ${SCHEDULE_CRON:0 * * * * *}
+        delay: ${SCHEDULE_DELAY:60000}
+grpc:
+    server:
+        port: -1

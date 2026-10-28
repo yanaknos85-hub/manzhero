@@ -1,0 +1,22 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jws-algorithms: RS512
+          public-key-location: classpath:/key/jwt.key.pub
+  datasource:
+    username: postgres
+  cloud:
+    vault:
+      enabled: false
+ssl:
+  support: false
+  client:
+    enabled: false
+  trust:
+    enabled: false
+jwt:
+  key:
+    private:
+      path: classpath:/key/jwt.key

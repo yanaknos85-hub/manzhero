@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20241210-1053"
+      author: ladeyshchikov-aa
+      changes:
+        - addColumn:
+            schemaName: trip_registries
+            tableName: registry
+            columns:
+              - column:
+                  name: service_type
+                  type: varchar
+                  remarks: Тип сервиса
+      rollback:
+        - dropColumn:
+            schemaName: trip_registries
+            tableName: registry
+            columnName: service_type

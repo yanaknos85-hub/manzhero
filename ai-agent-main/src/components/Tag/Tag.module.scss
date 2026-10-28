@@ -1,0 +1,23 @@
+@use '../../styles/variables.scss' as *;
+
+.tag {
+  font-family: SB Sans Text;
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: -0.3px;
+  color: $dark-grey;
+  background-color: $athens-gray;
+  padding: 6px 16px;
+  border: none;
+  border-radius: 18px;
+  cursor: pointer;
+
+  &Active {
+    background-color: $light-green;
+    color: $dark-grey;
+  }
+
+  &:hover {
+    background-color: $light-sea-grey;
+  }
+}

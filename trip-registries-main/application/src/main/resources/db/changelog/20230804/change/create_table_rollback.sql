@@ -1,0 +1,1 @@
+drop TABLE trip_registries.registry cascade;

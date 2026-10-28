@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20231025-0912"
+      author: medvedev-ad
+      context: "TRANSPORT-17863"
+      changes:
+        - tagDatabase:
+            tag: "D-02.036.000"
+        - createTable:
+            schemaName: sudir
+            tableName: allow
+            columns:
+              - column:
+                  name: url
+                  type: varchar(1000)
+                  remarks: Разрешенные для редиректа URL

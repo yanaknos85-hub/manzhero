@@ -1,0 +1,30 @@
+spring:
+    cloud:
+        stream:
+            kafka:
+                default:
+                    consumer:
+                        enableDlq: true
+            bindings:
+                tripReportsInput-in-0:
+                    group: ${spring.application.name}
+                    destination: service.trip.reports
+            binders:
+                kafka:
+                    type: kafka
+                    environment:
+                        spring.cloud.stream.kafka:
+                            bindings:
+                                default:
+                                    consumer:
+                                        enableDlq: true
+                            binder:
+                                brokers:
+                                    - ${KAFKA_BROKERS:@kafka.default.broker@}
+                                producerProperties:
+                                    key.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+                                consumerProperties:
+                                    key.deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+                                    dlqProducerProperties:
+                                        key.deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+                                    standardHeaders: both

@@ -1,0 +1,17 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: trip-registries
+  namespace: ci02351878-edevgen-sbertransport-dev
+  labels:
+    app.kubernetes.io/name: trip-registries
+    app.kubernetes.io/part-of: transport
+    template: trip-registries
+spec:
+  ports:
+    - name: http-trip-registries
+      protocol: TCP
+      port: 8080
+      targetPort: 8101
+  selector:
+    app: trip-registries

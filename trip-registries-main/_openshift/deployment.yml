@@ -1,0 +1,106 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  annotations:
+    sidecar.istio.io/inject: 'true'
+  name: trip-registries
+  namespace: ci02351878-edevgen-sbertransport-dev
+  labels:
+    app: trip-registries
+    app.kubernetes.io/name: trip-registries
+    app.kubernetes.io/part-of: transport
+    template: trip-registries
+    version: D-02.024.000
+spec:
+  selector:
+    matchLabels:
+      app: trip-registries
+  template:
+    metadata:
+      namespace: ci02351878-edevgen-sbertransport-dev
+      labels:
+        app: trip-registries
+        version: D-02.024.000
+      annotations:
+        sidecar.istio.io/inject: 'true'
+    spec:
+      volumes:
+        - name: logs
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: secman
+          configMap:
+            name: secman
+            defaultMode: 420
+            optional: true
+        - name: cm-fluentbit
+          configMap:
+            name: cm-fluentbit
+            defaultMode: 420
+            optional: true
+      containers:
+        - resources:
+            limits:
+              cpu: 500m
+              memory: 1G
+            requests:
+              cpu: 500m
+              memory: 1G
+          name: trip-registries
+          env:
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: database
+                  key: url.jdbc
+            - name: SPRING_PROFILES_INCLUDE
+              value: secman
+            - name: JDK_JAVA_OPTIONS
+              valueFrom:
+                configMapKeyRef:
+                  key: prom
+                  name: jdk-java-options
+          securityContext:
+            readOnlyRootFilesystem: true
+          ports:
+            - containerPort: 8101
+              protocol: TCP
+          volumeMounts:
+            - name: logs
+              mountPath: /log
+            - name: tmp
+              mountPath: /tmp
+            - name: secman
+              mountPath: /app/resources/application-secman.yml
+              subPath: application-secman.yml
+          terminationMessagePolicy: FallbackToLogsOnError
+          image: >-
+            registry.sigma.sbrf.ru/dev/ci02351878/ci02353146_transport_dev/transport/trip-registries:230719-2-17898164
+        - resources:
+            limits:
+              cpu: 200m
+              memory: 1G
+            requests:
+              cpu: 200m
+              memory: 1G
+          terminationMessagePath: /dev/termination-log
+          name: fluent-bit
+          securityContext:
+            readOnlyRootFilesystem: true
+          ports:
+            - containerPort: 8101
+              protocol: TCP
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: logs
+              mountPath: /log
+            - name: cm-fluentbit
+              readOnly: true
+              mountPath: /fluent-bit/etc/
+          terminationMessagePolicy: File
+          image: >-
+            registry.sigma.sbrf.ru/ci00734898/ci00685811_synapse/fluent-bit@sha256:391be4b7b42d1374f6578e850e74bc4977a1d35cc3adad1fcf0940f74f0ac379
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: cab-sa-ci000274

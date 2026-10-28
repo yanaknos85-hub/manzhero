@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250625-1231"
+      author: zhirov-aa
+      context: "TRANSPORT-35005"
+      preConditions:
+        - not:
+            - columnExists:
+                schemaName: trips_reports
+                tableName: report
+                columnName: fact_cost
+        - onFail: MARK_RAN
+      changes:
+        - tagDatabase:
+            tag: "D-04.012.000"
+        - addColumn:
+            schemaName: trips_reports
+            tableName: report
+            columns:
+              - column:
+                  name: fact_cost
+                  type: double precision
+                  remarks: Фактическая стоимость поездки
+      rollback:
+        - addColumn:
+            schemaName: trips_reports
+            tableName: report
+            columns:
+              - column:
+                  name: fact_cost
+                  type: double precision
+                  remarks: Фактическая стоимость поездки

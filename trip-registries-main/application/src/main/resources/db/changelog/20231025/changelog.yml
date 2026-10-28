@@ -1,0 +1,30 @@
+databaseChangeLog:
+  -   changeSet:
+        id: "20231025"
+        author: asigalov
+        changes:
+          -   addColumn:
+                schemaName: trip_registries
+                tableName: registry
+                columns:
+                  -   column:
+                        name: upd_id
+                        type: text
+                        remarks: id upd
+          - addColumn:
+              schemaName: trip_registries
+              tableName: registry
+              columns:
+                - column:
+                    name: last_error
+                    type: text
+                    remarks: последняя ошибка
+        rollback:
+          -   dropColumn:
+                schemaName: trip_registries
+                tableName: registry
+                columnName: upd_id
+          - dropColumn:
+              schemaName: trip_registries
+              tableName: registry
+              columnName: last_error

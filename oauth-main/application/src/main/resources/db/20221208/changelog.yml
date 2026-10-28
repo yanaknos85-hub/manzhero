@@ -1,0 +1,65 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20221208-3"
+            author: medvedev-ad
+            context: "20221208"
+            dbms: postgresql
+            changes:
+                -   tagDatabase:
+                        tag: "20221208"
+                -   addColumn:
+                        schemaName: sudir
+                        tableName: role
+                        columns:
+                            -   column:
+                                    name: default_for
+                                    type: jsonb
+                                    remarks: Роль является умолчанием для указанных пространств
+                -   sqlFile:
+                        dbms: postgresql
+                        path: changes/fill_default_for.sql
+                        relativeToChangelogFile: true
+                -   dropColumn:
+                        schemaName: sudir
+                        tableName: role
+                        columnName: default
+            rollback:
+              -   addColumn:
+                    schemaName: sudir
+                    tableName: role
+                    columns:
+                      -   column:
+                            name: default
+                            type: boolean
+                            remarks: Роль является умолчанием
+                            defaultValueBoolean: false
+                            constraints:
+                              nullable: false
+              -   sqlFile:
+                      dbms: postgresql
+                      path: rollback/fill_default_for.sql
+                      relativeToChangelogFile: true
+              -   dropColumn:
+                    schemaName: sudir
+                    tableName: role
+                    columnName: default_for
+    -   changeSet:
+          id: "20221208-3"
+          author: medvedev-ad
+          context: "20221208"
+          dbms: h2
+          changes:
+            -   tagDatabase:
+                  tag: "20221208"
+            -   addColumn:
+                  schemaName: sudir
+                  tableName: role
+                  columns:
+                    -   column:
+                          name: default_for
+                          type: json
+                          remarks: Роль является умолчанием для указанных пространств
+            -   dropColumn:
+                  schemaName: sudir
+                  tableName: role
+                  columnName: default

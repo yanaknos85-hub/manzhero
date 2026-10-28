@@ -1,0 +1,27 @@
+spring.cloud.stream:
+    bindings:
+        blackListOutputSsl-out-0:
+            destination: service.authentication.blackList
+            binder: kafka-ssl
+        userAgentOutputSsl-out-0:
+            destination: service.user.agent
+            binder: kafka-ssl
+        usersInputSsl-in-0:
+            group: ${spring.application.name}-ssl
+            destination: service.users
+            binder: kafka-ssl
+        rolesInputSsl-in-0:
+            group: ${spring.application.name}-ssl
+            destination: service.roles
+            binder: kafka-ssl
+        accountsOutputSsl-out-0:
+            destination: service.sudir.account
+            binder: kafka-ssl
+        accountsRolesInputSsl-in-0:
+            group: ${spring.application.name}-ssl
+            destination: service.sudir.account.roles
+            binder: kafka-ssl
+        employeeRoleInputSsl-in-0:
+            group: ${spring.application.name}-ssl
+            destination: service.contractor.employee.role
+            binder: kafka-ssl

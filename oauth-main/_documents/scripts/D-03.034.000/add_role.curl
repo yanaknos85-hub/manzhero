@@ -1,0 +1,1 @@
+curl -X POST '{{host}}/api/roles/' -H "Authorization: Bearer {{token}}" -H "Content-Type: application/json" -d '{"code": "ROLE_PARKING_ADMIN_ORGANIZATION", "name": "Администратор парковок организации", "description": "Управление квотами, парковочными локациями, выгрузки заказов на парковку по своей организации", "exclusive": [ "INTERNAL" ], "scopes": [ "" ]}'

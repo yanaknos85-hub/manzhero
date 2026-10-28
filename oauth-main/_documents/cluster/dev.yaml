@@ -1,0 +1,26 @@
+application: sudir
+repo: app_platform_oauth
+resources:
+  limits:
+    cpu: '1'
+    memory: 2G
+  requests:
+    cpu: '1'
+    memory: 2G
+port:
+  http:
+    number: 8014
+    name: sudir
+    target: 8080
+routing:
+  match:
+    prefix: /api/sudir
+  rewrite:
+    uri: ' '
+secman:
+  type: none
+profiles: kafka,kafka-ssl
+additional:
+  envs:
+    - name: SPRING_CLOUD_CONFIG_URI
+      value: 'http://http-config-server:8080'

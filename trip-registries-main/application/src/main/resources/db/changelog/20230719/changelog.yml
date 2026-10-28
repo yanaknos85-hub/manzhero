@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20230719-0815"
+      author: medvedev-ad
+      context: "20230719"
+      changes:
+        - tagDatabase:
+            tag: "20230719"
+        - sql:
+            sql: create schema trip_registries
+        - sql:
+            dbms: postgresql
+            sql: comment on schema trip_registries is 'Реестры поездок'

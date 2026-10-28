@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20230317"
+      author: medvedev-ad
+      context: "20230317"
+      changes:
+        - tagDatabase:
+            tag: "20230317"
+        - addColumn:
+            schemaName: sudir
+            tableName: session
+            columns:
+              - column:
+                  name: issued_at
+                  type: timestamp
+                  remarks: Дата выдачи токена
+                  defaultValueComputed: CURRENT_TIMESTAMP
+        - sql:
+            sql: update sudir.session set issued_at = expire_at
+        - addNotNullConstraint:
+            schemaName: sudir
+            tableName: session
+            columnName: issued_at
+            constraintName: sudir_session_issued_at_nn
+      rollback:
+        - dropColumn:
+            schemaName: sudir
+            tableName: session
+            columnName: issued_at

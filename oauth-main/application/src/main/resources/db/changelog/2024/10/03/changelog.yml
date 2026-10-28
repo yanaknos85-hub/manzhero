@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20241003"
+      author: ladeyshchikov-aa
+      context: "TRANSPORT-25469"
+      changes:
+        - createTable:
+            schemaName: sudir
+            tableName: authorization_request
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  remarks: Идентификатор
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: sudir_authorization_request_pk
+              - column:
+                  name: authorization_request_body
+                  type: json
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            schemaName: sudir
+            tableName: authorization_request

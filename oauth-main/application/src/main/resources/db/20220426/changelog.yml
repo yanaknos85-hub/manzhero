@@ -1,0 +1,268 @@
+databaseChangeLog:
+    -   changeSet:
+            id: "20220426"
+            author: medvedev-ad
+            dbms: postgresql
+            changes:
+                -   sql:
+                        sql: create schema sudir;
+                -   sql:
+                        sql: comment on schema sudir is 'УЗ для авторизации через СУДИР';
+                -   createTable:
+                        schemaName: sudir
+                        tableName: account
+                        remarks: УЗ
+                        columns:
+                            - column:
+                                  name: id
+                                  type: uuid
+                                  remarks: Идентификатор
+                                  constraints:
+                                      primaryKey: true
+                            - column:
+                                  name: active
+                                  type: boolean
+                                  remarks: Флаг активности
+                                  constraints:
+                                      nullable: false
+                            - column:
+                                  name: personnel_number
+                                  type: text
+                                  remarks: Табельный номер
+                                  constraints:
+                                      nullable: false
+                -   createTable:
+                        schemaName: sudir
+                        tableName: role
+                        remarks: Роли
+                        columns:
+                            - column:
+                                  name: code
+                                  type: varchar(255)
+                                  remarks: Код роли
+                                  constraints:
+                                      primaryKey: true
+                            - column:
+                                  name: name
+                                  type: text
+                                  remarks: Нзвание
+                                  constraints:
+                                      nullable: false
+                            -   column:
+                                    name: description
+                                    type: text
+                                    remarks: Описание
+                            -   column:
+                                    name: default
+                                    type: boolean
+                                    remarks: Флаг роли по-умолчанию
+                                    constraints:
+                                        nullable: false
+                                    defaultValueBoolean: false
+                            -   column:
+                                    name: data_master
+                                    type: boolean
+                                    remarks: Флаг роли мастера данных
+                                    constraints:
+                                        nullable: false
+                                    defaultValueBoolean: false
+                -   createTable:
+                        schemaName: sudir
+                        tableName: account_roles
+                        remarks: Связка УЗ и ролей
+                        columns:
+                            - column:
+                                  name: account_id
+                                  remarks: ИД УЗ
+                                  type: uuid
+                                  constraints:
+                                      foreignKeyName: account_roles_account_fk
+                                      referencedTableName: account
+                                      referencedTableSchemaName: sudir
+                                      referencedColumnNames: id
+                                      nullable: false
+                            - column:
+                                  name: role_code
+                                  remarks: Код роли
+                                  type: text
+                                  constraints:
+                                      foreignKeyName: account_roles_role_fk
+                                      referencedTableName: role
+                                      referencedTableSchemaName: sudir
+                                      referencedColumnNames: code
+                                      nullable: false
+                -   addPrimaryKey:
+                        constraintName: account_roles_pk
+                        schemaName: sudir
+                        tableName: account_roles
+                        columnNames: account_id,role_code
+                -   createTable:
+                        schemaName: sudir
+                        tableName: session
+                        remarks: Таблица сессий
+                        columns:
+                            - column:
+                                  name: id
+                                  type: uuid
+                                  remarks: ИД сессии
+                                  constraints:
+                                      primaryKey: true
+                            - column:
+                                  name: token
+                                  type: text
+                                  remarks: JWT токен, с помощью которого открыта сессия
+                                  constraints:
+                                      nullable: false
+                                      unique: true
+                                      uniqueConstraintName: sudir_session_token_uk
+                            - column:
+                                  name: expire_at
+                                  type: timestamp
+                                  remarks: Время экспирации сессии
+                                  constraints:
+                                      nullable: false
+                            - column:
+                                  name: account_id
+                                  type: uuid
+                                  remarks: ИД УЗ
+                                  constraints:
+                                      nullable: false
+                                      foreignKeyName: sudir_session_account_fk
+                                      referencedTableSchemaName: sudir
+                                      referencedColumnNames: id
+                                      referencedTableName: account
+            rollback:
+              - sql:
+                  sql: drop schema sudir cascade;
+    -   changeSet:
+            id: "20220426"
+            author: medvedev-ad
+            dbms: h2
+            changes:
+                -   sql:
+                        sql: create schema sudir;
+                -   sql:
+                        sql: comment on schema sudir is 'УЗ для авторизации через СУДИР';
+                -   createTable:
+                        schemaName: sudir
+                        tableName: account
+                        remarks: УЗ
+                        columns:
+                            - column:
+                                  name: id
+                                  type: uuid
+                                  remarks: Идентификатор
+                                  constraints:
+                                      primaryKey: true
+                            - column:
+                                  name: active
+                                  type: boolean
+                                  remarks: Флаг активности
+                                  constraints:
+                                      nullable: false
+                            - column:
+                                  name: personnel_number
+                                  type: text
+                                  remarks: Табельный номер
+                                  constraints:
+                                      nullable: false
+                -   createTable:
+                        schemaName: sudir
+                        tableName: role
+                        remarks: Роли
+                        columns:
+                            - column:
+                                  name: code
+                                  type: varchar(255)
+                                  remarks: Код роли
+                                  constraints:
+                                      primaryKey: true
+                            - column:
+                                  name: name
+                                  type: text
+                                  remarks: Нзвание
+                                  constraints:
+                                      nullable: false
+                            -   column:
+                                    name: description
+                                    type: text
+                                    remarks: Описание
+                            -   column:
+                                    name: default
+                                    type: boolean
+                                    remarks: Флаг роли по-умолчанию
+                                    constraints:
+                                        nullable: false
+                                    defaultValueBoolean: false
+                            -   column:
+                                    name: data_master
+                                    type: boolean
+                                    remarks: Флаг роли мастера данных
+                                    constraints:
+                                        nullable: false
+                                    defaultValueBoolean: false
+                -   createTable:
+                        schemaName: sudir
+                        tableName: account_roles
+                        remarks: Связка УЗ и ролей
+                        columns:
+                            - column:
+                                  name: account_id
+                                  remarks: ИД УЗ
+                                  type: uuid
+                                  constraints:
+                                      foreignKeyName: account_roles_account_fk
+                                      referencedTableName: account
+                                      referencedTableSchemaName: sudir
+                                      referencedColumnNames: id
+                                      nullable: false
+                            - column:
+                                  name: role_code
+                                  remarks: Код роли
+                                  type: varchar(255)
+                                  constraints:
+                                      foreignKeyName: account_roles_role_fk
+                                      referencedTableName: role
+                                      referencedTableSchemaName: sudir
+                                      referencedColumnNames: code
+                                      nullable: false
+                -   addPrimaryKey:
+                        constraintName: account_roles_pk
+                        schemaName: sudir
+                        tableName: account_roles
+                        columnNames: account_id,role_code
+                -   createTable:
+                        schemaName: sudir
+                        tableName: session
+                        remarks: Таблица сессий
+                        columns:
+                            - column:
+                                  name: id
+                                  type: uuid
+                                  remarks: ИД сессии
+                                  constraints:
+                                      primaryKey: true
+                            - column:
+                                  name: token
+                                  type: varchar(2550)
+                                  remarks: JWT токен, с помощью которого открыта сессия
+                                  constraints:
+                                      nullable: false
+                                      unique: true
+                                      uniqueConstraintName: sudir_session_token_uk
+                            - column:
+                                  name: expire_at
+                                  type: timestamp
+                                  remarks: Время экспирации сессии
+                                  constraints:
+                                      nullable: false
+                            - column:
+                                  name: account_id
+                                  type: uuid
+                                  remarks: ИД УЗ
+                                  constraints:
+                                      nullable: false
+                                      foreignKeyName: sudir_session_account_fk
+                                      referencedTableSchemaName: sudir
+                                      referencedColumnNames: id
+                                      referencedTableName: account

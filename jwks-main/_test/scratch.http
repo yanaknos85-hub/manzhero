@@ -1,0 +1,21 @@
+### Получение ролей
+GET https://t.secrets.delta.sbrf.ru/v1/A/TRANSP/OSH/MAIN/PKI/roles?list=true
+X-Vault-Token: s.TckCv3zvFW6GC2qQmFckDP2h.CI02351878_CI02671580
+X-vault-Namespace: CI02351878_CI02671580
+
+### Генерация приватного ключа и серта
+POST https://t.secrets.delta.sbrf.ru/v1/A/TRANSP/OSH/MAIN/PKI/issue/jwk
+X-Vault-Token: s.TckCv3zvFW6GC2qQmFckDP2h.CI02351878_CI02671580
+X-vault-Namespace: CI02351878_CI02671580
+
+
+{
+  "common_name": "jwk_verify",
+  "format": "pem",
+  "private_key_format": "pem"
+}
+
+### Получение CA
+GET https://t.secrets.delta.sbrf.ru/v1/A/TRANSP/OSH/MAIN/PKI/ca
+X-Vault-Token: s.TckCv3zvFW6GC2qQmFckDP2h.CI02351878_CI02671580
+X-vault-Namespace: CI02351878_CI02671580

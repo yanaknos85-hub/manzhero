@@ -1,0 +1,27 @@
+spring.cloud.stream:
+    bindings:
+        blackListOutput-out-0:
+            destination: service.authentication.blackList
+            binder: kafka
+        userAgentOutput-out-0:
+            destination: service.user.agent
+            binder: kafka
+        usersInput-in-0:
+            group: ${spring.application.name}
+            destination: service.users
+            binder: kafka
+        rolesInput-in-0:
+            group: ${spring.application.name}
+            destination: service.roles
+            binder: kafka
+        accountsOutput-out-0:
+            destination: service.sudir.account
+            binder: kafka
+        accountsRolesInput-in-0:
+            group: ${spring.application.name}
+            destination: service.sudir.account.roles
+            binder: kafka
+        employeeRoleInput-in-0:
+            group: ${spring.application.name}
+            destination: service.contractor.employee.role
+            binder: kafka

@@ -1,0 +1,43 @@
+application: trips-reports
+repo: app_platform_trips_reports
+resources:
+    limits:
+        cpu: 600m
+        memory: 2G
+    requests:
+        cpu: 600m
+        memory: 2G
+port:
+    http:
+        number: 8080
+        name: trips-reports
+        target: 8080
+routing:
+    match:
+        prefix: /api/trips-reports
+    rewrite:
+        uri: ' '
+profiles: prod,kafka
+secman:
+    type: built_in
+additional:
+    envs:
+        - name: JAVA_TOOL_OPTIONS
+          valueFrom:
+              configMapKeyRef:
+                  name: jdk-java-options
+                  key: debug
+        - name: JWKS_URI
+          value: 'http://jwks:8080'
+        - name: KAFKA_BROKERS
+          valueFrom:
+              configMapKeyRef:
+                  name: kafka
+                  key: brokers
+        - name: KAFKA_SSL_BROKERS
+          valueFrom:
+              configMapKeyRef:
+                  name: kafka
+                  key: brokers
+        - name: KAFKA_SECURITY_PROTOCOL
+          value: PLAINTEXT

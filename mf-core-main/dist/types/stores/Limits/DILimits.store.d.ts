@@ -1,0 +1,66 @@
+import { EmployeeModel } from '../Employee/models/EmployeeModel';
+import * as LimitInterface from './Limit.interface';
+import { LimitEmpRequest, LimitSendRequest } from './LimitsRequest.interface';
+import { LimitModel } from './Models/LimitModel';
+export declare class DILimitsStore implements LimitInterface.ILimitsStore {
+    private service;
+    private selfStore;
+    private process;
+    get selfEmployee(): EmployeeModel;
+    limitsIsLoaded: boolean;
+    limitsIsFailed: boolean;
+    currentDepartmentSharing: LimitInterface.LimitSharing[];
+    currentEmployeeSharing: LimitInterface.LimitSharing[];
+    currentLimit: LimitModel[] | undefined;
+    employeeLimit: LimitInterface.Limit | undefined;
+    limitsRequestsByAuthor: LimitInterface.ISpentActionsType[];
+    departmentLimits: LimitModel[];
+    employeeLimits: LimitModel[];
+    limitSharing: LimitInterface.LimitSharing[];
+    limitsRequestByApprover: LimitInterface.LimitRequestInfo[];
+    activeLimitsRequestByApprover: LimitInterface.ActiveLimitRequestInfo | undefined;
+    oldLimitsRequestByApprover: LimitInterface.OldLimitRequestInfo | undefined;
+    allLimitRequests: LimitInterface.LimitRequestInfo[];
+    depLimits: LimitInterface.Limit[];
+    currentRequest: LimitInterface.ISpentActionsType | undefined;
+    limitTransferHistory: LimitInterface.LimitTransferHistory[];
+    limitCostHistory: LimitInterface.LimitCostHistory[];
+    bonuses: LimitInterface.Bonuses | undefined;
+    get listMapped(): Dictionary<LimitInterface.ISpentActionsType>;
+    setCurrentRequest(id: string): void;
+    cancelLimitRequest(data: {
+        requestId: string;
+        description: string;
+    }): Promise<void>;
+    private getDepartmentLimitByYear;
+    private getCurrentLimitYear;
+    getLimitsIdByDepartmentId: (depId: string) => string | undefined;
+    getDepartmentLimitsByYear(departmentId: string, year: string): Promise<LimitModel[]>;
+    getDepartmentLimits(): Promise<LimitModel[]>;
+    getEmployeeLimits(): Promise<void>;
+    getLimitSharing(limitId: string): Promise<LimitInterface.LimitSharing[]>;
+    setCurrentEmployeeSharing(limits: LimitInterface.LimitSharing[]): LimitInterface.LimitSharing[];
+    setCurrentDepartmentSharing(): Promise<LimitInterface.LimitSharing[]>;
+    getEmployeeLimit(): Promise<LimitInterface.Limit>;
+    getLimitsRequestsByAuthor(): Promise<LimitInterface.ISpentActionsType[]>;
+    getLimitsRequestByApprover(): Promise<LimitInterface.LimitRequestInfo[]>;
+    getActiveLimitsRequestByApprover(params: {
+        page: number;
+        size: number;
+    }): Promise<LimitInterface.ActiveLimitRequestInfo>;
+    getOldLimitsRequestByApprover(params: {
+        page: number;
+        size: number;
+    }): Promise<LimitInterface.OldLimitRequestInfo>;
+    getAllLimitRequests(): Promise<LimitInterface.LimitRequestInfo[]>;
+    getLimitByDepartment(departmentId: string): Promise<LimitInterface.Limit[]>;
+    getLimitTransferHistory(limitId: string | string, year: number, maxRecords: number): Promise<LimitInterface.LimitTransferHistory[]>;
+    getLimitCostHistory(limitId: string | string, maxRecords: number, orgId: string | string): Promise<LimitInterface.LimitCostHistory[]>;
+    approveLimitRequest(data: LimitInterface.LimitRequestSavingObject): Promise<number>;
+    changeDepLimitRequest(data: LimitSendRequest, requestId: string): Promise<number>;
+    changeEmpLimitRequest(data: LimitEmpRequest, requestId: string): Promise<number>;
+    getAccountBonuses(): Promise<LimitInterface.Bonuses>;
+    refreshLimits(): void;
+    getLimits(): void;
+    initStore(): void;
+}

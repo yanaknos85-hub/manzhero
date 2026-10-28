@@ -1,0 +1,35 @@
+openapi: 3.0.3
+info:
+  title: Реестры поездок
+  description: Работа с реестрами поездок
+  version: v1
+servers:
+  - url: '{host}/api/trip/registries'
+    description: Сервер для работы с реестрами
+    variables:
+      host:
+        description: Хост, с которого необходимо вызвать api
+        default: localhost
+paths:
+  /:
+    get:
+      description: Запрос реестров
+      tags:
+        - Пример API. Не использовать после создания end-point'ов
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: OK
+        401:
+          description: Не авторизован
+        403:
+          description: Нет прав
+components:
+  securitySchemes:
+    BearerAuth:
+      bearerFormat: bearer
+      description: Доступ к ресурсам сервиса
+      scheme: bearer
+      type: http
+

@@ -1,0 +1,20 @@
+@import '../../styles/varibles.scss';
+
+.alert {
+  font-family: SB Sans Interface, serif;
+
+  &:global(.#{$kitPrefix}-alert-warning) {
+    border: 1px solid #FF9A32;
+    background-color: #FFF5EB;
+  }
+
+  :global(.#{$kitPrefix}-alert-icon) {
+    max-width: 22px;
+    max-height: 22px;
+  }
+
+  :global(.#{$kitPrefix}-alert-message) {
+    font-size: 14px;
+    font-weight: 500;
+  }
+}

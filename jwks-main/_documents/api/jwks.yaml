@@ -1,0 +1,52 @@
+openapi: 3.0.3
+info:
+  title: JWK
+  description: Получение JWK
+  version: v1
+servers:
+  - url: '{host}/api/jwks'
+    description: Сервер для получения JWK
+    variables:
+      host:
+        description: Хост, с которого необходимо вызвать api
+        default: localhost
+paths:
+  /:
+    get:
+      description: Запрос сертификатов для проверки JWT.
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                description: JWK
+                properties:
+                  keys:
+                    type: array
+                    description: Список сертификатор для проверки JWT
+                    items:
+                      properties:
+                        kty:
+                          type: string
+                          description: Тип ключа
+                        e:
+                          type: string
+                          description: Эскпонента
+                        use:
+                          type: string
+                          description: Вариант использования ключа
+                        kid:
+                          type: string
+                          description: Идентификатор ключа
+                        key_ops:
+                          type: array
+                          description: Операции, производимые с ключом
+                          format: string
+                        alg:
+                          type: string
+                          description: Тип алгоритма
+                        n:
+                          type: string
+                          description: Модуль

@@ -1,0 +1,107 @@
+@import "../../styles/varibles.scss";
+
+$tree: #{$kitPrefix}-tree;
+
+.tree {
+  &:global(
+  .#{$tree}
+  .#{$tree}-treenode
+  ) {
+    align-items: center;
+  }
+
+  &:global(
+    .#{$tree}
+    .#{$tree}-switcher
+  ) {
+    line-height: 24px;
+  }
+
+  &:global(
+    .#{$tree}
+    .#{$tree}-switcher
+    .#{$tree}-switcher-icon
+  ) {
+    position: relative;
+    top: 2px;
+    line-height: 24px;
+    min-height: 24px;
+  }
+
+  &:global(
+    .#{$tree}
+    .#{$tree}-switcher:before
+  ) {
+    height: 24px;
+  }
+
+  &:global(
+    .#{$tree}
+    .#{$tree}-checkbox
+    .#{$tree}-checkbox-inner
+  ) {
+    width: 20px;
+    height: 20px;
+  }
+
+  &:global(
+    .#{$tree}
+    .#{$tree}-checkbox
+    .#{$tree}-checkbox-inner:after
+  ) {
+    width: 8px;
+    height: 12px;
+  }
+
+  &:global(
+  .#{$tree}
+  .#{$tree}-checkbox-indeterminate
+  .#{$tree}-checkbox-inner:after
+  ) {
+    background-color: $color-green;
+    border-color: $color-green;
+    width: 8px;
+    height: 8px;
+  }
+
+  &:global(
+    .#{$tree}
+    .#{$tree}-checkbox-checked
+    .#{$tree}-checkbox-inner
+  ) {
+    background-color: $color-green;
+    border-color: $color-green;
+  }
+
+  &:global(
+    .#{$tree}
+    .#{$tree}-checkbox:not(.#{$tree}-checkbox-disabled):hover
+    .#{$tree}-checkbox-inner,
+  ) {
+    border-color: $color-green;
+  }  
+  
+  &:global(
+    .#{$tree}
+    .#{$tree}-checkbox-indeterminate:hover
+    .#{$tree}-checkbox-inner
+  ) {
+    border-color: $color-green !important; // important прописан в стилях ant`а
+  }
+  
+  &:global(
+    .#{$tree}
+    .#{$tree}-checkbox-checked:not(.#{$tree}-checkbox-disabled):hover
+    .#{$tree}-checkbox-inner
+  ) {
+    background-color: $color-green;
+  }
+
+  &:global(
+    .#{$tree}
+    .#{$tree}-checkbox + span
+  ) {
+    line-height: 24px;
+    min-height: 24px;
+    }
+  }

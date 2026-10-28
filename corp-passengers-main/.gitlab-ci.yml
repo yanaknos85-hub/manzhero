@@ -1,0 +1,143 @@
+include:
+  - project: infra/ci
+    file: v2/devel-sbertransport.yaml
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      variables:
+        APP_VERSION: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+      variables:
+        APP_VERSION: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+
+stages:
+  - verify
+  - build
+  - review
+  - package
+  - deploy
+
+default:
+  interruptible: true
+  tags:
+    - sbertransport
+
+variables:
+  APP_NAME: corp-passengers
+  YARN_CACHE_FOLDER: "$CI_PROJECT_DIR/.yarn-cache"
+  LINT_STRICT: "0"
+
+.node:
+  image: node:20.19-alpine
+  cache:
+    key:
+      files:
+        - yarn.lock
+    paths:
+      - .yarn-cache/
+    policy: pull-push
+
+verify-paths:
+  extends: .node
+  stage: verify
+  timeout: 5m
+  cache: {}
+  script:
+    - |
+      set -eu
+      echo "APP_NAME=[$APP_NAME] APP_VERSION=[$APP_VERSION]"
+      test -n "$APP_VERSION" || { echo "FAIL - empty APP_VERSION"; exit 1; }
+    - |
+      set -eu
+      echo "[1/5] package.json paths"
+      HITS=$(find . -name package.json -not -path '*/node_modules/*' -print0 \
+        | xargs -0 -r grep -nE '"file:[A-Za-z]:' || true)
+      test -z "$HITS" || { echo "$HITS"; echo "FAIL - windows paths"; exit 1; }
+      HITS=$(find . -name package.json -not -path '*/node_modules/*' -print0 \
+        | xargs -0 -r grep -nE '"file:\.\./' || true)
+      test -z "$HITS" || { echo "$HITS"; echo "FAIL - deps outside repo"; exit 1; }
+    - |
+      set -eu
+      echo "[2/5] yarn.lock"
+      HITS=$(grep -nE 'file:[A-Za-z]:|file:\.\./' yarn.lock || true)
+      test -z "$HITS" || { echo "$HITS"; echo "FAIL"; exit 1; }
+      HITS=$(grep -nE 'nexus[^/"]*\.sbrf\.ru' yarn.lock || true)
+      test -z "$HITS" || { echo "$HITS"; echo "FAIL - nexus urls in lock, rebuild it"; exit 1; }
+    - |
+      set -eu
+      echo "[3/5] npmrc"
+      if [ -s .npmrc ]; then
+        cat .npmrc
+        echo "FAIL - .npmrc must be empty or absent"
+        exit 1
+      fi
+    - |
+      set -eu
+      echo "[4/5] vendor tarballs"
+      for f in vendor/mf-core-2.0.22.tgz vendor/tool-kit-3.2.4.tgz vendor/ui-kit-2.1.0.tgz vendor/ai-agent-0.8.0.tgz; do
+        test -f "$f" || { echo "FAIL - missing $f"; exit 1; }
+        tar -tzf "$f" >/dev/null || { echo "FAIL - corrupt $f"; exit 1; }
+      done
+    - |
+      set -eu
+      echo "[5/5] docker assets"
+      test -f "${DOCKERFILE_NAME:-Dockerfile}" || { echo "FAIL - no Dockerfile"; exit 1; }
+      test -f docker/nginx.conf || { echo "FAIL - missing docker/nginx.conf"; exit 1; }
+    - echo "OK"
+
+build:
+  extends: .node
+  stage: build
+  timeout: 30m
+  variables:
+    CI: "false"
+  script:
+    - |
+      set -eu
+      echo "[1/6] install"
+      yarn install --frozen-lockfile --non-interactive
+    - |
+      set -eu
+      echo "[2/6] shared resolve"
+      node -p "'ui-kit='+require('@sber-sbertransport/ui-kit/package.json').version"
+      node -p "'mf-core='+require('@sber-sbertransport/mf-core/package.json').version"
+      echo "ui-kit copies=$(find node_modules -path '*@sber-sbertransport/ui-kit/package.json' | wc -l)"
+    - |
+      set -eu
+      echo "[3/6] build"
+      yarn build
+    - |
+      set -eu
+      echo "[4/6] output checks"
+      test -f build/passengers.js || { echo "FAIL - no passengers.js"; exit 1; }
+      test -f build/index.html || { echo "FAIL - no index.html"; exit 1; }
+      ls -l build/passengers.js
+      du -sk build
+      echo "--- shared scope ---"
+      grep -o '"@sber-sbertransport/[a-z-]*"' build/passengers.js | sort -u || true
+    - |
+      set -eu
+      echo "[5/6] prod purity checks"
+      HITS=$(grep -rlE 'localhost:(3001|4002|4003|4005|4006)' build/passengers.js || true)
+      test -z "$HITS" || { echo "$HITS"; echo "FAIL - localhost remotes in passengers.js"; exit 1; }
+    - |
+      set -eu
+      echo "[6/6] lint (LINT_STRICT=${LINT_STRICT:-0})"
+      LINT_RC=0
+      yarn lint --format json --output-file eslint-report.json || LINT_RC=$?
+      if [ "$LINT_RC" -ne 0 ]; then
+        yarn lint || true
+        if [ "${LINT_STRICT:-0}" = "1" ]; then exit "$LINT_RC"; fi
+        echo "WARN - lint errors ignored"
+      fi
+  artifacts:
+    when: always
+    expire_in: 1 week
+    paths:
+      - build/
+      - version.json
+      - eslint-report.json

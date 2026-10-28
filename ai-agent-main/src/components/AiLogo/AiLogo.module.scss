@@ -1,0 +1,37 @@
+.logo {
+  width: 70px;
+  height: 70px;
+  position: fixed;
+  z-index: 10;
+  cursor: pointer;
+  padding: 0;
+  border: none;
+  background: transparent;
+
+  img,
+  svg {
+    width: inherit;
+    height: auto;
+    border-radius: 50%;
+  }
+
+  &Pulse {
+    circle:first-of-type {
+      animation: pulse 3s infinite ease-in-out;
+      transform-origin: center;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(0.9);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

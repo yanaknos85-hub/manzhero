@@ -1,0 +1,162 @@
+@import "../../styles/varibles.scss";
+
+.Select {
+  width: 100%;
+
+  &:hover:not(:focus):not(:disabled) {
+    box-shadow: 0 0 0 1px #d6d6d6;
+    outline: 0;
+    border-radius: 8px;
+  }
+
+  :global(.#{$kitPrefix}-select-selector) {
+    padding: 0 16px !important;
+  }
+
+  &:global(.#{$kitPrefix}-select-focused .#{$kitPrefix}-select-selector) {
+    border-color: $color-green !important;
+    box-shadow: 0 0 0 1px $color-green !important;
+  }
+
+  :global(.#{$kitPrefix}-select-selection-item),
+  :global(.#{$kitPrefix}-select-selection-placeholder) {
+    padding-inline-end: 32px !important;
+    line-height: 40px !important;
+  }
+
+  &:global(.#{$kitPrefix}-select .#{$kitPrefix}-select-arrow) {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    right: 20px;
+    transform: translateY(-50%);
+    justify-content: center;
+  }
+
+  &:global(.#{$kitPrefix}-select .#{$kitPrefix}-select-clear) {
+    width: 24px;
+    height: 24px;
+    transform: translateY(-50%);
+    inset-inline-end: 16px;
+    margin: 0;
+
+    > span {
+      display: none;
+    }
+
+    &::before {
+      content: "";
+      position: relative;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 8px;
+      background: url(../../icons/close.svg) no-repeat no-repeat center 0;
+      background-size: contain;
+    }
+  }
+
+  &:global(.#{$kitPrefix}-select .anticon-down) {
+    > svg {
+      display: none;
+    }
+
+    width: 16px;
+    height: 16px;
+    background: url(../../icons/arrow.svg) no-repeat no-repeat center 0;
+    background-size: contain;
+  }
+}
+
+.SelectMultiple {
+  :global(.#{$kitPrefix}-select-selector) {
+    padding-right: 75px !important;
+  }
+
+  &:global(.#{$kitPrefix}-select-multiple .#{$kitPrefix}-select-selection-item) {
+    background: #f7f8fa;
+    border: 1px solid #ebebeb;
+    border-radius: 5px;
+    line-height: 22px !important;
+    height: 24px;
+
+    padding: 0 4px 0 8px !important;
+    margin: 2px 4px 2px 0;
+  }
+
+  :global(.#{$kitPrefix}-select-selection-overflow-item-suffix),
+  :global(.#{$kitPrefix}-select-selection-search-input),
+  :global(.#{$kitPrefix}-select-selection-search-mirror) {
+    height: 28px;
+  }
+
+  :global(.#{$kitPrefix}-select-selection-search) {
+    margin-inline-start: 0;
+  }
+}
+
+.SelectDropdown {
+  box-shadow:
+    0px 8px 16px -4px rgba(0, 0, 0, 0.12),
+    0px 0px 1px 0px rgba(0, 0, 0, 0.12);
+
+  :global(.#{$kitPrefix}-select-item-option) {
+    border-radius: 0;
+    padding: 12px 16px;
+    color: var($dark-grey);
+  }
+
+  :global(.#{$kitPrefix}-select-item-empty) {
+    padding: 10px;
+  }
+
+  :global(.#{$kitPrefix}-select-item-option-active:not(.#{$kitPrefix}-select-item-option-disabled)) {
+    background-color: rgb(242, 243, 246);
+  }
+
+  :global(.#{$kitPrefix}-select-item-option-selected:not(.#{$kitPrefix}-select-item-option-disabled)) {
+    font-weight: 400;
+  }
+}
+
+.SelectDivider {
+  :global(.#{$kitPrefix}-select-selector::before) {
+    content: "";
+    position: absolute;
+    right: 64px;
+    width: 1px;
+    height: 60%;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(38, 38, 38, 0.08);
+    visibility: visible;
+  }
+
+  :global(.#{$kitPrefix}-select-selection-item),
+  :global(.#{$kitPrefix}-select-selection-placeholder) {
+    padding-inline-end: 65px !important;
+  }
+}
+
+.SelectCheckMark {
+  :global(.#{$kitPrefix}-select-item-option) {
+    padding: 12px 52px 12px 16px;
+  }
+
+  :global(.#{$kitPrefix}-select-item-option-selected::after) {
+    content: "";
+    position: absolute;
+    right: 20px;
+    width: 14px;
+    height: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: url(../../icons/check.svg) no-repeat no-repeat center 0;
+    background-size: contain;
+  }
+
+  :global(.#{$kitPrefix}-select-item-option-state) {
+    display: none;
+  }
+}

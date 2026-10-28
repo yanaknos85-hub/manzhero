@@ -1,0 +1,20 @@
+### Проверка раскрытия
+GET http://localhost:8014/
+Referer: https%3A%2F%2Fwww.google.com%2Fsearch%3Fhl%3Den%26q%3Dtesting
+User-Agent: Mozilla%2F5.0%20%28Windows%20NT%2010.0%3B%20Win64%3B%20x64%29%20AppleWebKit%2F537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome%2F117.0.0.0%20Safari%2F537.36
+X-Forwarded-For: 12345%27%22%5C%27%5C%22%29%3B%7C%5D%2a%2500%7B%250d%250a%3C%2500%3E%25bf%2527%27%F0%9F%92%A1###########
+Cookie: b5edc84abcf03aa70ac492640e3faea7%3D29879605da2cf322349ae3a3576574e8%3B%205626355910ce88ec1505026b52456733%3D29879605da2cf322349ae3a3576574e8
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,/;q=0.8
+
+### Проверка входа
+POST http://localhost:8014/oauth2/authorization/sudir
+Referer: google.com
+
+### Проверка раскрытия ИФТ
+
+GET http://api.ift.transport.apps.ift-terra000016-ids.ocp.delta.sbrf.ru/api/sudir/
+Referer: https%3A%2F%2Fwww.google.com%2Fsearch%3Fhl%3Den%26q%3Dtesting
+User-Agent: Mozilla%2F5.0%20%28Windows%20NT%2010.0%3B%20Win64%3B%20x64%29%20AppleWebKit%2F537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome%2F117.0.0.0%20Safari%2F537.36
+X-Forwarded-For: 12345%27%22%5C%27%5C%22%29%3B%7C%5D%2a%2500%7B%250d%250a%3C%2500%3E%25bf%2527%27%F0%9F%92%A1###########
+Cookie: b5edc84abcf03aa70ac492640e3faea7%3D29879605da2cf322349ae3a3576574e8%3B%205626355910ce88ec1505026b52456733%3D29879605da2cf322349ae3a3576574e8
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,/;q=0.8

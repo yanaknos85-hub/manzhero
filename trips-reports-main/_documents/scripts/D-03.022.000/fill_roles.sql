@@ -1,0 +1,2 @@
+call migrations.fill_roles('trips_reports', 'GET /report/{reportId}/', 'ROLE_DISPATCHER_CONTRACTOR', true);
+call migrations.fill_roles('trips_reports', 'GET /contractor/{contractorId}/', 'ROLE_DISPATCHER_CONTRACTOR', true);

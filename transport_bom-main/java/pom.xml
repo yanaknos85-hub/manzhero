@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>ru.sber.transport</groupId>
+        <artifactId>parent</artifactId>
+        <version>5.7</version>
+    </parent>
+
+    <packaging>pom</packaging>
+
+    <artifactId>java-parent</artifactId>
+
+    <properties>
+        <jooq-postgres-extensions.version>4.19</jooq-postgres-extensions.version>
+        <jooq.generator>ru.sber.transport.generators.PostgresJavaGenerator</jooq.generator>
+
+        <openapi.useSealed>false</openapi.useSealed>
+        <openapi.hateoas>false</openapi.hateoas>
+        <openapi.async>false</openapi.async>
+        <openapi.generatorName>spring</openapi.generatorName>
+        <openapi.generateAliasAsModel>true</openapi.generateAliasAsModel>
+        <openapi.virtualService>false</openapi.virtualService>
+        <openapi.optional>false</openapi.optional>
+        <openapi.forbidAdditionalProperties>false</openapi.forbidAdditionalProperties>
+        <openapi.beanValidation>true</openapi.beanValidation>
+        <openapi.springController>true</openapi.springController>
+    </properties>
+
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>javadoc</goal>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.openapitools</groupId>
+                    <artifactId>openapi-generator-maven-plugin</artifactId>
+                    <configuration>
+                        <configOptions>
+                            <serializationLibrary>jackson</serializationLibrary>
+                            <booleanGetterPrefix>is</booleanGetterPrefix>
+                            <openApiNullable>false</openApiNullable>
+                            <oas3>true</oas3>
+                            <useOneOfDiscriminatorLookup>true</useOneOfDiscriminatorLookup>
+                            <performBeanValidation>true</performBeanValidation>
+                            <useGzipFeature>true</useGzipFeature>
+                            <useEnumCaseInsensitive>true</useEnumCaseInsensitive>
+                            <useOneOfInterfaces>true</useOneOfInterfaces>
+                            <withSeparateModelsAndApi>true</withSeparateModelsAndApi>
+                            <ignoreAnyOfInEnum>true</ignoreAnyOfInEnum>
+                            <dateLibrary>java8</dateLibrary>
+                            <useSpringfox>false</useSpringfox>
+                            <enumPropertyNaming>MACRO_CASE</enumPropertyNaming>
+                            <modelPropertyNaming>camelCase</modelPropertyNaming>
+                            <legacyDiscriminatorBehavior>false</legacyDiscriminatorBehavior>
+                            <prependFormOrBodyParameters>true</prependFormOrBodyParameters>
+                            <apiFirst>false</apiFirst>
+                            <enumUnknownDefaultCase>false</enumUnknownDefaultCase>
+                            <hateoas>${openapi.hateoas}</hateoas>
+                            <useOptional>${openapi.optional}</useOptional>
+                            <useResponseEntity>true</useResponseEntity>
+                            <useSealed>${openapi.useSealed}</useSealed>
+                            <virtualService>${openapi.virtualService}</virtualService>
+                            <async>${openapi.async}</async>
+                            <disallowAdditionalPropertiesIfNotPresent>${openapi.forbidAdditionalProperties}</disallowAdditionalPropertiesIfNotPresent>
+                            <performBeanValidation>${openapi.beanValidation}</performBeanValidation>
+                            <useSpringController>${openapi.springController}</useSpringController>
+                        </configOptions>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>

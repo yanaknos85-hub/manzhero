@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: "20250124-0855"
+      author: blandin-ad
+      context: "TRANSPORT-29494"
+      changes:
+        - tagDatabase:
+            tag: "D-04.002.000"
+        - dropNotNullConstraint:
+            schemaName: trips_reports
+            tableName: report
+            columnName: fact_start_time
+      rollback:
+        - addNotNullConstraint:
+            schemaName: trips_reports
+            tableName: report
+            columnName: fact_start_time
+            constraintName: trips_reports_report_fact_start_time_nnc
