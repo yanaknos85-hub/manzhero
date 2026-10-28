@@ -785,6 +785,63 @@
 
 ---
 
+## Уточнение 28.10.2026 (4): точечная проверка цепочек
+
+Методика: настоящие исходные классы тарифа (`TripDto`, `WaypointDTO`, `SuburbTripDataDTO`, `PublicTripDTO`), конвертеры `core` и enum `RequestOptions` скопированы без изменений в рабочий каталог вне репозитория и скомпилированы с Lombok 1.18.36 и `-parameters`. Единственная заглушка — `ru.sberbank.utils.reflection.DoubleUtil` (исходника `lib/reflection` нет; класс используется только в `WaypointDTO.equalsByCoords` и на десериализацию не влияет). ObjectMapper собран `Jackson2ObjectMapperBuilder` (spring-web 6.2.0) с `non_null`, как в Spring Boot; подключились модули `jsr310`, `jdk8`, `parameter-names`. Выражения формул скопированы дословно. Стенд не использовался.
+
+| Что уточняем | По коду | Требует стенда |
+|---|---|---|
+| Ожидание `waitTime` | **Подтверждено:** JSON `60000` → 1 минута в формуле TAXI и GROUP_TRANSFER | Отсутствие `READ_DATE_TIMESTAMPS_AS_NANOSECONDS=false` в Config Server; результат на развёрнутой версии |
+| Пробочная надбавка TAXI | **Подтверждено:** условие `score >= trafficThreshold`; при `score=0` надбавки нет, если порог ≥ 0 или `coefTraffic=0` | Значение `traffic.threshold`; `coefTraffic` тарифов |
+| Ошибки corporate | **Подтверждено:** причины и тела 404/500 | Реальный ответ через шлюз |
+| Формат `creationTime` | Массив без смещения; единица доли зависит от версии Spring Cloud Function | Версии зависимостей; реальное сообщение; `spring.jackson.*` |
+| JWT для реестров | Выпуск есть (OAuth/СУДИР, `token-generator`); вызовов `token-generator` в доступных исходниках нет | Зарегистрированный субъект, права, рабочая цепочка |
+| Geo и загородные метрики | Источника нет: geo не делит маршрут, geo-zones не хранит геометрию | Возможности внешнего API 2ГИС |
+| `changeDate` | Нет в `service.request`; поле истории, не монотонное | — |
+
+### (28.10-4).A. Ожидание — на настоящих классах
+
+- [КОД] `TripDto` (`TF/ru/sber/transport/tariff/model/TripDto.java`): `time`, `waitingTime`, `intermediateWaitingTime` — `@JsonDeserialize(using = MillisDurationConverter.class)` (миллисекунды). `waypoints` — `List<WaypointDTO>` без аннотаций. `WaypointDTO.waitTime` (`WaypointDTO.java:55`) — `Duration` **без** конвертера.
+- [ЛОКАЛЬНАЯ ПРОВЕРКА] JSON в формате фронта (`time:1320000`, промежуточная точка `waitTime:60000`):
+  - `TripDto.time` = `PT22M` (22 минуты) — конвертер на поле работает;
+  - `WaypointDTO.waitTime` = `[PT0S, PT16H40M, PT0S]` — число читается как секунды;
+  - TAXI (`CalculateServiceImpl.java:1026-1032`): **1 минута** промежуточного ожидания (бесплатный лимит в этой части не участвует);
+  - GROUP_TRANSFER (`:877-882`) при `freeWaitingTime=0`: **1 оплачиваемая минута**.
+- Источник расхождения с независимой проверкой: `MillisDurationConverter` есть в `TripDto`, но только на полях общего времени и ожидания первой точки; на ожидании точек его нет. Регистрация в `WebConfiguration.addFormatters` на тело JSON не влияет.
+- Вывод «JSON `waitTime=60000` = 1 минута» **подтверждён**; вывод «0 минут» **не подтверждён**.
+
+### (28.10-4).B. Пробочная надбавка TAXI — исполнение выражения
+
+[КОД] `CalculateServiceImpl.java:1054-1056`: `if (score >= trafficThreshold) коэффициент *= 1 + coefTraffic × (score − trafficThreshold)`; вызов `calculateTaxi` (`:804-808`) ← `calculateByTransportType` (`:715-717`) ← `calculateData` (`:663-666`) ← оба HTTP-эндпоинта расчёта. Значения по умолчанию: `traffic.threshold` = 7 (`:57-58`, `application.yml:86`), `coefTraffic` = 0 (`TaxiTariff.java:120-126`, `@Min(0) @Max(10)`), `trafficJamScore` = 0 (`@Min(0)`).
+
+| Порог | `coefTraffic` | score = 0 | score = 7 | score = 8 |
+|---|---|---|---|---|
+| 7 (default) | 0 (default) | 1.00 | 1.00 | 1.00 |
+| 7 | 0.1 | 1.00 | 1.00 | 1.10 |
+| 0 | 0.1 | 1.00 | 1.70 | 1.80 |
+| −1 | 0.1 | **1.10** | 1.80 | 1.90 |
+
+- При `trafficJamScore=0` надбавка возникает только при **отрицательном** пороге **и** `coefTraffic > 0`. Это свойство выражения; фактический порог и коэффициенты стенда не известны.
+- Для личного транспорта и каршеринга условие — `score >= 7` (`:1104`, `:1160`), порог участвует только в множителе.
+
+### (28.10-4).C. Ошибки corporate `GET /`
+
+- Обработчики: `corporate` → `CORP/handlers/ExceptionsHandler.java` (наследник `RequestExceptionHandler` из `transport_core`), отдельный `ru/sber/transport/corporate/web/handlers/ControllerExceptionHandlerImpl.java` (только `UnsupportedOperationException` → 409).
+- **404, пользователь не сотрудник.** `EntityNotFoundException(Employee.class, Map.of(userId, …))` (`CORP/service/impl/EmployeeServiceImpl.java:151-154`) → `RequestExceptionHandler.handleEntityNotFoundExceptions` (`transport_core-main/.../handlers/RequestExceptionHandler.java:117-133`). Тело `ExceptionBody`: `timestamp`, `path`, `entity: {"name":"Employee","id":{"userId":"…"}}` (`Entity.id` — `Object`), `message: "Data not found: Entity: Employee, ID: {userId=…}"`. Отличить этот случай от других 404 можно по `entity.name = "Employee"`; 404 шлюза или неизвестного пути будет иметь другое тело.
+- **500, сотрудник без подразделения.** `getOrganizationByUserId` → `null` (`EmployeeServiceImpl.java:489-493`) → `List.of(null)` → `NullPointerException` → `handleServiceException` (`RequestExceptionHandler.java:87-93`, статус по `@ResponseStatus`, иначе 500 — `:283-291`). Тело — `Map`: `timestamp` (формат `yyyy-MM-dd'T'HH:mm:ss.SSSZ`), `status: 500`, `message: "Request failed. Please contact support"` (текст исключения — только при `spring.explain-errors=true`), `error: "Internal Server Error"`, `path` (`:332-350`).
+
+### (28.10-4).D. `creationTime`, JWT, geo
+
+- `creationTime`: в pom сервиса заявок версии Spring Cloud не заданы — они приходят из недоступного `java-parent 4.13.2`. Без resolved-зависимостей выбор между SCF 4.1.x (доля в наносекундах) и 4.2.x (в миллисекундах) по коду не закрывается (см. «Уточнение 28.10.2026 (2)»).
+- JWT: вызовов gRPC `JwtGeneratingService.generate` нет ни в одном доступном исходнике (оба среза). Готовой цепочки «сервис реестров получает сервисный JWT» в коде нет.
+- Geo: `geo-zones` хранит только `id`, `code`, `name`, `parent`, `timeZone` — без геометрии (`GZ/providers/geo_zone/model/GeoZone.java:40-76`); geo отдаёт `distance`, `time` и сегменты без деления город/загород. Альтернативного источника загородных метрик в доступном коде нет.
+
+### (28.10-4).E. Не решается исследованием кода
+
+Разрешать ли цену без подтверждённой загородной части, ослаблять ли сверку координат первой точки и какой механизм выдачи сервисного JWT использовать — изменения требований и решения заказчика или архитектора.
+
+---
+
 ## Журнал изменений
 - 29.09.2026 — первая редакция. Параллельно в `Вопрос ответ.docx` добавлен датированный раздел «Результаты исследования исходного кода 29.09.2026» (три таблицы, исходные таблицы сохранены без изменений).
 - 29.09.2026 (2) — добавлено уточнение по каталогу GitLab; раздел F уточнён (кандидаты `lib/core`, `lib/grpc`, приоритеты скачивания).
@@ -792,3 +849,4 @@
 - 28.10.2026 — разобраны технические вопросы к T01.2 (creationTime, corporate `GET /`, данные для цены, сверка первой точки, права и сервисный субъект) и дозагруженные репозитории (`kafka_functional`, `transport_bom`, OAuth, JWKS, фронты); уточнён раздел F, добавлены проверки E14–E18 и вопросы для согласования.
 - 28.10.2026 (2) — сверка с независимой проверкой: исправлен вывод о формате `creationTime` (зависит от версии Spring Cloud Function), уточнены B.2 и B.5; зафиксированы расхождения проверки с кодом (`waitTime`, `trafficThreshold`, `mf-core`, role-check, роли фронта, срез `22097970`).
 - 28.10.2026 (3) — сквозная трассировка `waitTime` с локальным исполнением (вывод «60000 = 1 минута» подтверждён; добавлены NPE при отсутствии ключа и отсутствие ожидания в gRPC); точные выражения надбавки за пробки по видам транспорта; `changeDate` — поле истории, не события; согласованы формулировки по сверке автора, AC-F-118 и гарантии доставки.
+- 28.10.2026 (4) — точечная проверка на настоящих классах тарифа: ожидание (1 минута подтверждена, найден источник расхождения), пробочная надбавка (таблица значений), тела ошибок corporate 404/500, статус `creationTime`, JWT и загородных метрик.
