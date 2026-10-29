@@ -881,6 +881,101 @@
 
 ---
 
+## Уточнение 29.10.2026: исходные данные Kafka и T01.4 (что видно в коде и что запросить)
+
+Методика прежняя: исходники только читались; сервисы и стенд не использовались. Дополнительное сокращение: **KF** — `kafka_functional-main/` (ветка `main`, коммит `4c344bd7`), **ENUMS** — `as_sbertransport_libraries-main/as_sbertransport_libraries-main/enums/src/main/java/ru/sberbank/ditsib/transport/constants/`. Статусы: [КОД] — подтверждено исходником; [ЗАПРОСИТЬ] — нужно получить у владельцев сервисов или стенда.
+
+### (29.10).A. Kafka — `service.request`
+
+**Топик и подключение**
+- [КОД] Топик `service.request`, биндинг продюсера `requestOutput-out-0` (`PR/../resources/kafka.yml:225-226`).
+- [КОД] Брокеры — `${KAFKA_BROKERS:@kafka.default.broker@}` (`kafka.yml:17`): значение из окружения, второе — заглушка сборки Maven.
+- [КОД] Ключ — `id` заявки (`KF/src/main/java/ru/sber/transport/messaging/kafka/binding/OutputBridge.java:148`), сериализатор ключа `JsonSerializer` (`kafka.yml:19`) — ключ приходит JSON-строкой с UUID в кавычках.
+- [КОД] Заголовки: `contentType=application/json` (`OutputBridge.java:149`), `principal` (`:74`), `transportType`, `messageId` — новый UUID при каждой отправке, `fraudHandled` (`PR/messaging/senders/impl/BaseRequestSender.java:34-38`).
+- [КОД] Свойства топика (значения по умолчанию, переопределяются окружением; `kafka.yml:24-29`): `compression.type=gzip`, `cleanup.policy=compact,delete`, `retention.ms=604800000` (7 дней); `auto-alter-topics=true` (`:22`).
+- [КОД] Существующие потребители: reports — `group=${spring.application.name}`, `enableDlq: true`, `ackEachRecord: true`, `autoCommitOnError: true` (`passenger_reports-main/.../resources/application.yml:30-33`); fraud-monitoring — `maxAttempts: 1`, `defaultRetryable: false` (`application-kafka.yml:22-23`), для SSL — отдельный биндер `kafka-ssl` и группа `<имя>-ssl` (`application-kafka-ssl.yml`); настройки самого биндера в репозитории отсутствуют.
+- [ЗАПРОСИТЬ] Адрес брокеров стенда, протокол безопасности и сертификаты, фактические `retention.ms` и `cleanup.policy` топика.
+
+**Схема сообщения** (`passenger_request-main/.../messaging/src/main/java/ru/sber/transport/request/messaging/RequestMessage.java`)
+
+| Поле | Строка | JSON и смысл |
+|---|---|---|
+| `id` | 33 | UUID заявки, ключ сообщения |
+| `organizationId` | 63 | UUID организации |
+| `creationTime` | 73 | массив без смещения, см. ниже |
+| `timeZone` | 78 | строка |
+| `transportType` | 88 | `"TAXI"` / `"GROUP_TRANSFER"` (`ENUMS/TransportTypeEnum.java:208, 228`) |
+| `waypoints[]` | 98, 486-521 | `id`, `address`, `waitTime` (`Duration`), `checkinAutomatic`, `checkinManual`, `absenceReason`, `orderingIndex` |
+| `tariffId`, `outcomeTariffId` | 108, 113 | UUID |
+| `desiredDate` | 143 | `LocalDateTime` (формат как у `creationTime`) |
+| `status` | 178 | имя статуса `TripRequestStatus` |
+| `statusCode` | 188 | код подстатуса (101–207), на классификацию не влияет |
+| `expected` | 203, 534-554 | `cost`, `outcomeCost` — копейки (`double`), `distance` — км, `time` — `Duration` |
+| `deleted` | 228 | `boolean` |
+| `contractorId` | 244 | UUID |
+
+- [КОД] Полей `favoriteRouteId` и `favoriteRouteVersion` нет — это доработка T04.1.
+- [КОД] `creationTime`: UTC (TAXI — `Clock.systemUTC()`, GROUP_TRANSFER — `ZoneOffset.UTC`); массив 5–7 элементов; единица последнего — миллисекунды при Spring Cloud Function 4.2.x, наносекунды при 4.1.x (уточнения 28.10.2026 (2)). Поля `Duration` зависят от той же версии.
+- [ЗАПРОСИТЬ] Реальное сообщение со стенда по заявке TAXI и GROUP_TRANSFER; версии зависимостей сервиса заявок.
+
+**Терминальные статусы** — признак `terminal` (`ENUMS/TripRequestStatus.java:467`)
+- Терминальные: `TAXI_CANCELLED` (`:29`), `TAXI_TRIP_FINISHED` (`:79`), `GROUP_TRANSFER_CANCELLED` (`:421`), `GROUP_TRANSFER_TRIP_FINISHED` (`:461`).
+- Нетерминальные: `*_AWAITING_APPROVAL`, `*_APPROVED`, `*_AWAITING_SEARCH`, `*_DRIVER_SEARCH`, `*_DRIVER_FOUND`, `*_DRIVER_ON_THE_WAY`, `*_DRIVER_ARRIVED`, `*_TRIP_IN_PROGRESS` (TAXI и GROUP_TRANSFER), `TAXI_FREE_TIME_EXPIRED`, `TAXI_WAYPOINT_ARRIVED`, `GENAI_CHECK` (`:155`).
+
+**Смещения и восстановление**
+- [ПРЕДПОЛОЖЕНИЕ по документации Spring Cloud Stream] Группа с явным именем при первом запуске читает с начала — то есть доступна история примерно за 7 дней (сжатие оставляет последнее состояние заявки в пределах срока хранения). Проверить для фактической версии биндера.
+- [КОД] Продюсер отправляет асинхронно пулом из 10 потоков (`OutputBridge.java:39`), ошибка только логируется (`:132`): возможны потеря, нарушение порядка и публикация до commit. Повторной отправки для GROUP_TRANSFER нет (`/synchronize`, уточнение 28.10.2026 (2)).
+- Рекомендация: собственная группа FavoriteRoute, `enableDlq: true` только для некорректного payload; `autoCommitOnError: true` по образцу reports не применять — по T01.2 ошибка БД не считается успешной обработкой, для неё нужен повтор или пауза.
+- [ЗАПРОСИТЬ] Процедуру сброса смещений на стенде и ответственного, фактический срок хранения.
+
+### (29.10).B. T01.4 — расчёт, тарифы, территория
+
+**Адреса и авторизация** (шлюз: `/api/<сервис>/**` → `lb://<сервис>`, префикс отрезается; `gateway-main/.../application.yml`)
+
+| Назначение | Метод и путь | Основание |
+|---|---|---|
+| Цена по конкретному тарифу | `POST /api/tariffs/calculate/enum/{transportType}/{tariffId}` | `TF/ru/sberbank/ditsib/transport/tariff/controller/CalculatingController.java:71`; `CalculateServiceImpl.java:84-98` |
+| Каталог тарифов | `POST /api/tariffs/search` — `Page`, по умолчанию 20 записей, сортировка `humanReadableId` | `TariffController.java:100-110` |
+| Карточка тарифа | `GET /api/tariffs/taxi/{id}`, `GET /api/tariffs/group_transfer/{id}`; общий `GET /api/tariffs/{transportTypeId}/{tariffId}` помечен `@NoAuthorize` | `TaxiTariffController.java:64`, `GroupTransferTariffController.java:64`, `TariffController.java:48-52` |
+| Договор | `GET /api/tariffs/contracts/{contractId}`, `POST /api/tariffs/contracts/search` | `ContractController.java:89, 124` |
+| Маршрут, обратный геокодер | `POST /api/geo/route`, `GET /api/geo/address` | `GEO/java/.../controller/GeoController.java` |
+| Ветка зон | `POST /api/geo-zones/searchBranch` (или gRPC `RegionBranch`) | `GZ/web/http/controller/GeoZoneController.java:69-73` |
+| Автомобили перевозчика | contractor `GET /{contractorId}/transport/` (адрес из `CONTRACTOR_URL`) | `TF/.../client/ContractorClient.java:17-37` |
+
+- UUID видов транспорта для путей с `{transportTypeId}`: TAXI — `7f18ce71-99a7-47b5-b285-335058c6715c`, GROUP_TRANSFER — `ab6efcb9-dce2-4545-82f7-f75e51e670c3` (`ENUMS/TransportTypeEnum.java:25, 48`).
+- [КОД] Авторизация — пользовательский JWT; права tariff, geo-zones и сервиса заявок — в БД среды; geo — любой действующий JWT (уточнение 28.10.2026, B.5).
+- [КОД] Каталожный `POST /api/tariffs/calculate` для T01.4 **непригоден**: договор на класс выбирается случайно с весом по сумме договора (`CalculateServiceImpl.java:1200`, `chooseContract`), возвращается не больше одного тарифа на класс, тарифы чужих подразделений отсекаются по отделу сотрудника (`:618`). Это противоречит требованиям T01.2 «все договорные варианты» и «все подразделения организации».
+- [ЗАПРОСИТЬ] SLA, лимиты и таймауты: в коде таймауты клиентов не заданы.
+
+**Запрос и ответ расчёта**
+- [КОД] `TripDto` (`TF/ru/sber/transport/tariff/model/TripDto.java`): `distance` — км; `time`, `waitingTime` (первая точка, с вычетом бесплатного лимита), `intermediateWaitingTime` — мс (`MillisDurationConverter`); `tripDate` — эпоха в мс, по умолчанию «сейчас + 5 мин»; `timeZone` — по умолчанию `"GMT+03"` (`:77`), передавать всегда; `trafficJamScore` — по умолчанию 0 (`:82`); `suburbTripData` — по умолчанию нули (`:90`); `startPoint` — `country`, `region`, `city` обязательны для каталожного пути; `waypoints[].waitTime` — целое число мс для каждой точки (уточнения 28.10.2026 (3), (4)); `vip`, `information{animal, childSeat…}`.
+- [КОД] Ответ `CalculatedDto` (`CalculatedDto.java:65-127`): `id` (это `tariffId`), `outcomeTariffId`, `cost` — копейки с округлением до 100 (`CalculateServiceImpl.java:727`), `outcomeCost`, `priceDetails`, класс, `active`, `limitAvailable`. Номера тарифа, договора и подразделения нет — брать из карточки тарифа (`TaxiTariffDTO`/`GroupTransferTariffDTO`: `humanReadableId`, `contractId`, `contractNumber`, `department`, `active`, `transportIds`, `regionIds`, `tariffStartDate`/`tariffEndDate`, `freeWaitingTime`, `isNightTariff`).
+- [КОД] Ошибки: тариф не найден или неактивен — 404 `ExceptionBody` (`CalculateServiceImpl.java:85-87`); не определены регион или пояс — 417 (`TF/.../exceptions/RegionResolvingFailedException.java:9`); валидация — 400; прочее — 500 с телом-`Map` «Request failed. Please contact support» (уточнение 28.10.2026 (4).C); geo — 417 без машинного кода.
+
+**Территория и часовой пояс**
+- [КОД] Каталожный путь строит ветку зон по текстовым полям первой точки через gRPC geo-zones (`CalculateServiceImpl.java:1261-1273`, `RegionDataResolverImpl.java:54-56`); ветка — от подробной зоны к корню, элементы с UUID.
+- [КОД] Пояс — первый непустой `timeZone` ветки, иначе 417 (`CalculateServiceImpl.java:290-294`). Время пересчитывается по правилу «местное время клиента считается местным временем региона» (`:304-309`) — поэтому `timeZone` в запросе должен совпадать с поясом первой точки.
+- [КОД] Расчёт по конкретному тарифу регион не определяет и берёт `timeZone` из запроса как есть — T01.4 получает пояс сама через `searchBranch`.
+- [КОД] Ночная поездка — местный час ≥ 22 или < 6 (`CalculateServiceImpl.java:318-325`).
+
+**Каталог, пригодность, пара тариф–автомобиль**
+- [КОД] Фильтры `/search` (`TariffSearchDTO`): `transportType`, `organizationId`, `contractId`, `contractNumber`, `contractorId`, `humanReadableId`, `regionId` (одно значение), `transportClass`, `active`, `isNightTariff` (фильтрует только при `true`, `TariffSearchSpecHelper.java:50-59`), `contractType`. Фильтров по дате и подразделению нет — перебирать зоны ветки и страницы.
+- Пригодность (T01.2) проверяется по карточкам тарифа и договора: активность и организация тарифа; активность договора, вхождение организации и даты договора; для трансфера — период тарифа; класс и ночной признак.
+- [КОД] `transportIds` есть только у тарифов класса `TRANSFER_CAR_CHOICE`; связь пары: `transport_ids` пересекается с автомобилем, `region_ids` — с веткой, дата поездки в периоде тарифа, `active = true` (`TF/.../database/dao/GroupTransferTariffRepository.java:31-56`).
+- [КОД] Цена трансфера от автомобиля не зависит (`CalculateServiceImpl.java:870-897`): точная пара считается через `calculate/enum/GROUP_TRANSFER/{tariffId}` с проверкой `transportIds`. Эндпоинты `/calculate/transport…` подбирают один тариф на пару «автомобиль + зона» сами, с приоритетом договора дохода (`:150-245`), и точную пару не гарантируют. Данные автомобиля для `transportInfo` — из contractor.
+
+**Тестовые данные для стенда**
+- [КОД] В репозиториях нет: в миграциях geo-zones, тарифа и contractor не найдено ни зон Республики Алтай, ни тестовых тарифов и автомобилей.
+- [ЗАПРОСИТЬ] Организация с `digitId`; пользователи с ролями EMPLOYEE, ADMIN, ENGINEER и data master; зоны geo-zones для Манжерока с поясом (`Asia/Barnaul` или фактическим); тарифы TAXI (дневной и ночной) и GROUP_TRANSFER с периодом, включая `TRANSFER_CAR_CHOICE` с автомобилями; договоры дохода — действующий, истёкший и будущий; тариф с ненулевыми и с нулевыми загородными ставками; заявки в терминальных и нетерминальных статусах.
+
+### (29.10).C. Фронтенд — избыточные поля `FavoriteRoutePage`
+
+- [КОД] Поля `numberOfElements`, `first`, `last`, `empty` и `sort.*` объявлены в типах (общий кодек `createPagination` — `client-main/client-main/src/stores/Pagination/Pagination.interface.ts:22-34`, такой же в `corp-main`; локальные типы в `corp-passengers`, `client-passengers`, `mf-core`), но **ни один экран их не читает**. Пагинация — Ant Design 4.17.2 (`total`, `current`, `pageSize`); из ответа читаются `content`, `totalElements` и номер страницы.
+- [КОД] Ошибка io-ts-проверки не фатальна: данные возвращаются как есть, ошибка пишется в консоль (`mf-core-main/mf-core-main/src/stores/Http/Response.service.ts:41-53`), в production-логгере `toError` пустой; в коде есть `TODO` сделать ошибку фатальной.
+- Вывод: поля можно убрать из контракта, оставив `content`, `number`, `size`, `totalElements`, `totalPages`. Для T01.3: не переиспользовать `createPagination` (он требует и `pageable`, которого в `FavoriteRoutePage` нет) и брать номер страницы из `number`, а не из `pageable.pageNumber` по образцу реестров (`TaxiRegistryTable.tsx:192` и др.; правильный образец — `GroupTransferRegistryTable.tsx:153`).
+
+---
+
 ## Журнал изменений
 - 29.09.2026 — первая редакция. Параллельно в `Вопрос ответ.docx` добавлен датированный раздел «Результаты исследования исходного кода 29.09.2026» (три таблицы, исходные таблицы сохранены без изменений).
 - 29.09.2026 (2) — добавлено уточнение по каталогу GitLab; раздел F уточнён (кандидаты `lib/core`, `lib/grpc`, приоритеты скачивания).
@@ -890,3 +985,4 @@
 - 28.10.2026 (3) — сквозная трассировка `waitTime` с локальным исполнением (вывод «60000 = 1 минута» подтверждён; добавлены NPE при отсутствии ключа и отсутствие ожидания в gRPC); точные выражения надбавки за пробки по видам транспорта; `changeDate` — поле истории, не события; согласованы формулировки по сверке автора, AC-F-118 и гарантии доставки.
 - 28.10.2026 (4) — точечная проверка на настоящих классах тарифа: ожидание (1 минута подтверждена, найден источник расхождения), пробочная надбавка (таблица значений), тела ошибок corporate 404/500, статус `creationTime`, JWT и загородных метрик.
 - 28.10.2026 (5) — сверка T01.2 от 28.10.2026 с кодом: изменения подтверждены; замечания — остаток разметки, критерий и вопрос по загородным метрикам TAXI, условие подтверждения ставки GROUP_TRANSFER, точка вне зданий как открытое требование, проверка Page, 500 corporate, передача ожидания в тариф.
+- 29.10.2026 — исходные данные Kafka (`service.request`: топик, подключение, схема, терминальные статусы, смещения) и T01.4 (адреса, авторизация, DTO, ошибки, территория и пояс, каталог и пара тариф–автомобиль, тестовые данные) с разделением «видно в коде / запросить»; проверка использования полей страницы фронтендом.
