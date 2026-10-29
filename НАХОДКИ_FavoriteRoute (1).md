@@ -976,6 +976,35 @@
 
 ---
 
+## Уточнение 29.10.2026 (3): дополнения при подготовке ответа разработчику
+
+Методика прежняя: исходники только читались, стенд не использовался. Локальная сериализация — Jackson 2.18.1 и `Jackson2ObjectMapperBuilder` (spring-web 6.2.0); значения Spring Boot по умолчанию сверены по байткоду `JacksonAutoConfiguration` (spring-boot-autoconfigure 3.4.0).
+
+**Kafka: от ветки Spring Cloud Function зависят также `Duration` и пустые поля**
+- [КОД] Spring Boot по умолчанию выключает `WRITE_DURATIONS_AS_TIMESTAMPS` (`JacksonAutoConfiguration.FEATURE_DEFAULTS`). В `spring.jackson` сервиса заявок этот признак не задан; задано `default-property-inclusion: non_null` (`PR/.../resources/application.yml:79-83`).
+- [ЛОКАЛЬНАЯ ПРОВЕРКА] Одно и то же сообщение в двух ветках:
+
+| Поле | SCF 4.2.x (копия ObjectMapper приложения) | SCF 4.1.x (новый ObjectMapper) |
+|---|---|---|
+| `creationTime`, `desiredDate` | `[2026,10,29,9,0,5,123]` — миллисекунды | `[2026,10,29,9,0,5,123456000]` — наносекунды |
+| `expected.time`, `waypoints[].waitTime` | `"PT22M"`, `"PT1M"` — строка ISO-8601 | `1320.000000000`, `60.000000000` — секунды с дробью |
+| Пустое значение | ключ опускается | `null` |
+
+- [ЛОКАЛЬНАЯ ПРОВЕРКА] `ObjectMapper` с `JavaTimeModule` по умолчанию читает `Duration` в обоих видах правильно, а 7-й элемент массива даты — всегда как наносекунды: `[...,5,123]` → `09:00:05.000000123`. Единицу доли в потребителе нужно задать явно.
+- Ветку на реальном сообщении однозначно показывает вид `Duration` (если Config Server не переопределяет `spring.jackson.*`).
+
+**T01.4: образцы вызовов и geo-zones**
+- [КОД] Сервис заявок вызывает tariff, geo и corporate через Feign. Адреса — из окружения (`FEIGN_URL_TARIFF`, `FEIGN_URL_GEO`, `FEIGN_URL_CORPORATE`; `PR/.../resources/application.yml:184-188`), пути внутренние, без префикса шлюза. Пользовательский токен передаётся заголовком `Authorization` (`PR/.../client/TariffService.java:31`, `GeoResolver.java:22, 26`). gRPC — через discovery, `negotiation-type: plaintext` (`application.yml:1-25`).
+- [КОД] gRPC geo-zones `RegionBranch(Waypoint) → stream Region` (`GZ/grpc/src/main/resources/proto/service/GeoZonesService.proto:11`). Перехватчиков авторизации gRPC в geo-zones нет (`GZ/web/grpc/GeoZonesGrpc.java`). Поля `Waypoint` — `string` proto3: `null` в `country`, `region`, `city` даёт `NullPointerException` на стороне клиента (как у тарифа, `RegionDataResolverImpl.java:54-56`).
+- [КОД] HTTP-аналог — `POST /searchBranch`. Вход: `country`, `region`, `city`, `street`, `house`, `district`. Выход: список `{id, name, code, parentId, timeZone}` (`GZ/web/http/dto/WaypointDto.java`, `GeoZoneDto.java`).
+
+**T01.4: передача ожидания различается по видам транспорта**
+- [КОД] TAXI: оплачивается `waitingTime` (первая точка, с вычетом `freeWaitingTime`) по `waitCostPerMin` плюс сумма `waypoints[].waitTime` всех точек по `waitCostPerMinIntermediate` без лимита (`CalculateServiceImpl.java:1026-1032`). GROUP_TRANSFER: учитывается только `waypoints[].waitTime`, лимит вычитается на каждой точке; `waitingTime` не используется (`:877-882`).
+- По T01.1 ожидание есть только у промежуточных точек. Отсюда для FR: `waitingTime = 0`; у первой и последней точки `waitTime = 0`; у промежуточных — миллисекунды.
+- [КОД] Значение передаётся целым числом. Формула делит прочитанные секунды на 1000, поэтому строка `"PT1M"` (60 с) даст 0 минут. Если в клиенте FR поле объявлено как `Duration`, ObjectMapper Spring Boot запишет его именно такой строкой.
+
+---
+
 ## Журнал изменений
 - 29.09.2026 — первая редакция. Параллельно в `Вопрос ответ.docx` добавлен датированный раздел «Результаты исследования исходного кода 29.09.2026» (три таблицы, исходные таблицы сохранены без изменений).
 - 29.09.2026 (2) — добавлено уточнение по каталогу GitLab; раздел F уточнён (кандидаты `lib/core`, `lib/grpc`, приоритеты скачивания).
@@ -987,3 +1016,4 @@
 - 28.10.2026 (5) — сверка T01.2 от 28.10.2026 с кодом: изменения подтверждены; замечания — остаток разметки, критерий и вопрос по загородным метрикам TAXI, условие подтверждения ставки GROUP_TRANSFER, точка вне зданий как открытое требование, проверка Page, 500 corporate, передача ожидания в тариф.
 - 29.10.2026 — исходные данные Kafka (`service.request`: топик, подключение, схема, терминальные статусы, смещения) и T01.4 (адреса, авторизация, DTO, ошибки, территория и пояс, каталог и пара тариф–автомобиль, тестовые данные) с разделением «видно в коде / запросить»; проверка использования полей страницы фронтендом.
 - 29.10.2026 (2) — уточнены формулировки раздела 29.10.2026 по итогам независимой проверки: адресные поля `startPoint` — техническое требование каталожного вызова, а не валидация; разделены `Duration` в Kafka и миллисекунды HTTP-запроса тарифа; для `creationTime` разведены подтверждённое поведение версий и неустановленная версия; отсев по подразделению оставлен как факт кода с проверкой на стенде.
+- 29.10.2026 (3) — при подготовке ответа разработчику: зависимость `Duration` и пустых полей `service.request` от ветки Spring Cloud Function (локальная проверка), чтение даты потребителем по умолчанию; образец вызовов сервиса заявок (Feign, токен пользователя, gRPC через discovery); gRPC и HTTP geo-zones `RegionBranch`/`searchBranch`; передача ожидания в расчёт по видам транспорта.
