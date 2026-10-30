@@ -1138,6 +1138,115 @@ tariff берёт подразделение и должность из копи
 
 ---
 
+## Уточнение 30.10.2026: проверка T01.4 от 30.10.2026 и сведения для оставшегося запроса информации
+
+Основание: «T01.4 FavoriteRoute Specification», редакция 30 октября 2026 года (docx, 5 схем); оценка замечаний независимой проверкой (Cursor) от 30.10.2026; сокращённый перечень запроса информации аналитика от 30.10.2026. Методика прежняя: исходники только читались (снимки `main`, `d8287eb3`; tariff — `tariff-main (2)`), стенд не использовался, найденные учётные данные не применялись. Сериализация `RouteDto`, `Page` transport-core и разбор `TransportPageDTO` tariff проверены локально настоящими классами (Jackson 2.18.1 с настройками Boot и `non_null`; BOM Boot 3.5.12 получить не удалось). Готовых снимков стенда в репозитории и вложениях нет.
+
+### (30.10).A. Что в T01.4 сходится с кодом
+
+- [ЛОКАЛЬНАЯ ПРОВЕРКА] Оба примера `inputDigest` (раздел 3.9) пересчитаны по правилам 3.7 — совпадают.
+- [ЛОКАЛЬНАЯ ПРОВЕРКА] Контроль метрик: 1.2345 км, 123000 мс и ожидание 60000 мс → 1.235 / 2.1 / 1 / 3.1, `TripDto.time` = 126000.
+- [КОД] `distanceUnit` не переключает единицы: ключ единицы в настройках пустой и отбрасывается при сборке запроса (`UnitProperties.path=""`, `GEO/.../BaseRestClient.java:224-240`); деление на 1000 зашито в `GEO/resources/application.yml:167`.
+- [КОД] `searchBranch` ищет по `region`, `district`, `city`, `street`, `house`; `country` не участвует (`GZ/.../GeoZoneCasesImpl.java:136-140`).
+- [КОД] contractor не передаёт `x-version` → dispatcher v1; машины в эксплуатации без проверки занятости; проекция `result=`; contractor всегда добавляет `timeZone` (`CTR/.../ContractorControllerServiceImpl.java:341`).
+
+### (30.10).B. Замечания к T01.4 от 30.10.2026 (согласованы с независимой проверкой)
+
+1. **Техническая учётка перевозчика (4.8, ФК-05, СТ-05).** [КОД] В снимке цепочка contractor → dispatcher v1 не замыкается.
+   - contractor генерирует логин для параметров интеграции и передаёт его как `technicalAccountLogin` (`CTR/.../ContractorControllerServiceImpl.java:92-104`, `ContractorMapper.java:147`).
+   - dispatcher регистрирует учётку в authentication (`DSP/.../IntegrationClientServiceImpl.java:32-57`, вызов из `ContractorControllerServiceImpl.add:68`); authentication создаёт запись со случайным id (`AccountCasesImpl.register:300-331`), этот id — `jti` токена (`AccessTokenProviderImpl.java:117`); связь сохраняется в `IntegrationClient`.
+   - v1 `/transport/` определяет перевозчика через `AuthCheckServiceImpl.getContractorIdByToken:22-33`: `jti` ищется только среди id перевозчика, id диспетчера и `oauthId`; `IntegrationClient` не читается. Нет совпадения → `UnauthorizedException`, 403 (`@ResponseStatus(FORBIDDEN)`, authorization 4.10).
+   - `IntegrationClient` читает trips (`trips/.../CheckAccessConfiguration.java:17-28`), а не список машин.
+   - contractor вызывает `POST {url}/auth`; в authentication такого пути нет, есть `POST /login` с ответом `{"token":…}`, совместимым с `AuthResponseDTO`. Адрес задаёт `integration.*` среды. Даже при переписанном пути `jti` технической учётки в таблицах v1 не ищется.
+   - Без параметров интеграции contractor отвечает 409 до `/auth` — в документе это уже `DEPENDENCY_ERROR`.
+   - Правка: первым пунктом СТ-05 — реальный `GET /api/contractors/{id}/transport/` с `result=` по каждому перевозчику Манжерока; без 200 и ожидаемых машин CAR_CHOICE не выпускается. Классификация 403/5xx в документе верна.
+2. **Мягко удалённые машины (4.8, 5.5 п. 6, T014-022).** [КОД] Удаление — `@SQLDelete … SET active = false` (`DSP/.../Vehicle.java:43`, `VehicleServiceImpl.delete:125-129`); ограничения по `active` на сущности нет, `inExploitation` при удалении не снимается. v1 отбирает только `in_exploitation = true` (`VehicleServiceImpl.java:354`), поля `active` в `TransportDTO` нет. «Есть в списке» не значит «не удалена». Ограничение записать в 4.8 и сохранить; вопрос владельцу dispatcher — снимается ли «в эксплуатации» при удалении.
+3. **Полнота без `pageData` (4.8, 7.1, ФК-05).** [КОД] v1 читает весь список перевозчика одним SQL и режет страницу в памяти (`VehicleServiceImpl.getAllByContractorAndFilters:184-222`, skip/limit `:193-197`, `totalElements` = длина списка `:198`); максимума `size` нет (core `PageSortFilterParameters`, `size=20` по умолчанию, ограничение только `size ≥ 1`). Признак: `page=0` и элементов `content` меньше `size` → список получен целиком; ровно `size` — полнота не доказана. Повторов id в одном ответе нет (соединение машина → автопарк → перевозчик). Сделать признак основным, `pageData` сверять, только если пришёл; версия transport-core у dispatcher не установлена, СТ-05 остаётся.
+4. **ФК-01 сузить (4.2).** [КОД] + [ЛОКАЛЬНАЯ ПРОВЕРКА]
+   - Запрос: `coordinates[]` — `WaypointDto` (поля адреса + `waitTime` в мс); в 2ГИС уходят только latitude→y, longitude→x и type (`GeoServiceClientImpl.processCoordinates:249-265`). Ключ `unit` из тестов geo в DTO нет, он игнорируется.
+   - Ответ: `distance` — JSON number (Double), км, без округления; `time` — JSON integer, мс (`DurationMillisConverter.toMillis`, null → 0), разрешение источника — 1 с.
+   - Пустой: `{"waypoints":[],"distance":0.0,"time":0,"segments":[]}`. Контрольный пример: 1234,5 м и 123 с → `"distance":1.2345,"time":123000` (контрольный, не ответ стенда).
+   - Остаются: вычисление `/1000` в `MapUtils` (артефакт `ru.sber.transport:collections` 4.6, исходника нет; подтверждено только незапущенным тестом geo, фикстура 694048 → 694.048) и ответ стенда (СТ-01).
+5. **Потери точности geo (4.2, СТ-01).** [КОД]
+   - Время пары — `total_duration.longValue()`, дробь секунды отбрасывается (`GEO/.../RouteServiceImpl.java:196`).
+   - Нет общего времени (отсутствует или < 1 с) → суммирование манёвров `routeTime += time` (long += Double), обрезка на каждом шаге (`:209`); расстояние в этой ветке — из `outcoming_path.distance / 1000` (`:212`).
+   - Расстояние маршрута — сумма км пар в double (`fillRoute:151-152`). [ЛОКАЛЬНАЯ ПРОВЕРКА] 1,5 м + 573 м → 0.5744999999999999 → `totalKm` 0.574 вместо 0.575. Для сверки T01.2 безвредно: обе стороны считают из одного `rawDistanceKm`.
+   - У одной пары нет маршрута при непустых остальных → выход за границы списка (`:79`) → 500 → `DEPENDENCY_ERROR`, не `ROUTE_NOT_BUILT`. Добавить в СТ-01.
+6. **Тип `rawTravelMs` (3.4):** `integer (int64)` вместо `number`.
+7. **ФК-02: пропуски адресных частей (4.4, 5.2).** [КОД] Отсутствие ≡ null; null пропускает уровень (`GZ/.../SearchRepositoryImpl.java:121-124`, `:102-104`). `""` совпадает с любым родителем — `parent.getName().contains("")` (`:105`); поиск Lucene по `""` зависит от движка. Строка из пробелов совпадает только с названиями, где есть пробел (`"Республика Алтай"` — да, `"Манжерок"` — нет): возможны и ложные совпадения, и ложные отказы. При поиске только по региону берётся первый результат Lucene (`:77-84`). Удаление `""` и пробельных строк обязательно. В ФК-02 остаётся обязательность полей DTO; корень — см. C.2.
+8. **Бюджет (7.2).** [КОД] Каждый вызов списка машин — всегда два внешних запроса на страницу: `POST {url}/auth`, затем `GET` (`CTR/.../ContractorControllerServiceImpl.createEntity:303-309`). «Может включать» заменить.
+9. **Проекция `result=` (СТ-05).** [КОД] С непустым `result` v1 строит выборку id, model, brand, stateNumber (`VehicleServiceImpl.java:356-379`) и собирает её конструктором `Vehicle(UUID, String, String, String)` (`Vehicle.java:198-205`); порядок совпадает, `VehicleMapper.toTransportDto:34-37` переносит brand/model, `trips` = `[]`. Ошибки в коде нет; при всех четырёх полях ветка `cb.literal(null)` не используется. Проверить на стенде именно этот URL; без `result` — ветка истории поездок.
+10. **Редакционное.** П. 1.2 «T01.2 … версия файла 13» — сверить: последняя присланная редакция T01.2 от 29.10.2026 — файл (5). Рис. 5 и п. 5.9: нет geo-zones, хотя `TariffCheckInput` требует `zoneIds` и `timeZone` — стрелка на подготовку контекста, как на рис. 4. В 4.2 добавить пример тела `/route`. В 5.3 п. 2 «нет маршрута» и «обе суммы 0» — один наблюдаемый ответ 0.0 / 0, исход `ROUTE_NOT_BUILT` верен.
+
+### (30.10).C. Сведения для оставшегося запроса информации
+
+**C.1. Карточки TAXI, GROUP_TRANSFER и договор**
+
+| Запрос через шлюз | Код | Где снять |
+|---|---|---|
+| `GET /api/tariffs/taxi/{tariffId}` | `TF/.../TaxiTariffController.java:64-67` | Карточка тарифа такси в corp-passengers (`constants.api.ts:180`) |
+| `GET /api/tariffs/group_transfer/{tariffId}` | `TF/.../GroupTransferTariffController.java:64-67` | Карточка тарифа трансфера (`:189`) |
+| `GET /api/tariffs/contracts/{contractId}` | `TF/.../ContractController.java:89-92` | Карточка договора (`:214`) |
+
+- [КОД] Общие правила: деньги — целые копейки; `freeWaitingTime` — минуты; даты — `yyyy-MM-dd` (core `LocalDateSerializer`, `ISO_LOCAL_DATE`); пустые значения не выводятся (`non_null`).
+- [КОД] **Зоны карточки.** В сущности одна зона `regionId`; в JSON — массив из одного UUID (`EntityDTOMapper.java:36, 172`). У TAXI ключа `regionIds` нет. У GROUP_TRANSFER есть оба: `regionId` и `regionIds` (`NewGroupTransferTariffDTO.java:146-150`, колонка `region_ids` `GroupTransferTariff.java:161-163`). Подбор машин трансфера в tariff идёт по пересечению `region_ids` (`GroupTransferTariffRepository.java:36-55`, вызовы `CalculateServiceImpl.java:141, 208`), расчёт и `/search` — по одиночному `regionId` (`:90`, `TariffSearchSpecHelper.java:64-67`). [РЕШЕНИЕ] По какому полю пересекать ветку для GROUP_TRANSFER — решение аналитика.
+- [КОД] **Формула TAXI** (`CalculateServiceImpl.java:804-808, 1016-1036, 1038-1048, 1050-1070, 1134-1141`) читает: `minRideDistanceCost`, `distanceIncluded` (км), `rideCostPerKm`, `minRideTimeCost`, `timeIncluded` (мин), `rideCostPerMin`, `freeWaitingTime`, `waitCostPerMin`, `waitCostPerMinIntermediate`, `suburbTariffParams.{suburbServiceCostPerKm, suburbServiceCostPerMin, costPerKmSuburb, costPerMinSuburb, costPerKmInterRegion, costPerMinInterRegion}`, пять `timedTariffParams.*`, `coefTraffic`, `coefOrg`. `coefBicycle`, `coefChildSeat`, `coefPetTransport` — только при опциях (T01.4 их не передаёт). Не входят: `coopTariffParams`, `contractorDeviationParams`, `triggerTime`, `contractorTariffId`, `priceDetails`. Бесплатное ожидание вычитается только из ожидания первой точки (`waitingTime`), которое T01.4 передаёт как 0, поэтому `freeWaitingTime` и `waitCostPerMin` на цену TAXI не влияют; промежуточное ожидание оплачивается целиком по `waitCostPerMinIntermediate`.
+- [КОД] **Формула GROUP_TRANSFER** (`:870-901`) читает: `minKm`, `minMin`, `minRideCost`, `freeWaitingTime` (вычитается на каждой точке), `waitCostPerMin`, `costPerKmCity`, `costPerMinCity`, `costPerKmSuburb`, `costPerMinSuburb`; при нулевой ставке — `rideCostPerKm` / `rideCostPerMin`. Маршрут короче `minKm` или `minMin` → цена = `minRideCost`. Не входят: `transportIds`, `tariffStartDate`/`tariffEndDate`, `vip`, `childSeat`, `animal`, `bugOversized`, `minCreateTime`, `minCancelTime`, `triggerTime`. Округление до 100 копеек — `calculateByTransportType:715-729`.
+- [КОД] **Договор** (`GetContractDTO`): `id`, `contractorId`, `contractorName` (обязателен — источник `contractorName` описания варианта), `organizationIds`, `contractType` (INCOME, OUTCOME, TRANSITIONAL; колонка допускает NULL — `Contract.java:142-145`, ключ может отсутствовать), `startDate`/`endDate` (в БД NOT NULL, `Contract.java:77-85` — отсутствующей границы нет), `active`, `contractNumber`, `regionIds`, `sum` и др. Конец включительный: tariff выключает договор, когда `endDate` раньше текущей даты (`ContractServiceImpl.checkExpiredContracts:47-57`).
+- [СТЕНД] По одному снимку каждой карточки и договора — подтвердить ключи на развёрнутой версии.
+
+**C.2. `searchBranch` и `/address`**
+
+- [КОД] Ни один фронтенд `searchBranch` не вызывает. client-passengers вызывает `POST geo-zones/search` (одна зона, `client-passengers/src/api/geo.ts:72-78`). Снимать прямым `POST /api/geo-zones/searchBranch` с пользовательским JWT, тело `{"region":"…","city":"…","street":"…","house":"…"}`.
+- [КОД] Ответ: массив от подробной зоны к корню (`GZ/.../GeoZoneProviderImpl.java:101-109`) с ключами `id`, `name`, `code`, **`parent_id`**, **`time_zone`** (`@JsonProperty`, `GZ/web/http/dto/GeoZoneDto.java:45, 49`; `non_null` — `GZ/resources/application.yml:7-8`). У корня ключа `parent_id` нет; у зоны без пояса нет `time_zone`; не найдено — `[]`. Поправка к T01.4 4.4: `parentId` → `parent_id`, `timeZone` → `time_zone`. Вопрос ФК-02 о корне закрыт.
+- [КОД] `/address`: client-passengers при выборе точки на карте — `GET /api/geo/address?latitude=…&longitude=…`, шесть знаков (`api/geo.ts:33-46`); в части мест добавляются `radius` или `sortLatitude`/`sortLongitude` (`stores/Geo/DIGeo.service.ts:28-52`) — для снимка нужен вариант без них.
+- [СТЕНД] `searchBranch` на реальный адрес; `/address` для углового здания, объекта с несколькими адресами и точки вне здания (`200 []` или 417).
+
+**C.3. Payload `/route`**
+
+- [КОД] client-passengers: `POST /api/geo/route` с телом `{"coordinates":[…], "transportServiceType":"EMPLOYEE_TRANSPORTATION"}` (`api/geo.ts:58-71`, `DIGeo.service.ts:66-73`); `routeType` и `distanceUnit` не передаются; в `coordinates` — все поля точки клиента. Снимать при создании заявки.
+- [ЗАПРОСИТЬ] Тело geo → 2ГИС (`type=statistic`, `filters`, повтор без фильтра) в браузере не видно; только лог geo уровня DEBUG (`GEO/.../BaseRestClient.java:96`) — владелец geo или DevOps.
+
+**C.4. Каталог: две сортировки и вторая страница**
+
+- [КОД] `Pageable` передаётся в Spring Data без изменений: `repository.findAll(spec, pageable)` (`TF/.../TariffServiceImpl.java:468-474`; контроллер `TariffController.java:100-110`) — оба ключа `sort=humanReadableId,asc&sort=id,asc` попадают в ORDER BY. Поддержка двух ключей подтверждена кодом.
+- [КОД] Переопределения максимума страницы нет → умолчание Spring Data 2000; больший `size` обрезается молча. Опираться на `size`/`totalPages` ответа. Фактическую настройку хранит config-server в БД — [СТЕНД].
+- [КОД] `PageImpl` сериализуется напрямую (`@EnableSpringDataWebSupport` нет): ожидаемые ключи `content`, `pageable`, `totalElements`, `totalPages`, `size`, `number`, `sort`, `first`, `last`, `numberOfElements`, `empty`. Версия Spring Data у tariff не установлена — подтвердить снимком.
+- [КОД] Экран выбора тарифа corp-passengers шлёт `POST /tariffs/search/` с `size=20`, без сортировки и типа договора (`corp-passengers/src/api/tariffs.ts:259-272`) — страница 2 даёт снимок формы. Две сортировки и `contractType` — вручную: `POST /api/tariffs/search?page=1&size=N&sort=humanReadableId,asc&sort=id,asc` с INCOME, затем с TRANSITIONAL.
+
+**C.5. Машины через contractor**
+
+- [КОД] Сырой ответ contractor в браузере не виден: client-passengers ходит в `POST /api/tariffs/calculate/transport` (`stores/Trip/DITrip.service.ts:176, 182`), corp-passengers — в `GET /api/tariffs/transport/search` (`constants.api.ts:238`); tariff берёт только `content` и отдаёт свой конверт.
+- [КОД] Косвенная проверка из интерфейса: выбор машины в client-passengers для тарифа Манжерока — tariff внутри делает тот же вызов contractor; машины показываются → цепочка учётки на стенде работает.
+- [СТЕНД] По каждому перевозчику: `contractorId` из карточки GROUP_TRANSFER или договора → `GET /api/contractors/{contractorId}/` (`CTR/.../ContractorController.java:72-75`; `contractorType`, `serviceType`, адрес интеграции; логин и пароль `jsonIntegrationParams` перед пересылкой закрыть) → `GET /api/contractors/{contractorId}/transport/?result=ID&result=BRAND&result=MODEL&result=STATE_NUMBER&page=0&size=<больше числа машин>` → сверить id с `transportIds`, элементов `content` меньше `size`. 403/5xx подтверждает B.1. Ограничение по `active` (B.2) сохраняется.
+
+### (30.10).D. Поправки к T01.4 по итогам раздела
+
+- 4.4: ключи ответа `parent_id`, `time_zone`; обоснование удаления `""` и пробельных строк (B.7).
+- 4.6 и 5.10: у TAXI `regionId` (массив из одного UUID) вместо `regionIds`; для GROUP_TRANSFER — решение по полю (C.1).
+- ФК-03: манифест полей формулы и единицы по C.1; `contractType` может отсутствовать; конец договора включительный; источник `contractorName` — договор.
+- 4.5, ФК-04: максимум `size` 2000 с молчаливым обрезанием.
+- 4.2, ФК-01, СТ-01, 3.4, 4.8, ФК-05, СТ-05, 7.2 — по B.1–B.9.
+
+### (30.10).E. Проверки на стенде (сокращённый перечень)
+
+| Что получить | Что закроет | Как снять |
+|---|---|---|
+| Ответы `taxi/{id}`, `group_transfer/{id}`, `contracts/{id}` | Применимость полей к T01.4 и остаток ФК-03 | Карточки в corp-passengers (C.1) |
+| `searchBranch` на реальный адрес, `/address` в трёх случаях | Формат ветки, родителя и пояса нужного метода; адресные кандидаты | Прямой POST; клик по карте в client-passengers (C.2) |
+| Payload `/route` | Фактические поля запроса и `transportServiceType`; единицы ответа уже подтверждены | Создание заявки; тело 2ГИС — лог geo (C.3) |
+| Страница 2 каталога с двумя sort, отдельно INCOME и TRANSITIONAL | Полный обход, второй ключ сортировки, два поиска | Вручную (C.4) |
+| `GET /api/contractors/{id}/` и `/transport/` по перевозчикам Манжерока | Работоспособность интеграции, принадлежность и полнота выдачи | Вручную; косвенно — выбор машины в client-passengers (C.5) |
+
+### (30.10).F. Исправления прежних выводов
+
+- (29.10-5), «Автомобили перевозчика»: «метод отдаёт свободные машины, занятость по `startDate`/`endDate` (`VehicleRepository.java:67-76`)» неверно для пути через contractor. contractor не передаёт `x-version` → v1 → `VehicleServiceImpl.getAllByContractorAndFilters`: машины в эксплуатации, занятые не исключаются; `findAllFreeTransport` — путь v2. Конверт v1 по исходнику transport-core 4.22-SNAPSHOT — `content`, `pageData`, `sortData` (версия у dispatcher не установлена), а `sort`/`page` — клиентский DTO tariff. Файл `T01.4_запросы_и_ответы_29.10.2026.md`, п. 2.7, устарел в этой части (не правился).
+- Уточнение 28.10.2026, строка про `regionBranch`, и (29.10-3): выход HTTP `searchBranch` записан как `{id, name, code, parentId, timeZone}` — JSON-ключи `parent_id` и `time_zone` (C.2); имена gRPC задаёт proto.
+- (29.10-5), «Карточки тарифа»: «TAXI — зоны в `regionId`» верно; уточнено, что это массив из одного UUID, а у GROUP_TRANSFER рабочее поле подбора машин — `regionIds` (C.1).
+- Замечание к T01.4 от 30.10 в чате «строка из пробелов даёт ложные отказы» неполное: возможны и ложные совпадения (B.7).
+
+---
+
 ## Журнал изменений
 - 29.09.2026 — первая редакция. Параллельно в `Вопрос ответ.docx` добавлен датированный раздел «Результаты исследования исходного кода 29.09.2026» (три таблицы, исходные таблицы сохранены без изменений).
 - 29.09.2026 (2) — добавлено уточнение по каталогу GitLab; раздел F уточнён (кандидаты `lib/core`, `lib/grpc`, приоритеты скачивания).
@@ -1153,3 +1262,4 @@ tariff берёт подразделение и должность из копи
 - 29.10.2026 (4) — сверка T01.2 от 29.10.2026 (116 правок) с позициями аналитика; проверка по коду: каталожный `/calculate` как способ проверить допуск (этапы отсечения, ошибка выбора договора), API corporate для подразделения и классов должности, контракт `/search`, пустой ответ geo, подразделение в карточках тарифа; исправлены прежние выводы об `allowed-classes` и `GET /self`.
 - 29.10.2026 (4), правка — в (29.10-4).B.6 уточнено условие загородности GROUP_TRANSFER: любые два различных значения `city`, не только «город + пусто».
 - 29.10.2026 (5) — пакет запросов и ответов для задачи 4 (файл `T01.4_запросы_и_ответы_29.10.2026.md`); новые факты: единицы и пустой ответ маршрута geo, значения `transportClass`, поля карточек и договора, прокси автомобилей перевозчика, побочные шаги расчёта по тарифу (лимиты, расходный тариф), слоты временного коэффициента TAXI.
+- 30.10.2026 — проверка T01.4 от 30.10.2026 (согласована с независимой проверкой): разрыв цепочки технической учётки перевозчика в dispatcher v1, мягко удалённые машины в выдаче, признак полноты без `pageData`, сужение ФК-01/ФК-02, потери точности geo, тип `rawTravelMs`, бюджет contractor, проекция `result=`; сведения для сокращённого запроса информации (URL и места снятия, манифест полей формулы TAXI/GROUP_TRANSFER и договора, ключи `parent_id`/`time_zone` geo-zones, `regionId`/`regionIds`, две сортировки и предел 2000 `/search`, payload `/route`, проверка машин через contractor); исправлены выводы (29.10-5) об автомобилях перевозчика и ключи ответа `searchBranch`.
