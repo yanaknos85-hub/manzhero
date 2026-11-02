@@ -4,7 +4,7 @@
 
 **Метки.** **[Код]** — подтверждено исходником. **[Локально]** — проверено вне репозитория на настоящих классах. **[Спецификация]** — правило закреплено в T01.2 или T01.4, указан раздел. **[Стенд]** — наблюдение на тестовом стенде 02.11.2026. **[Документация]** — по документации Spring Cloud Stream или Spring Data, проверить на стенде. **[Запросить]** — получить у владельцев сервисов или на стенде.
 
-**Сокращения путей.** PR — `passenger_request-main`; TF — `tariff-main (2)/.../ru/sberbank/ditsib/transport/tariff`; KF — `kafka_functional-main`; GZ — `geo-zones-main`; GEO — `geo-main`; DSP — `dispatcher-main`; CTR — `contractor-main`; AUTH — `authentication-main`; ENUMS — `as_sbertransport_libraries-main/enums/.../constants`. Снимки исходников — ветка `main`, коммит `d8287eb3`.
+**Сокращения путей.** PR — `passenger_request-main`; TF — `tariff-main (2)/.../ru/sberbank/ditsib/transport/tariff`; KF — `kafka_functional-main`; GZ — `geo-zones-main`; GEO — `geo-main`; DSP — `dispatcher-main`; CTR — `contractor-main`; AUTH — `authentication-main`; CFG — `config-server-main/_documents/scripts/D-03.018.000/after`; ENUMS — `as_sbertransport_libraries-main/enums/.../constants`. Снимки исходников — ветка `main`, коммит `d8287eb3`.
 
 ## Коротко
 
@@ -17,8 +17,8 @@
 - **Первая точка** — `GET /address` только с координатами: `200 []` → 400 `VALIDATION_ERROR`, 417 → 502. Достаточно одного совместимого адресного кандидата.
 - **Территория и пояс** — `POST /searchBranch`; ключи ответа `parent_id` и `time_zone`; смещение пояса приводится к виду `+03:00`. Для GET и списка контекст кэшируется.
 - **Машины CAR_CHOICE** — contractor → dispatcher v1: машины в эксплуатации, признак мягкого удаления `active` не проверяется (принятое ограничение). Рабочая цепочка технической учётки перевозчика по коду не подтверждена — первая проверка на стенде.
-- **Стенд** — шлюз `https://api.stage.platform.isbt.tech/api/<сервис>/...`, вход через `POST /api/auth/login`, токен живёт 15 минут. Swagger сервисов подрядчику недоступен — п. 2.1.
-- **Открыто:** тестовые учётки ADMIN и data master, брокеры Kafka, тестовое сообщение, права в БД, система каждого перевозчика Манжерока, настройки среды, тестовые данные — раздел 4.
+- **Стенд** — шлюз `https://api.stage.platform.isbt.tech/api/<сервис>/...`, вход через `POST /api/auth/login`, токен живёт 15 минут — п. 2.1.
+- **Открыто:** тестовые учётки, адрес брокеров Kafka, процедура сброса смещений, SLA и таймауты, срок свежести территориального контекста, тестовые данные — раздел 3.
 
 ## 1. Kafka `service.request`
 
@@ -29,15 +29,14 @@
 | Параметр | Значение | Основание |
 |---|---|---|
 | Топик | `service.request`; у сервиса заявок — биндинг продюсера `requestOutput-out-0` | PR `kafka.yml:225-226` |
-| Брокеры | `spring.cloud.stream.kafka.binder.brokers: ${KAFKA_BROKERS}` (у сервиса заявок — внутри `binders.kafka.environment`); в репозитории только заглушка сборки | PR `kafka.yml:16-17` |
-| Ключ | `id` заявки. Сериализатор ключа — `JsonSerializer`, поэтому UUID приходит JSON-строкой в кавычках. Потребители платформы читают ключ через `JsonDeserializer`; при `StringDeserializer` кавычки нужно снять | KF `OutputBridge.java:148`; PR `kafka.yml:18-21` |
+| Брокеры | На средах адрес биндера `kafka` задаёт Config Server: `spring.cloud.stream.binders.kafka.environment.spring.cloud.stream.kafka.binder.brokers = ${kafka.plaintext.brokers}`. Значения подстановки в репозиториях нет; в `kafka.yml` сервиса заявок — заглушка `${KAFKA_BROKERS}` | CFG `configs.sql:58`; PR `kafka.yml:16-17` |
+| Ключ | `id` заявки. Сериализатор ключа — `JsonSerializer`, поэтому UUID приходит JSON-строкой в кавычках. Потребителям биндера `kafka` Config Server по умолчанию задаёт `JsonDeserializer` ключа; при `StringDeserializer` кавычки нужно снять | KF `OutputBridge.java:148`; PR `kafka.yml:18-21`; CFG `configs.sql:43` |
 | Заголовки | `contentType=application/json`, `transportType`, `messageId`, `fraudHandled`, `principal`. `messageId` — новый UUID при каждой отправке: повтор того же состояния придёт с другим значением | KF `OutputBridge.java:74, 149`; PR `BaseRequestSender.java:34-38` |
-| Свойства топика | По умолчанию `compression.type=gzip`, `cleanup.policy=compact,delete`, `retention.ms=604800000` (7 дней); переопределяются окружением. `auto-alter-topics=true`: сервис заявок может менять свойства топика | PR `kafka.yml:22-29` |
-| Безопасность | В сервисе заявок SSL не настроен. fraud-monitoring читает через отдельный биндер `kafka-ssl` с группой `<имя>-ssl`; параметров этого биндера в репозиториях нет | fraud-monitoring `application-kafka-ssl.yml` |
+| Свойства топика | В `kafka.yml`: `compression.type=gzip`, `cleanup.policy=compact,delete`, `retention.ms=604800000` (7 дней). На средах Config Server подставляет `${kafka.message.ttl}` и `${kafka.message.cleanupPolicy}`. `auto-alter-topics=true`: сервис заявок может менять свойства топика | PR `kafka.yml:22-29`; CFG `configs.sql:7, 9, 41, 95` |
 
 Образец потребителя — reports: `destination: service.request`, `group: ${spring.application.name}` (`passenger_reports-main/.../application.yml:37-39`). Для FavoriteRoute — своя стабильная группа, отдельная от групп других сервисов (T01.2, раздел 6).
 
-**[Запросить]** адреса брокеров стенда и продуктива; протокол безопасности, сертификаты, учётную запись и ACL на чтение для группы FavoriteRoute; фактические `retention.ms` и `cleanup.policy` топика.
+**[Запросить]** значение `kafka.plaintext.brokers` для стенда и чтение `service.request` через это подключение без SSL; фактические срок хранения и политику очистки топика; нужно ли заранее заводить группу FavoriteRoute.
 
 ### 1.2. Схема сообщения
 
@@ -56,14 +55,6 @@
 Остальные поля: `timeZone` (78); `waypoints[]` (98) — `id`, `address`, `waitTime`, `checkinAutomatic`, `checkinManual`, `absenceReason`, `orderingIndex`; `tariffId` и `outcomeTariffId` (108, 113); `desiredDate` (143); `expected` (203) — `cost` и `outcomeCost` в копейках, `distance` в км, `time`; `contractorId` (244).
 
 **[Код]** Полей `favoriteRouteId` и `favoriteRouteVersion` нет. Их добавление в сервис заявок — доработка T04.1; до неё потребитель не получит ссылку на маршрут.
-
-**[Спецификация]** T01.2, раздел 6 и «Сервис заявок». Наличие ссылки определяется по значениям, а не по ключам:
-
-- оба значения не заданы — ссылки нет; допустимы отсутствие ключей, два `null` и сочетание отсутствующего ключа с `null`. Прежняя связь удаляется;
-- задано ровно одно значение — некорректная частичная пара: прежняя связь сохраняется, событие диагностируется;
-- заданы оба — проверяются UUID и версия; версия `0` — заданное значение.
-
-Основание: пустые поля сообщения опускаются или приходят как `null` в зависимости от версии Spring Cloud Function (п. 1.3).
 
 ### 1.3. Даты, длительности и пустые поля
 
@@ -91,7 +82,7 @@
 
 Ветку на реальном сообщении однозначно видно по `expected.time` или `waitTime`: строка `PT…` — 4.2 (миллисекунды), число с дробью — 4.1 (наносекунды). Это верно, если Config Server не переопределяет `spring.jackson.*`.
 
-**[Запросить]** реальные сообщения TAXI и GROUP_TRANSFER со стенда (с заполненным `expected` и ожиданием в точке); версию `spring-cloud-function-context` в сервисе заявок (`mvn dependency:tree` или список `BOOT-INF/lib` образа); `spring.jackson.*` из Config Server.
+Тестового сообщения у нас нет: ветку и единицу доли определить по первому сообщению, прочитанному на стенде.
 
 ### 1.4. Терминальные статусы
 
@@ -99,7 +90,6 @@
 
 - Терминальные: `TAXI_CANCELLED` (29), `TAXI_TRIP_FINISHED` (79), `GROUP_TRANSFER_CANCELLED` (421), `GROUP_TRANSFER_TRIP_FINISHED` (461).
 - Нетерминальные для обоих видов транспорта: `*_AWAITING_APPROVAL`, `*_APPROVED`, `*_AWAITING_SEARCH`, `*_DRIVER_SEARCH`, `*_DRIVER_FOUND`, `*_DRIVER_ON_THE_WAY`, `*_DRIVER_ARRIVED`, `*_TRIP_IN_PROGRESS`. Только у TAXI: `TAXI_FREE_TIME_EXPIRED`, `TAXI_WAYPOINT_ARRIVED`. Общий `GENAI_CHECK` (155) тоже нетерминальный.
-- **[Спецификация]** T01.2: неизвестное имя сохраняется и считается блокирующим; обратный переход из терминального статуса применяется; в DELETE терминальная связь перечитывается, только если её возраст от `updated_at` строго меньше N часов.
 
 ### 1.5. Смещения, повторы и восстановление
 
@@ -112,12 +102,12 @@
 Настройки потребителя FavoriteRoute:
 
 - **[Спецификация]** T01.2, раздел 6: offset подтверждается только после успешного применения или предусмотренной фиксации отклонённого сообщения; ошибка БД успехом не считается. Новая группа читает с начала доступной истории; автоматический переход на `latest` запрещён.
-- **[Документация]** Группа с явным именем при первом подключении начинает с самого раннего смещения: Spring Cloud Stream ставит `startOffset=earliest`. При `compact,delete` и 7 днях новая группа получит последние состояния заявок примерно за 7 дней. Проверить на версии биндера стенда.
-- DLQ (`enableDlq: true`) — только для некорректного payload: разбор, схема, `creationTime`. По документации биндера имя DLQ по умолчанию — `error.service.request.<группа>`.
+- **[Документация]** Группа с явным именем при первом подключении начинает с самого раннего смещения: Spring Cloud Stream ставит `startOffset=earliest`. При значениях по умолчанию (`compact,delete`, 7 дней) новая группа получит последние состояния заявок примерно за 7 дней. Проверить на версии биндера стенда.
+- DLQ — только для некорректного payload: разбор, схема, `creationTime`. По документации биндера имя DLQ по умолчанию — `error.service.request.<группа>`.
+- **[Код]** На средах Config Server уже включает DLQ всем потребителям биндера `kafka` (`enableDlq=true`, CFG `configs.sql:84`). Без своей обработки ошибка БД после исчерпания попыток уйдёт в DLQ, а смещение подтвердится.
 - Для ошибки БД нужен повтор с паузой без фиксации смещения. `autoCommitOnError: true`, как у reports, и `maxAttempts: 1` с `defaultRetryable: false`, как у fraud-monitoring, для FavoriteRoute не подходят.
-- Оповещения: лаг группы, остановка потребителя, сброс смещения клиентом Kafka при выходе за срок хранения.
 
-**[Запросить]** процедуру сброса смещений группы на стенде и в продуктиве и ответственного; фактический срок хранения и политику очистки.
+**[Запросить]** процедуру сброса смещений группы на стенде и в продуктиве.
 
 ## 2. T01.4 — расчёт, тарифы, территория
 
@@ -141,12 +131,10 @@
 
 Не используются: общая карточка `GET /{transportTypeId}/{tariffId}`, каталожный `POST /calculate`, `/calculate/transport…`, `POST /contracts/search`, geo `/region` (заглушка «Москва»), gRPC.
 
-- **[Код]** Авторизация — `Authorization: Bearer <JWT пользователя-инициатора>`, тот же токен, что пришёл в FavoriteRoute; сервисные учётки не нужны. Заголовок `x-client-type` зависимостям не нужен: его читает только authentication при входе.
+- **[Код]** Авторизация — `Authorization: Bearer <JWT пользователя-инициатора>`, тот же токен, что пришёл в FavoriteRoute; сервисные учётки не нужны.
 - **[Стенд]** Для ручных проверок — вход тестовым пользователем в веб-клиент `https://client-corp-ext.stage.platform.isbt.tech`. Токен выдаёт authentication: `POST /api/auth/login` с Basic-учётными данными (**[Код]** `AuthenticationController.java:40-48`, шлюз `/api/auth/**`). Запрос и токен видны во вкладке Network.
-- **[Стенд]** Токен — RS512, `iss` SberTransport, срок жизни 15 минут (**[Код]** настройка `jwt.expire.*`, в коде значения нет). Если токен истёк во время операции, зависимость ответит 401 — это `DEPENDENCY_ERROR` (T01.4, 6.1). Для ручных проверок после 15 минут нужен повторный вход.
-- **[Спецификация]** Роли FavoriteRoute — EMPLOYEE, ADMIN, ENGINEER (любая из трёх); `data_master` — признак в JWT, а не роль (T01.2, раздел 2).
-- **[Стенд]** В токене роли — массив `roles` с кодами вида `ROLE_EMPLOYEE_CORP_CLIENT`, как в таблице ролей T01.2; `data_master` — отдельное поле `true`/`false`.
-- **[Стенд]** Swagger сервисов стенда подрядчику недоступен (политика конфиденциальности). Контракты — по T01.4 и ответам, снятым в веб-клиенте.
+- **[Стенд]** Токен живёт 15 минут (**[Код]** настройка `jwt.expire.*`). Если токен истёк во время операции, зависимость ответит 401 — это `DEPENDENCY_ERROR` (T01.4, 6.1). Для ручных проверок после 15 минут нужен повторный вход.
+- **[Спецификация]** Роли FavoriteRoute — EMPLOYEE, ADMIN, ENGINEER (любая из трёх); `data_master` — признак в JWT, а не роль (T01.2, раздел 2). **[Стенд]** В токене роли — массив `roles` с кодами вида `ROLE_EMPLOYEE_CORP_CLIENT`; `data_master` — отдельное поле `true`/`false`.
 - **[Код]** Права на зависимости: geo пускает с любым действующим JWT. tariff и geo-zones проверяют права по таблицам `urls` и `roles` в БД среды (role_check_starter); в миграциях репозиториев назначений нет. Права contractor не проверялись.
 - **[Спецификация]** Доступ к тарифу: FavoriteRoute доверяет отбору tariff-main и не воспроизводит правила подразделения и должности (T01.2, «Тарифный сервис»; T01.4, 1.2). Независимо проверяются `organizationId` тарифа и вхождение организации в `organizationIds` договора. Ответ 403 тарифного API — технический отказ 502 `DEPENDENCY_ERROR`, а не непригодность тарифа.
 - **[Код]** Таймауты клиентов в конфигурации не заданы, SLA в репозиториях нет. В T01.4 это параметры среды `Tgeo`, `Tzones`, `Ttariff`, `Tcontractor` (7.1).
@@ -170,7 +158,6 @@
 - **[Код]** В 2ГИС уходят только latitude, longitude и type (GEO `GeoServiceClientImpl.processCoordinates:249-265`). `distanceUnit` в 2ГИС не передаётся вовсе, деление на 1000 задано в GEO `application.yml:167`. Ключ `unit` из тестов geo в DTO нет — не использовать.
 - **[Код]** + **[Локально]** Ответ: `distance` — JSON number (Double), км, без округления; `time` — JSON integer, мс (`DurationMillisConverter`), разрешение источника — 1 с. Контрольный пример: 1234,5 м и 123 с → `"distance":1.2345,"time":123000`.
 - Пустой штатный ответ: `{"waypoints":[],"distance":0.0,"time":0,"segments":[]}` (GEO `GeoControllerImpl.java:42-52`) → `ROUTE_NOT_BUILT`. Если у одной пары точек маршрута нет, а у других есть, geo отвечает 500 (GEO `RouteServiceImpl.java:79`) → `DEPENDENCY_ERROR`.
-- **[Код]** Потери точности на стороне geo: время каждой пары усекается до целых секунд (`RouteServiceImpl.java:196`); при отсутствии общего времени — сумма манёвров с усечением на каждом шаге (`:209`); расстояние пар складывается в double (`fillRoute:151-152`). Пример: 1,5 м + 573 м → 0.5744999999999999 → `totalKm` 0.574. Адаптер это не исправляет.
 - Метрики FavoriteRoute: `totalKm` — half-up до 3 знаков; `travelTime` и `totalTime` — half-up до 0,1 минуты; ожидание не прибавляется к `rawTravelMs` и учитывается в цене один раз (T01.4, 5.3). `rawTravelMs` — integer (int64).
 
 ### 2.3. Первая точка `GET /address`
@@ -187,7 +174,7 @@
 **[Спецификация]** T01.4, 4.4 и 5.1; T01.2, «Геозоны и часовой пояс».
 
 - Запрос `POST /api/geo-zones/searchBranch`, тело — непустые `region`, `district`, `city`, `street`, `house`. Перед запросом из копии адреса удаляются пустые и пробельные строки, включая `city=""`.
-- **[Код]** Почему это обязательно: в geo-zones пустая строка совпадает с любым родителем (`parent.getName().contains("")`), а строка из пробелов совпадает только с многословными названиями (GZ `SearchRepositoryImpl.java:94-112`). `country` в поиске не участвует (GZ `GeoZoneCasesImpl.java:136-140`).
+- **[Код]** `country` в поиске не участвует (GZ `GeoZoneCasesImpl.java:136-140`).
 - **[Код]** Ответ — массив от подробной зоны к корню: `{"id","name","code","parent_id","time_zone"}` (GZ `GeoZoneDto.java:45, 49`, `GeoZoneProviderImpl.java:101-109`). У корня ключа `parent_id` нет; у зоны без пояса нет `time_zone`; ничего не найдено — `[]`.
 - Пояс — первый непустой `time_zone` от подробной зоны к корню. IANA-имя (`Asia/Barnaul`) передаётся без изменения; смещение приводится к виду `±HH:MM` (`"+3"` → `"+03:00"`) до формирования `CalculationRequest` и `inputDigest`. Пусто или некорректно → 503 `CONTEXT_NOT_READY`.
 - Контекст для GET карточки и списка (включая `checkTariff`) кэшируется в FavoriteRoute: ключ — канонический JSON нормализованного тела `searchBranch`, срок — параметр T01.2 «Свежесть территориального контекста». Создание, изменение, `/calculate`, продление и availability получают ветку заново. Подробно — T01.4, 5.1, абзац «Контекст для чтения».
@@ -241,15 +228,13 @@ POST /api/tariffs/search?page=0&size=20&sort=humanReadableId,asc&sort=id,asc
 | Опции (`vip`, `information`) | не передавать |
 
 - **[Код]** Точный расчёт берёт `timeZone` из запроса без пересчёта по региону (TF `CalculateServiceImpl.java:84-99`, `getTripTime:327-339`); Java принимает и IANA-имя, и `+03:00`.
+- **[Стенд]** В Network веб-клиента сотрудника при создании заявки виден каталожный `POST /api/tariffs/calculate`. `distance`, `time`, `tripDate`, `waitingTime` и `startPoint` в нём того же формата, что в таблице выше. Но `timeZone` там — пояс браузера (`"GMT+03"`): каталожный расчёт сам заменяет его поясом зоны, а точный этого не делает. Поэтому копировать `timeZone` из веб-клиента нельзя — для Манжерока (UTC+7) время поездки сдвинется на 4 часа.
 - **[Код]** Ответ `CalculatedDto`: `id` (это `tariffId`, сверяется с запрошенным), `cost` в копейках, округлён до 100 (`:715-729`). `outcomeTariffId` и `outcomeCost` не используются. Тариф не найден или неактивен — 404.
 
-### 2.8. Ожидание, нейтральный момент и формулы
+### 2.8. Ожидание и нейтральный момент
 
 - **[Локально]** `waitTime` — целое число миллисекунд: `60000` = 1 минута в обеих формулах. Ключ обязателен: при его отсутствии — `NullPointerException`. Строка `"PT1M"` даст 0 минут, поэтому в DTO адаптера нужен `long`, а не `Duration`.
-- **[Код]** TAXI: бесплатное ожидание вычитается только из ожидания первой точки, которое FavoriteRoute передаёт как 0; промежуточное ожидание оплачивается целиком по `waitCostPerMinIntermediate` (TF `CalculateServiceImpl.java:1016-1036`). GROUP_TRANSFER: `freeWaitingTime` вычитается на каждой точке, маршрут, у которого округлённые километры меньше `minKm` или минуты меньше `minMin`, стоит только `minRideCost` (`:872-874`); иначе `minRideCost` — базовая часть, к которой прибавляются километры и минуты сверх минимумов и ожидание (`:896-897`). Нулевые городские или загородные ставки заменяются `rideCostPerKm` и `rideCostPerMin` (`:887-891`).
 - **[Код]** Временные полосы TAXI: пн–пт 07–10, 10–18, 18–22, 22–07; сб и вс — `coefDayOff` весь день. В будни 06:00–07:00 действует ночной коэффициент. **[Спецификация]** T01.4, 5.6: среди семи дат от `referenceDate` выбирается самый ранний момент с коэффициентом ровно 1.0 в окне маршрута и сроке договора; нет такого момента → `CALCULATION_MODE_UNAVAILABLE`.
-- **[Код]** Пробки TAXI: множитель `1 + coefTraffic × (score − порог)` при `score ≥ порог` (`:1050-1070`). При `trafficJamScore = 0` надбавки нет, если порог ≥ 0 или `coefTraffic = 0`. Значение `traffic.threshold` на стенде — запросить.
-- **[Код]** Загородные метрики TAXI взять негде; цена без них принимается как справочная. GROUP_TRANSFER считается загородным при любых двух разных значениях `city`, включая «город и пусто»; если `city` нет ни у одной точки — городские ставки (`:876`).
 
 ### 2.9. Автомобили перевозчика (CAR_CHOICE)
 
@@ -263,39 +248,25 @@ GET /api/contractors/{contractorId}/transport/?result=ID&result=BRAND&result=MOD
 - **[Код]** contractor не передаёт `x-version` → dispatcher v1: машины перевозчика в эксплуатации (`in_exploitation = true`), занятые не исключаются (DSP `VehicleServiceImpl.java:354`). Мягкое удаление ставит `active = false` (DSP `Vehicle.java:43`) и в выдаче не учитывается. **[Спецификация]** ВР-04: это принятое ограничение — найденная машина из `transportIds` тарифа допустима, собственная проверка `active` не делается.
 - **[Код]** Без `result` dispatcher уходит в ветку истории поездок за большой период — `result` передавать всегда, все четыре значения.
 - **[Код]** Полнота: v1 читает весь список перевозчика одним SQL и режет страницу в памяти (DSP `VehicleServiceImpl.java:184-222`); максимума `size` нет. **[Спецификация]** `page=0` и элементов `content` меньше `size` → список получен целиком; ровно `size` — полнота не доказана. `pageData` и `sortData` проверяются, только если пришли. Отсутствие машины доказывается только полной выдачей; неполнота — технический исход, а не `TRANSPORT_INVALID`.
-- **[Код]** Ответ v1 по исходнику transport-core: `content[]` с `id`, `brand`, `model`, `stateNumber`, `trips: []`, плюс `pageData` и `sortData`. Версия transport-core у dispatcher на стенде не установлена.
+- **[Код]** Ответ v1 по исходнику transport-core: `content[]` с `id`, `brand`, `model`, `stateNumber`, `trips: []`, плюс `pageData` и `sortData`.
 - **[Код]** Риск: цепочка технической учётки в коде не замыкается. Учётку регистрирует dispatcher (DSP `IntegrationClientServiceImpl.java:32-57`), `jti` её токена — случайный id (AUTH `AccountCasesImpl.java:300-331`, `AccessTokenProviderImpl.java:117`). Но v1 ищет `jti` только среди id перевозчика, диспетчера и `oauthId` (DSP `AuthCheckServiceImpl.java:22-33`) и таблицу этой учётки не читает; иначе — 403. **[Спецификация]** СТ-05: первым шагом проверить реальный вызов по каждому перевозчику Манжерока; без 200 и ожидаемых машин CAR_CHOICE не выпускается.
 
-## 3. Контракт страницы `FavoriteRoutePage`
+## 3. Что запрашиваем
 
-- **[Код]** Поля `numberOfElements`, `first`, `last`, `empty` и `sort` объявлены в типах фронтенда, но ни один экран их не читает. Пагинация на Ant Design 4.17.2 использует `content`, `totalElements` и номер страницы.
-- **[Спецификация]** T01.2: `FavoriteRoutePage` содержит `content`, `number`, `size`, `totalElements`, `totalPages`. Во фронтенде не переиспользовать `createPagination` (он требует `pageable`); номер страницы брать из `number`, как в `GroupTransferRegistryTable.tsx:153`.
+Эти данные запрошены у архитектора; передадим по мере получения.
 
-## 4. Что запросить
-
-| Что | У кого |
-|---|---|
-| Тестовые пользователи EMPLOYEE, ADMIN, ENGINEER в организации Манжерока, один — с признаком data master (у имеющейся учётки нет ADMIN и data master) | DevOps, администратор стенда |
-| Права этих ролей в `urls` и `roles` на пути tariff и geo-zones из п. 2.1; права на contractor `/{contractorId}/transport/` | Владельцы tariff, geo-zones, contractor |
-| Брокеры Kafka стенда и продуктива, протокол безопасности, сертификаты, учётная запись и ACL для группы FavoriteRoute | Владельцы Kafka, DevOps |
-| Фактические `retention.ms` и `cleanup.policy` топика `service.request`; процедура сброса смещений и ответственный | Владельцы Kafka, DevOps |
-| Версия `spring-cloud-function-context` сервиса заявок, `spring.jackson.*` в Config Server, реальные сообщения TAXI и GROUP_TRANSFER | Команда сервиса заявок |
-| `favoriteRouteId` и `favoriteRouteVersion` в `service.request` и в GET заявки по id (T04.1) | Команда сервиса заявок |
-| Система каждого перевозчика Манжерока (`GET /api/contractors/{id}/`: `contractorType`, `serviceType`); реальный ответ `/transport/` с `result=` | Владелец интеграции, стенд |
-| Снимается ли признак «в эксплуатации» при удалении машины | Владелец dispatcher |
-| Версии geo, geo-zones, tariff, contractor, dispatcher и библиотек на стенде; артефакт `ru.sber.transport:collections` 4.6 | DevOps, манифесты сборок |
-| SLA и таймауты tariff, geo, geo-zones, contractor; максимум `size` в tariff из Config Server; `traffic.threshold` | Владельцы сервисов |
-| Значение срока «Свежесть территориального контекста»; механизм передачи `correlationId` | Архитектор, DevOps |
-| По одному реальному ответу `taxi/{id}`, `group_transfer/{id}`, `contracts/{id}`; `searchBranch` на адрес Манжерока; `/address` для углового здания, нескольких адресов и точки вне здания | Стенд |
+- Тестовые пользователи EMPLOYEE, ADMIN, ENGINEER в организации Манжерока, один — с признаком data master (у имеющейся учётки нет ADMIN и data master).
+- Kafka: значение `kafka.plaintext.brokers` для стенда; читается ли `service.request` через это подключение без SSL; фактические срок хранения и политика очистки топика; нужно ли заранее заводить группу FavoriteRoute.
+- Процедура сброса смещений группы на стенде и в продуктиве.
+- SLA и таймауты tariff, geo, geo-zones, contractor.
+- Значение срока «Свежесть территориального контекста».
 
 Тестовых данных в репозиториях нет: в миграциях geo-zones, tariff и contractor не найдено ни зон Республики Алтай, ни тестовых тарифов и автомобилей. Для стенда нужны:
 
-- организация Манжерока с `digitId`; пользователи с ролями EMPLOYEE, ADMIN, ENGINEER и data master;
+- организация Манжерока с `digitId`;
 - зоны geo-zones для Манжерока с поясом (IANA-имя или смещение);
 - тарифы TAXI — дневной и ночной, с нулевыми и ненулевыми загородными ставками;
 - тарифы GROUP_TRANSFER с периодом, в том числе `TRANSFER_CAR_CHOICE` с машинами перевозчика Манжерока; тариф, у которого `regionIds` отличается от `regionId`;
 - договоры INCOME и TRANSITIONAL — действующий, истёкший и будущий; два договора одного класса;
 - общий тариф и тариф подразделения;
-- точка без здания в зоне Манжерока (поле, вода);
-- заявки в терминальных и нетерминальных статусах;
-- сотрудник без подразделения: corporate отвечает на него 500, и этот случай не нужно разбирать как сбой FavoriteRoute.
+- точка без здания в зоне Манжерока (поле, вода).
